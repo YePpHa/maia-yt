@@ -1,0 +1,6 @@
+# Modules
+node_modules
+yarn.lock
+
+# Distribution
+dist
