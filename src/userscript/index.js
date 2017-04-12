@@ -1,9 +1,9 @@
 import * as storage from '../core/storage';
-import Storage from 'goog/storage/storage';
 import GreaseMonkeyMechanism from './storage/mechanism/greasemonkeymechanism';
 
-import math from 'goog/math/math';
-import Box from 'goog/math/box';
+import Storage from 'goog:goog.storage.Storage';
+import math from 'goog:goog.math';
+import Box from 'goog:goog.math.Box';
 
 // Set the storage method.
 storage.setInstance(new Storage(new GreaseMonkeyMechanism()));

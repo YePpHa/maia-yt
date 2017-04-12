@@ -1,7 +1,7 @@
-import IterableMechanism from 'goog/storage/mechanism/iterablemechanism';
-import ErrorCode from 'goog/storage/mechanism/errorcode';
-import iter from 'goog/iter/iter';
-import asserts from 'goog/asserts/asserts';
+import IterableMechanism from 'goog:goog.storage.mechanism.IterableMechanism';
+import ErrorCode from 'goog:goog.storage.mechanism.ErrorCode';
+import iter from 'goog:goog.iter';
+import asserts from 'goog:goog.asserts';
 
 const STORAGE_AVAILABLE_KEY_ = '__sak';
 
