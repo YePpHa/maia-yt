@@ -33,7 +33,7 @@ export default class GreaseMonkeyMechanism extends IterableMechanism {
   /** @override */
   get(key) {
     var value = GM_getValue(key);
-    if (!goog.isString() && !goog.isNull(value)) {
+    if (!goog.isString(value) && !goog.isNull(value)) {
       throw ErrorCode.INVALID_VALUE;
     }
     return value;
