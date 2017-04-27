@@ -23,7 +23,7 @@ exports.closureCompiler = function(entryPoint, output, externs, defines, output_
   output_wrapper = output_wrapper || '(function(){\n%output%\n}).call(this)';
 
   return gulp.src(src, { base: '../' })
-    .pipe(sourcemaps.init())
+    //.pipe(sourcemaps.init())
     .pipe(closureCompiler({
         js: libs,
         define: definesC,
@@ -39,6 +39,6 @@ exports.closureCompiler = function(entryPoint, output, externs, defines, output_
         externs: externs,
         assume_function_wrapper: true
       }))
-    .pipe(sourcemaps.write('/'))
+    //.pipe(sourcemaps.write('/'))
     .pipe(gulp.dest(dist));
 };
