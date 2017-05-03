@@ -29,7 +29,7 @@ export const PortState = {
 
 export class MessageEvent extends Event {
   /**
-   * @param {?string} payload the payload.
+   * @param {?Object} payload the payload.
    * @param {Object=} opt_target optional target.
    */
   constructor(payload, opt_target) {
@@ -37,7 +37,7 @@ export class MessageEvent extends Event {
 
     /**
      * The payload.
-     * @type {?string}
+     * @type {?Object}
      */
     this.payload = payload;
   }
@@ -212,7 +212,7 @@ export class ChannelPort extends EventTarget {
 
   /**
    * Sends payload.
-   * @param {?string} payload the payload to send.
+   * @param {?Object} payload the payload to send.
    */
   send(payload) {
     if (this.getState() !== PortState.CONNECTED)
