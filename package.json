@@ -6,7 +6,8 @@
   "scripts": {
     "build": "gulp build",
     "build:userscript": "gulp build:userscript",
-    "test": "gulp test:closure"
+    "test": "gulp test",
+    "test:closure": "gulp test:closure",
   },
   "author": "Jeppe Rune Mortensen <jepperm@gmail.com>",
   "license": "MIT",
