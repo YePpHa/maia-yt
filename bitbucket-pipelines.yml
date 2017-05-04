@@ -1,0 +1,14 @@
+pipelines:
+  default:
+    - step:
+        script: # Modify the commands below to build your repository.
+          - yarn global add gulp-cli
+          - yarn install
+          - yarn test
+  tags:
+    release-*:
+     - step:
+        script:
+          - yarn global add gulp-cli
+          - yarn install
+          - yarn build
