@@ -1,4 +1,4 @@
-image: launcher.gcr.io/google/nodejs
+image: google/nodejs
 pipelines:
   default:
     - step:
