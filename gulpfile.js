@@ -5,6 +5,8 @@ var gulp = require('gulp')
 
 var injectFile = path.join(__dirname, 'tmp', 'maia.inject.js');
 
+gulp.task('build', ['build:userscript']);
+
 gulp.task('build:inject', function() {
   return closureGulp({
     entry_point: '/src/js/inject/index',
@@ -29,6 +31,8 @@ gulp.task('build:userscript', ['build:inject'], function() {
     output_wrapper: metadataBlock + '(function(){\n%output%\n}).call(this)'
   });
 });
+
+gulp.task('test', ['test:closure']);
 
 gulp.task('test:closure', ['test:closure:inject', 'test:closure:userscript']);
 gulp.task('test:closure:inject', function() {
