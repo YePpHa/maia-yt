@@ -3,7 +3,7 @@ branches:
   only:
     - master
 matrix:
-  - node_js: node
+  - node_js: 7
     before_script: yarn global install gulp
     install: yarn install
     script: yarn test
