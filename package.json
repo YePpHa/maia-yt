@@ -7,7 +7,7 @@
     "build": "gulp build",
     "build:userscript": "gulp build:userscript",
     "test": "gulp test",
-    "test:closure": "gulp test:closure",
+    "test:closure": "gulp test:closure"
   },
   "author": "Jeppe Rune Mortensen <jepperm@gmail.com>",
   "license": "MIT",
