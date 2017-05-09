@@ -3,6 +3,7 @@ node_js: "7"
 branches:
   only:
     - master
+    - /^greenkeeper/.*$/
 matrix:
   - node_js: "7"
     before_script: yarn global install gulp

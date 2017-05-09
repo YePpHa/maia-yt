@@ -1,4 +1,6 @@
 # maia-yt
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/YePpHa/maia-yt.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/YePpHa/maia-yt.svg?branch=master)](https://travis-ci.org/YePpHa/maia-yt)
 
 Currently codenamed maia-yt is a userscript (and browser extension) that
