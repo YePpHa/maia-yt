@@ -1,8 +1,7 @@
-import Disposable from 'goog:goog.Disposable';
-import EventHandler from 'goog:goog.events.EventHandler';
 import Map from 'goog:goog.structs.Map';
 import Promise from 'goog:goog.Promise';
 import { ChannelPort, EventType, MessageEvent } from '../messaging/channelport';
+import { Component } from '../core/component';
 
 /**
  * @enum {!string}
@@ -73,7 +72,7 @@ class ServiceInstance {
   }
 }
 
-export class ServicePort extends Disposable {
+export class ServicePort extends Component {
   /**
    * @param {?ChannelPort} port the port.
    */
@@ -85,17 +84,6 @@ export class ServicePort extends Disposable {
      * @private {?ChannelPort}
      */
     this.port_ = port;
-
-    /**
-     * Whether the
-     * @private {?boolean}
-     */
-    this.inDocument_ = false;
-
-    /**
-     * @private {?goog.events.EventHandler}
-     */
-    this.handler_ = null;
 
     /**
      * The service map.
@@ -119,29 +107,14 @@ export class ServicePort extends Disposable {
   disposeInternal() {
     super.disposeInternal();
 
-    if (this.handler_) {
-      this.handler_.dispose();
-    }
     if (this.port_) {
       this.port_.dispose();
     }
 
-    delete this.port_;
-    delete this.handler_;
-    delete this.services_;
-    delete this.serviceInstances_;
-    delete this.servicesResponseId_;
-  }
-
-  /**
-   * Returns the event handler.
-   * @return {?goog.events.EventHandler} the event handler.
-   */
-  getHandler() {
-    if (!this.handler_) {
-      this.handler_ = new EventHandler(this);
-    }
-    return this.handler_;
+    this.port_ = null;
+    this.services_ = null;
+    this.serviceInstances_ = null;
+    this.servicesResponseId_ = null;
   }
 
   /**
@@ -156,24 +129,9 @@ export class ServicePort extends Disposable {
    * Enter the channel into the document.
    */
   enterDocument() {
+    super.enterDocument();
     this.getHandler()
       .listen(this.getPort(), EventType.MESSAGE, this.handleMessage_, false);
-  }
-
-  /**
-   * Exit the channel from the document.
-   */
-  exitDocument() {
-    this.getHandler()
-      .removeAll();
-  }
-
-  /**
-   * Returns whether the channel has been connected to the document.
-   * @return {?boolean} whether the channel has been connected to the document.
-   */
-  isInDocument() {
-    return this.inDocument_;
   }
 
   /**

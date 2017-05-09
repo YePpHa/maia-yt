@@ -1,11 +1,10 @@
-import EventTarget from 'goog:goog.events.EventTarget';
-import EventHandler from 'goog:goog.events.EventHandler';
 import Event from 'goog:goog.events.Event';
 import Map from 'goog:goog.structs.Map';
 import json from 'goog:goog.json';
 import { ChannelPort, PortState } from './channelport';
 import { createCustomEvent } from './customevent';
 import { DomEventType } from './channeleventtype';
+import { Component } from '../core/component';
 
 /**
  * @enum {!string}
@@ -30,7 +29,7 @@ export class PortEvent extends Event {
   }
 }
 
-export class Channel extends EventTarget {
+export class Channel extends Component {
   /**
    * @param {?string} name the channel name.
    */
@@ -43,18 +42,6 @@ export class Channel extends EventTarget {
     this.name_ = name;
 
     /**
-     * The event handler of the channel.
-     * @private {?goog.events.EventHandler}
-     */
-    this.handler_ = null;
-
-    /**
-     * Whether the channel has been connected to the document.
-     * @private {?boolean}
-     */
-    this.inDocument_ = false;
-
-    /**
      * @protected {?goog.structs.Map<string, ChannelPort>}
      */
     this.ports_ = new Map();
@@ -63,47 +50,16 @@ export class Channel extends EventTarget {
   /** @override */
   disposeInternal() {
     super.disposeInternal();
-
-    if (this.handler_) {
-      this.handler_.dispose();
-    }
-    this.handler_ = null;
-  }
-
-  /**
-   * Returns whether the channel has been connected to the document.
-   * @return {?boolean} whether the channel has been connected to the document.
-   */
-  isInDocument() {
-    return this.inDocument_;
   }
 
   /**
    * Enter the channel into the document.
    */
   enterDocument() {
+    super.enterDocument();
     this.getHandler()
       .listen(document.documentElement, DomEventType.CONNECT_REQUEST, this.handleConnectRequest_, false)
       .listen(document.documentElement, DomEventType.CONNECTED, this.handleConnected_, false);
-  }
-
-  /**
-   * Exit the channel from the document.
-   */
-  exitDocument() {
-    this.getHandler()
-      .removeAll();
-  }
-
-  /**
-   * Returns the event handler.
-   * @return {?goog.events.EventHandler} the event handler.
-   */
-  getHandler() {
-    if (!this.handler_) {
-      this.handler_ = new EventHandler(this);
-    }
-    return this.handler_;
   }
 
   /**

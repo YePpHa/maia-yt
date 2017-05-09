@@ -1,22 +1,17 @@
-import * as storage from '../core/storage';
 import GreaseMonkeyMechanism from './storage/mechanism/greasemonkeymechanism';
-
 import Storage from 'goog:goog.storage.Storage';
-import {injectJS} from '../core/script';
 
-import { Channel, EventType } from '../messaging/channel';
-import { ServicePort } from '../messaging/serviceport';
+import { App } from '../core/app';
 
-/**
- * The core that's injected into the unsafe window scope.
- * @define {!string}
- */
-goog.define("CORE_INJECT_JS", "");
+var app = new App(new Storage(new GreaseMonkeyMechanism()));
+// Attach listeners
+app.enterDocument();
 
-// Set the storage method.
-storage.setInstance(new Storage(new GreaseMonkeyMechanism()));
+// Inject the code that will act as a proxy between the YouTube player and this.
+app.inject();
 
-var channel = new Channel("background");
+
+/*var channel = new Channel("background");
 channel.listen(EventType.CONNECT, function(e) {
   var port = new ServicePort(e.port);
   port.enterDocument();
@@ -29,6 +24,4 @@ channel.listen(EventType.CONNECT, function(e) {
     }
   });
 }, false);
-channel.enterDocument();
-
-injectJS(CORE_INJECT_JS);
+channel.enterDocument();*/
