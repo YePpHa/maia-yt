@@ -1,5 +1,4 @@
 import EventTarget from 'goog:goog.events.EventTarget';
-import {channel} from '../core/messaging';
 
 export default class Player extends EventTarget {
   /**

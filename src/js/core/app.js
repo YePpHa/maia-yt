@@ -2,8 +2,9 @@ import Component from './component';
 import array from 'goog:goog.array';
 import { injectJS, injectJSFile } from '../utils/script';
 import asserts from 'goog:goog.asserts';
-import { Channel, EventType } from '../messaging/channel';
+import { Channel, EventType, PortEvent } from '../messaging/channel';
 import { ServicePort } from '../messaging/serviceport';
+import { Component } from './component';
 
 /**
  * The core that's injected into the unsafe window scope.
@@ -19,7 +20,6 @@ goog.define("CORE_INJECT_JS_FILE", "");
 
 export class App extends Component {
   /**
-   * @constructor
    * @param {?goog.storage.Storage} storage the storage instance.
    */
   constructor(storage) {
@@ -77,7 +77,7 @@ export class App extends Component {
   /**
    * Attempts to handle channel connect.
    * @private
-   * @param {}
+   * @param {?PortEvent} e the port event.
    */
   handleChannelConnect_(e) {
     var port = new ServicePort(e.port);
@@ -114,10 +114,11 @@ export class App extends Component {
     if (this.channel_) {
       this.channel_.dispose();
     }
-
-    this.channel_ = null;
+    
     this.storage_ = null;
-    this.ports_ = null;
+
+    delete this.channel_;
+    delete this.ports_;
   }
 
   /**

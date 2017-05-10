@@ -1,29 +1,36 @@
-import { servicePort } from './port';
+import Disposable from 'goog:goog.Disposable';
 
-export function register() {
-  servicePort.registerService("player#play", function() {
-    var el = document.getElementById("movie_player");
-    el['playVideo']();
-  });
+export class Player extends Disposable {
+  /**
+   * @param {?Element} element the player element.
+   */
+  constructor(id, element) {
+    super();
 
-  servicePort.registerService("player#pause", function() {
-    var el = document.getElementById("movie_player");
-    el['pauseVideo']();
-  });
+    /**
+     * @private {?string}
+     */
+    this.id_ = id;
 
-  servicePort.registerService("player#getCurrentTime", function() {
-    var el = document.getElementById("movie_player");
-    return el['getCurrentTime']();
-  });
+    /**
+     * @private {?Element}
+     */
+    this.element_ = element;
+  }
 
-  var el = document.getElementById("movie_player");
-  el.addEventListener("onStateChange", function(state) {
-    servicePort.call("player#onStateChange", state);
-  }, false)
-};
+  /** @override */
+  disposeInternal() {
+    super.disposeInternal();
 
-export function deregister() {
-  servicePort.deregisterService("player#play");
-  servicePort.deregisterService("player#pause");
-  servicePort.deregisterService("player#getCurrentTime");
-};
+    this.id_ = null;
+    this.element_ = null;
+  }
+
+  /**
+   * Returns the player ID.
+   * @return {?string} the ID.
+   */
+  getId() {
+    return this.id_;
+  }
+}
