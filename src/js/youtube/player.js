@@ -33,6 +33,7 @@ export class Player extends EventTarget {
      */
     this.id_ = string.getRandomString();
 
+    // Set the attribute for the element that will be used to find the element.
     el.setAttribute("maia:id", this.id_);
 
     try {

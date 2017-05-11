@@ -52,12 +52,21 @@ export class PlayerFactory extends Component {
       // Dispose the player.
       player.dispose();
     }, this);
+    this.port_.registerService("player#api", function(id, name, var_args) {
+      var player = this.players_.get(id);
+      if (!player) throw new Error("Player with " + id + " couldn't be found.");
+
+      var args = Array.prototype.slice.call(arguments, 2);
+
+      return player.getApi()[name].apply(null, args);
+    }, this);
   }
 
   /** @override */
   exitDocument() {
     this.port_.deregisterService("player#constructor");
     this.port_.deregisterService("player#dispose");
+    this.port_.deregisterService("player#api");
 
     super.exitDocument();
   }
