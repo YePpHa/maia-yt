@@ -48,6 +48,7 @@ export function wrapFunction(parent, property, wrapperFn, opt_obj) {
           value = val;
           if (!defined) {
             defined = true;
+            parent = parent[property];
             next();
           }
         },

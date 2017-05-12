@@ -11,8 +11,7 @@ export function injectJS(code) {
   asserts.assert(!!document, "Document is not defined.");
 
   var el = dom.createDom(TagName.SCRIPT, {
-    "type": "text/javascript",
-    "async": true
+    "type": "text/javascript"
   }, code);
 
   if (document.body) {
@@ -38,7 +37,6 @@ export function injectJSFile(file) {
 
   var el = dom.createDom(TagName.SCRIPT, {
     "type": "text/javascript",
-    "async": true,
     "src": file
   });
 
