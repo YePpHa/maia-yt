@@ -1,8 +1,7 @@
-import Disposable from 'goog:goog.Disposable';
-import EventHandler from 'goog:goog.events.EventHandler';
 import Map from 'goog:goog.structs.Map';
 import Promise from 'goog:goog.Promise';
 import { ChannelPort, EventType, MessageEvent } from '../messaging/channelport';
+import { Component } from '../core/component';
 
 /**
  * @enum {!string}
@@ -73,7 +72,7 @@ class ServiceInstance {
   }
 }
 
-export class ServicePort extends Disposable {
+export class ServicePort extends Component {
   /**
    * @param {?ChannelPort} port the port.
    */
@@ -87,19 +86,8 @@ export class ServicePort extends Disposable {
     this.port_ = port;
 
     /**
-     * Whether the
-     * @private {?boolean}
-     */
-    this.inDocument_ = false;
-
-    /**
-     * @private {?goog.events.EventHandler}
-     */
-    this.handler_ = null;
-
-    /**
      * The service map.
-     * @private {?goog.structs.Map}
+     * @private {?goog.structs.Map<string, ({fn: Function, scope: Object})>}
      */
     this.services_ = new Map();
 
@@ -119,29 +107,14 @@ export class ServicePort extends Disposable {
   disposeInternal() {
     super.disposeInternal();
 
-    if (this.handler_) {
-      this.handler_.dispose();
-    }
     if (this.port_) {
       this.port_.dispose();
     }
 
-    delete this.port_;
-    delete this.handler_;
-    delete this.services_;
-    delete this.serviceInstances_;
-    delete this.servicesResponseId_;
-  }
-
-  /**
-   * Returns the event handler.
-   * @return {?goog.events.EventHandler} the event handler.
-   */
-  getHandler() {
-    if (!this.handler_) {
-      this.handler_ = new EventHandler(this);
-    }
-    return this.handler_;
+    this.port_ = null;
+    this.services_ = null;
+    this.serviceInstances_ = null;
+    this.servicesResponseId_ = null;
   }
 
   /**
@@ -156,33 +129,19 @@ export class ServicePort extends Disposable {
    * Enter the channel into the document.
    */
   enterDocument() {
+    super.enterDocument();
     this.getHandler()
       .listen(this.getPort(), EventType.MESSAGE, this.handleMessage_, false);
-  }
-
-  /**
-   * Exit the channel from the document.
-   */
-  exitDocument() {
-    this.getHandler()
-      .removeAll();
-  }
-
-  /**
-   * Returns whether the channel has been connected to the document.
-   * @return {?boolean} whether the channel has been connected to the document.
-   */
-  isInDocument() {
-    return this.inDocument_;
   }
 
   /**
    * Register a service.
    * @param {?string} name the name of the service.
    * @param {?Function} fn the service function.
+   * @param {Object=} opt_scope the optional function scope.
    */
-  registerService(name, fn) {
-    this.services_.set(name, fn);
+  registerService(name, fn, opt_scope) {
+    this.services_.set(name, { fn: fn, scope: opt_scope || null });
   }
 
   /**
@@ -197,6 +156,7 @@ export class ServicePort extends Disposable {
    * Call a service.
    * @param {?string} name the name of the service.
    * @param {...*} var_args the arguments that the service will be called with.
+   * @return {*} the return value of the service.
    */
   call(name, var_args) {
     var args = Array.prototype.slice.call(arguments, 1);
@@ -223,6 +183,85 @@ export class ServicePort extends Disposable {
       } else {
         return instance.returnValue;
       }
+    } else {
+      instance.async = true;
+      return new Promise(function(resolve, reject) {
+        instance.promiseResolve = resolve;
+        instance.promiseReject = reject;
+      }, this);
+    }
+  }
+
+  /**
+   * Calls a service. However, if the service doesn't immediately return a value
+   * it will throw an error.
+   * @param {?string} name the name of the service.
+   * @param {...*} var_args the arguments that the service will be called with.
+   * @return {*} the return value of the service.
+   * @throws {Error} if service is async.
+   */
+  callSync(name, var_args) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    var id = ++this.servicesResponseId_ + '';
+    var request = {};
+    request['type'] = ServiceType.CALL;
+    request['id'] = id;
+
+    request['name'] = name;
+    request['arguments'] = args;
+
+    var instance = new ServiceInstance();
+
+    this.serviceInstances_.set(id, instance);
+
+    this.port_.send(request);
+
+    if (instance.responseComplete) {
+      this.serviceInstances_.remove(id);
+
+      if (instance.returnError) {
+        throw instance.returnError;
+      } else {
+        return instance.returnValue;
+      }
+    } else {
+      instance.async = true;
+      instance.promiseResolve = function() {};
+      instance.promiseReject = function() {};
+      throw new Error("The service didn't respond immediately.");
+    }
+  }
+
+  /**
+   * Calls a service. However, if the service does immediately return a value
+   * it will throw an error.
+   * @param {?string} name the name of the service.
+   * @param {...*} var_args the arguments that the service will be called with.
+   * @return {!goog.Promise} the return value of the service.
+   * @throws {Error} if service is sync.
+   */
+  callAsync(name, var_args) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    var id = ++this.servicesResponseId_ + '';
+    var request = {};
+    request['type'] = ServiceType.CALL;
+    request['id'] = id;
+
+    request['name'] = name;
+    request['arguments'] = args;
+
+    var instance = new ServiceInstance();
+
+    this.serviceInstances_.set(id, instance);
+
+    this.port_.send(request);
+
+    if (instance.responseComplete) {
+      this.serviceInstances_.remove(id);
+
+      throw new Error("The service responded immediately.");
     } else {
       instance.async = true;
       return new Promise(function(resolve, reject) {
@@ -274,8 +313,8 @@ export class ServicePort extends Disposable {
     if (this.services_.containsKey(name)) {
       response['type'] = ServiceType.CALL_RESPONSE;
       try {
-        var fn = this.services_.get(name);
-        var returnValue = fn.apply(null, detail['arguments']);
+        var service = this.services_.get(name);
+        var returnValue = service.fn.apply(service.scope, detail['arguments']);
         if (returnValue instanceof Promise) {
           returnValue
           .then(function(returnValue) {

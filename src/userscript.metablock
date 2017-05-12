@@ -5,5 +5,5 @@
 // @description  Imagine a world with lots of bits.
 // @author       Jeppe Rune Mortensen <jepperm@gmail.com>
 // @match        *://www.youtube.com/*
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
