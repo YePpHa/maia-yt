@@ -9,12 +9,17 @@ import { ServicePort } from '../messaging/serviceport';
  * @enum {!string}
  */
 export const EventType = {
+  READY: 'ready',
   UNSTARTED: 'unstarted',
   ENDED: 'ended',
   PLAYING: 'playing',
   PAUSED: 'paused',
   BUFFERING: 'buffering',
-  CUED: 'cued'
+  CUED: 'cued',
+  PLAYBACK_QUALITY_CHANGE: 'playback-quality-change',
+  PLAYBACK_RATE_CHANGE: 'playback-rate-change',
+  API_CHANGE: 'api-change',
+  ERROR: 'error'
 };
 
 /**
@@ -52,17 +57,78 @@ export function handlePlayerCreate(port, playerId) {
  * Attempts to handle the player#event.
  * @param {!string} playerId the player IDs.
  * @param {!string} eventType the event type.
+ * @param {*} detail the detail.
  * @return {!boolean} whether preventDefault was called.
  */
-export function handlePlayerEvent(playerId, eventType) {
+export function handlePlayerEvent(playerId, eventType, detail) {
   if (!players.containsKey(playerId)) return false;
-  console.log("player#event", playerId, eventType);
+  console.log("player#event", playerId, eventType, detail);
+
+  var evt;
 
   var player = players.get(playerId);
-  var evt = new Event(eventType);
+
+  if (eventType === EventType.PLAYBACK_QUALITY_CHANGE) {
+    evt = new PlaybackQualityEvent(/** @type {!string} */ (detail));
+  } else if (eventType === EventType.PLAYBACK_RATE_CHANGE) {
+    evt = new PlaybackRateEvent(/** @type {!number} */ (detail));
+  } else if (eventType === EventType.ERROR) {
+    evt = new ErrorEvent(/** @type {!number} */ (detail));
+  } else {
+    evt = new Event(eventType);
+  }
+
   player.dispatchEvent(evt);
 
   return evt.defaultPrevented;
+}
+
+export class PlaybackQualityEvent extends Event {
+  /**
+   * @param {!string} quality the quality.
+   * @param {Object=} opt_target optional target.
+   */
+  constructor(quality, opt_target) {
+    super(EventType.PLAYBACK_QUALITY_CHANGE, opt_target);
+
+    /**
+     * The quality.
+     * @public {!string}
+     */
+    this.quality = quality;
+  }
+}
+
+export class PlaybackRateEvent extends Event {
+  /**
+   * @param {!number} rate the rate.
+   * @param {Object=} opt_target optional target.
+   */
+  constructor(rate, opt_target) {
+    super(EventType.PLAYBACK_RATE_CHANGE, opt_target);
+
+    /**
+     * The rate.
+     * @public {!number}
+     */
+    this.rate = rate;
+  }
+}
+
+export class ErrorEvent extends Event {
+  /**
+   * @param {!number} errorCode the error code.
+   * @param {Object=} opt_target optional target.
+   */
+  constructor(errorCode, opt_target) {
+    super(EventType.ERROR, opt_target);
+
+    /**
+     * The error code.
+     * @public {!number}
+     */
+    this.errorCode = errorCode;
+  }
 }
 
 export class Player extends EventTarget {

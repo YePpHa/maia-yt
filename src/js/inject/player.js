@@ -37,7 +37,12 @@ export class Player extends Component {
   enterDocument() {
     super.enterDocument();
     this.getHandler()
-      .listen(new PlayerListenable(this.getApi()), "onStateChange", this.handleOnStateChange_, false);
+      .listen(new PlayerListenable(this.getApi()), "onReady", this.handleOnReady_, false)
+      .listen(new PlayerListenable(this.getApi()), "onStateChange", this.handleOnStateChange_, false)
+      .listen(new PlayerListenable(this.getApi()), "onPlaybackQualityChange", this.handleOnPlaybackQualityChange_, false)
+      .listen(new PlayerListenable(this.getApi()), "onPlaybackRateChange", this.handleOnPlaybackRateChange_, false)
+      .listen(new PlayerListenable(this.getApi()), "onApiChange", this.handleOnApiChange_, false)
+      .listen(new PlayerListenable(this.getApi()), "onError", this.handleOnError_, false);
   }
 
   /** @override */
@@ -104,7 +109,7 @@ export class Player extends Component {
      * @type {?EventType}
      */
     var type = null;
-    
+
     switch (state) {
       case -1:
         type = EventType.UNSTARTED;
@@ -127,9 +132,54 @@ export class Player extends Component {
     }
 
     if (!type) return;
-    var preventDefault = this.port_.call("player#event", this.getId(), type);
-    if (preventDefault) {
-      console.warn("player#event -> preventDefault hasn't been implemented yet.");
-    }
+    this.port_.callSync("player#event", this.getId(), type);
+  }
+
+  /**
+   * Attempts to handle the on ready.
+   * @param {?PlayerEvent} e the browser event.
+   * @private
+   */
+  handleOnReady_(e) {
+    this.port_.callSync("player#event", this.getId(), EventType.READY, null);
+  }
+
+  /**
+   * Attempts to handle the on playbakc quality change.
+   * @param {?PlayerEvent} e the browser event.
+   * @private
+   */
+  handleOnPlaybackQualityChange_(e) {
+    var quality = /** @type {!string} */ (e.detail);
+    this.port_.callSync("player#event", this.getId(), EventType.PLAYBACK_QUALITY_CHANGE, quality);
+  }
+
+  /**
+   * Attempts to handle the on playbakc rate change.
+   * @param {?PlayerEvent} e the browser event.
+   * @private
+   */
+  handleOnPlaybackRateChange_(e) {
+    var rate = /** @type {!number} */ (e.detail);
+    this.port_.callSync("player#event", this.getId(), EventType.PLAYBACK_RATE_CHANGE, rate);
+  }
+
+  /**
+   * Attempts to handle the on API change.
+   * @param {?PlayerEvent} e the browser event.
+   * @private
+   */
+  handleOnApiChange_(e) {
+    this.port_.callSync("player#event", this.getId(), EventType.API_CHANGE, null);
+  }
+
+  /**
+   * Attempts to handle the on error.
+   * @param {?PlayerEvent} e the browser event.
+   * @private
+   */
+  handleOnError_(e) {
+    var errorCode = /** @type {!number} */ (e.detail);
+    this.port_.callSync("player#event", this.getId(), EventType.ERROR, errorCode);
   }
 }
