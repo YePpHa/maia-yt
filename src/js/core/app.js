@@ -5,6 +5,7 @@ import asserts from 'goog:goog.asserts';
 import { Channel, EventType, PortEvent } from '../messaging/channel';
 import { ServicePort } from '../messaging/serviceport';
 import { Component } from './component';
+import { handlePlayerBeforeCreate, handlePlayerCreate, handlePlayerEvent } from '../youtube/player';
 
 /**
  * The core that's injected into the unsafe window scope.
@@ -85,6 +86,10 @@ export class App extends Component {
     if (this.isInDocument()) {
       port.enterDocument();
     }
+
+    port.registerService("player#beforecreate", handlePlayerBeforeCreate);
+    port.registerService("player#create", goog.bind(handlePlayerCreate, null, port));
+    port.registerService("player#event", handlePlayerEvent);
   }
 
   /**
@@ -114,7 +119,7 @@ export class App extends Component {
     if (this.channel_) {
       this.channel_.dispose();
     }
-    
+
     this.storage_ = null;
 
     delete this.channel_;
