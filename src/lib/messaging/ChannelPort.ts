@@ -1,0 +1,177 @@
+import { EventType } from './events/EventType';
+import { createCustomEvent } from '../dom';
+import { getRandomString } from '../string';
+import { Component } from './Component';
+import { PortState } from './PortState';
+import { MessageEvent } from './events/MessageEvent';
+import { BrowserEvent } from '../events/BrowserEvent';
+import { ConnectedMessage, PayloadMessage, ConnectMessage } from './Message';
+
+export class ChannelPort extends Component {
+  private _id: string = getRandomString();
+  private _remoteId: string;
+  private _state: PortState = PortState.UNINITIALIZED;
+
+  /**
+   * Enter the channel into the document.
+   */
+  enterDocument() {
+    super.enterDocument();
+
+    this.getHandler()
+      .listen(document.documentElement, EventType.MESSAGE, this._handleMessage, false);
+  }
+
+  /**
+   * Attempts to handle message from DOM.
+   * @param e the event object.
+   * @protected
+   */
+  protected _handleMessage(e: BrowserEvent) {
+    let browserEvent = e.getBrowserEvent() as CustomEvent;
+
+    let detail = browserEvent.detail as string;
+    let payload = JSON.parse(detail) as PayloadMessage;
+    if (typeof payload !== "object")
+      throw new Error("Payload is not an object.");
+
+    if (payload.id !== this.getId()) return;
+    if (payload.remoteId !== this.getRemoteId()) return;
+
+    this.dispatchEvent(new MessageEvent(payload.payload, this));
+  }
+
+  /**
+   * Attempts to handle connect response.
+   * @param e the event object.
+   * @protected
+   */
+  protected _handleConnectResponse(e: BrowserEvent) {
+    let browserEvent = e.getBrowserEvent() as CustomEvent;
+
+    let detail = browserEvent.detail as string;
+    let payload = JSON.parse(detail) as ConnectedMessage;
+    if (typeof payload !== "object")
+      throw new Error("Payload is not an object.");
+
+    let portId = payload.id;
+    if (portId !== this.getId()) return;
+
+    let remotePortId = payload.remoteId;
+    this.setRemoteId(remotePortId);
+
+    this.setState(PortState.CONNECTED);
+
+    this.getHandler()
+      .unlisten(document.documentElement, EventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
+
+    let responseMessage: ConnectedMessage = {
+      'id': remotePortId,
+      'remoteId': portId
+    };
+    document.documentElement.dispatchEvent(
+      createCustomEvent(
+        EventType.CONNECTED,
+        JSON.stringify(responseMessage)
+      )
+    );
+  }
+
+  /**
+   * Returns the ID.
+   */
+  getId(): string {
+    return this._id;
+  }
+
+  /**
+   * Returns the remote ID.
+   */
+  getRemoteId(): string {
+    return this._remoteId;
+  }
+
+  /**
+   * Set the remote ID.
+   * @param remoteId the remote ID.
+   */
+  setRemoteId(remoteId: string): void {
+    this._remoteId = remoteId;
+  }
+
+  /**
+   * Returns the state.
+   */
+  getState(): PortState {
+    return this._state;
+  }
+
+  /**
+   * Set the state.
+   * @param state the state.
+   */
+  setState(state: PortState): void {
+    this._state = state;
+  }
+
+  /**
+   * Sends payload.
+   * @param payload the payload to send.
+   */
+  send(payload: Object): void {
+    if (this.getState() !== PortState.CONNECTED)
+      throw new Error("Port hasn't been connected.");
+
+    let detail: PayloadMessage = {
+      id: this.getRemoteId(),
+      remoteId: this.getId(),
+      payload: payload
+    };
+
+    document.documentElement.dispatchEvent(
+      createCustomEvent(
+        EventType.MESSAGE,
+        JSON.stringify(detail)
+      )
+    );
+  }
+
+  /**
+   * Connect the port through the channel.
+   * @param channel the channel name.
+   */
+  connect(channel: string) {
+    if (this.getState() !== PortState.UNINITIALIZED)
+      if (this.getState() === PortState.AWAITING_RESPONSE)
+        throw new Error("The port is being connected.");
+      else if (this.getState() === PortState.CONNECTED)
+        throw new Error("The port has already been connected.");
+
+    this.enterDocument();
+    this.getHandler()
+      .listen(document.documentElement, EventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
+
+    let detail: ConnectMessage = {
+      id: this.getId(),
+      channel: channel
+    };
+
+    document.documentElement.dispatchEvent(
+      createCustomEvent(
+        EventType.CONNECT_REQUEST,
+        JSON.stringify(detail)
+      )
+    );
+  }
+
+  /**
+   * Connect the port through the channel.
+   * @param channel the channel name.
+   */
+  static connect(channel: string): ChannelPort {
+    let port = new ChannelPort();
+    port.connect(channel);
+
+    return port;
+  }
+}

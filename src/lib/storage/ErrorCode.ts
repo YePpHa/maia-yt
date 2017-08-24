@@ -1,0 +1,1 @@
+export const INVALID_VALUE: string = "Storage: Invalid value was encountered";
