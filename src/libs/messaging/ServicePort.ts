@@ -1,12 +1,15 @@
 import { ChannelPort } from './ChannelPort';
 import { MessageEvent } from './events/MessageEvent';
-import { Component } from './Component';
+import { Component } from '../Component';
 import { ServiceError } from './ServiceError';
 import { ServiceInstance } from './ServiceInstance';
-import { InternalEventType } from './events/InternalEventType';
+import { EventType } from './events/EventType';
 
-declare interface ServicePayload {
+declare interface ServiceRequest {
   type: ServiceType;
+}
+
+declare interface ServicePayload extends ServiceRequest {
   id: string;
 }
 
@@ -22,12 +25,14 @@ declare interface ServicePayloadResponse extends ServicePayload {
 declare interface ServicePayloadError extends ServicePayload {
   name: string;
   message: string;
+  stack?: string;
 }
 
 export enum ServiceType {
   CALL = 'call',
   CALL_RESPONSE = 'call-response',
-  CALL_RESPONSE_ERROR = 'call-response-error'
+  CALL_RESPONSE_ERROR = 'call-response-error',
+  DISPOSE = 'dispose'
 };
 
 export class ServicePort extends Component {
@@ -39,6 +44,8 @@ export class ServicePort extends Component {
   private _services: {[key: string]: {fn: Function, scope: Object|null|undefined}} = {};
   private _serviceInstances: {[key: string]: ServiceInstance} = {};
   private _servicesResponseId: number = 0;
+
+  private _receivedDispose: boolean = false;
 
   /**
    * @param {?ChannelPort} port the port.
@@ -54,8 +61,18 @@ export class ServicePort extends Component {
     super.disposeInternal();
 
     if (this._port) {
+      if (!this._receivedDispose) {
+        this._receivedDispose = true;
+        let detail: ServiceRequest = {
+          type: ServiceType.DISPOSE
+        };
+        this._port.send(detail);
+      }
+
       this._port.dispose();
     }
+
+    delete this._port;
 
     this._services = {};
     this._serviceInstances = {};
@@ -76,7 +93,7 @@ export class ServicePort extends Component {
     super.enterDocument();
 
     this.getHandler()
-      .listen(this.getPort(), InternalEventType.MESSAGE, this._handleMessage, false);
+      .listen(this.getPort(), EventType.MESSAGE, this._handleMessage, false);
   }
 
   /**
@@ -225,6 +242,9 @@ export class ServicePort extends Component {
         break;
       case ServiceType.CALL_RESPONSE_ERROR:
         this._handleCallResponseErrorMessage(detail as ServicePayloadError);
+      case ServiceType.DISPOSE:
+        this._receivedDispose = true;
+        this.dispose();
       default:
         // Throw or report an error here.
         // Type is not valid.
@@ -257,9 +277,11 @@ export class ServicePort extends Component {
             this._port.send(response);
           }, (err: Error) => {
             let response = {} as ServicePayloadError;
+            response.id = id;
             response.type = ServiceType.CALL_RESPONSE_ERROR;
             response.name = err.name;
             response.message = err.message;
+            response.stack = err.stack;
             this._port.send(response);
           })
         } else {
@@ -267,16 +289,20 @@ export class ServicePort extends Component {
           response.id = id;
           response.type = ServiceType.CALL_RESPONSE;
           response.returnValue = returnValue;
+          this._port.send(response);
         }
       } catch (err) {
         let response = {} as ServicePayloadError;
+        response.id = id;
         response.type = ServiceType.CALL_RESPONSE_ERROR;
         response.name = err.name;
         response.message = err.message;
+        response.stack = err.stack;
         this._port.send(response);
       }
     } else {
       let response = {} as ServicePayloadError;
+      response.id = id;
       response.type = ServiceType.CALL_RESPONSE_ERROR;
       response.name = "Error";
       response.message = "Service with name (" + name + ") not found.";
@@ -314,8 +340,9 @@ export class ServicePort extends Component {
     let id = detail.id;
     let errorName = detail.name;
     let errorMessage = detail.message;
+    let stack = detail.stack;
 
-    let err = new ServiceError(errorName, errorMessage);
+    let err = new ServiceError(errorName, errorMessage, stack);
     let instance = this._serviceInstances[id];
 
     instance.responseComplete = true;

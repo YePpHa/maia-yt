@@ -1,9 +1,9 @@
 import { BrowserEvent } from '../events/BrowserEvent';
-import { Component } from './Component';
+import { Component } from '../Component';
 import { ChannelPort } from './ChannelPort';
 import { PortState } from './PortState';
 import { PortEvent } from './events/PortEvent';
-import { EventType } from './events/EventType';
+import { InternalEventType } from './events/EventType';
 import { createCustomEvent } from '../dom';
 import { ConnectedMessage, PayloadMessage, ConnectMessage } from './Message';
 
@@ -17,6 +17,15 @@ export class Channel extends Component {
     this._name = name;
   }
 
+  protected disposeInternal() {
+    super.disposeInternal();
+    for (let key in this._ports) {
+      if (this._ports[key].hasOwnProperty(key)) {
+        this._ports[key].dispose();
+      }
+    }
+  }
+
   /**
    * Enter the channel into the document.
    */
@@ -24,8 +33,8 @@ export class Channel extends Component {
     super.enterDocument();
 
     this.getHandler()
-      .listen(document.documentElement, EventType.CONNECT_REQUEST, this._handleConnectRequest, false)
-      .listen(document.documentElement, EventType.CONNECTED, this._handleConnected, false);
+      .listen(document.documentElement, InternalEventType.CONNECT_REQUEST, this._handleConnectRequest, false)
+      .listen(document.documentElement, InternalEventType.CONNECTED, this._handleConnected, false);
   }
 
   /**
@@ -64,7 +73,7 @@ export class Channel extends Component {
     }
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        EventType.CONNECT_RESPONSE,
+        InternalEventType.CONNECT_RESPONSE,
         JSON.stringify(response)
       )
     );

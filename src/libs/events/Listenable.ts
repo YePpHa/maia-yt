@@ -14,11 +14,11 @@ export interface Listenable {
    */
   removeAllListeners(type?: string): number;
 
-  getParentEventTarget(): Listenable;
+  getParentEventTarget(): Listenable|undefined;
   fireListeners(type: string, capture: boolean, event: Event): boolean;
   getListeners(type: string, capture: boolean): ListenableKey[];
   getListener(type: string, listener: Function, capture: boolean, listenerScope?: Object): ListenableKey|undefined;
-  hasListener(type: string, capture?: boolean): boolean;
+  hasListener(type?: string, capture?: boolean): boolean;
 }
 
 const IMPLEMENTED_BY_PROP: string = '_listenable_' + ((Math.random() * 1e6) | 0);

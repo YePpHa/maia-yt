@@ -1,14 +1,14 @@
-import { EventType } from './events/EventType';
+import { InternalEventType } from './events/EventType';
 import { createCustomEvent } from '../dom';
-import { getRandomString } from '../string';
-import { Component } from './Component';
+import { Component } from '../Component';
 import { PortState } from './PortState';
 import { MessageEvent } from './events/MessageEvent';
 import { BrowserEvent } from '../events/BrowserEvent';
 import { ConnectedMessage, PayloadMessage, ConnectMessage } from './Message';
+import { v4 as uuidv4 } from 'uuid';
 
 export class ChannelPort extends Component {
-  private _id: string = getRandomString();
+  private _id: string = uuidv4();
   private _remoteId: string;
   private _state: PortState = PortState.UNINITIALIZED;
 
@@ -19,7 +19,7 @@ export class ChannelPort extends Component {
     super.enterDocument();
 
     this.getHandler()
-      .listen(document.documentElement, EventType.MESSAGE, this._handleMessage, false);
+      .listen(document.documentElement, InternalEventType.MESSAGE, this._handleMessage, false);
   }
 
   /**
@@ -63,7 +63,7 @@ export class ChannelPort extends Component {
     this.setState(PortState.CONNECTED);
 
     this.getHandler()
-      .unlisten(document.documentElement, EventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
+      .unlisten(document.documentElement, InternalEventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
 
     let responseMessage: ConnectedMessage = {
       'id': remotePortId,
@@ -71,7 +71,7 @@ export class ChannelPort extends Component {
     };
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        EventType.CONNECTED,
+        InternalEventType.CONNECTED,
         JSON.stringify(responseMessage)
       )
     );
@@ -130,7 +130,7 @@ export class ChannelPort extends Component {
 
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        EventType.MESSAGE,
+        InternalEventType.MESSAGE,
         JSON.stringify(detail)
       )
     );
@@ -149,7 +149,7 @@ export class ChannelPort extends Component {
 
     this.enterDocument();
     this.getHandler()
-      .listen(document.documentElement, EventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
+      .listen(document.documentElement, InternalEventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
 
     let detail: ConnectMessage = {
       id: this.getId(),
@@ -158,7 +158,7 @@ export class ChannelPort extends Component {
 
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        EventType.CONNECT_REQUEST,
+        InternalEventType.CONNECT_REQUEST,
         JSON.stringify(detail)
       )
     );

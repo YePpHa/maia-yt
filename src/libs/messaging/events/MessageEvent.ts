@@ -1,11 +1,11 @@
 import { Event } from '../../events/Event';
-import { InternalEventType } from './InternalEventType';
+import { EventType } from './EventType';
 
 export class MessageEvent extends Event {
   constructor(
     public payload: Object,
     target?: Object
   ) {
-    super(InternalEventType.MESSAGE, target);
+    super(EventType.MESSAGE, target);
   }
 }

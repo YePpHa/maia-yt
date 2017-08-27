@@ -1,14 +1,11 @@
-import { EventTarget } from '../events/EventTarget';
-import { EventHandler } from '../events/EventHandler';
+import { EventTarget } from './events/EventTarget';
+import { EventHandler } from './events/EventHandler';
 
 export class Component extends EventTarget {
   private _handler: EventHandler;
   private _inDocument: boolean = false;
 
-  /**
-   * @override
-   */
-  disposeInternal() {
+  protected disposeInternal() {
     super.disposeInternal();
     
     if (this._inDocument) {

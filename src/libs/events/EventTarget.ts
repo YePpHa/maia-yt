@@ -1,7 +1,7 @@
 import { Listener } from './Listener';
 import { ListenableKey } from './ListenableKey';
 import { Disposable } from '../Disposable';
-import { Listenable } from './Listenable';
+import { Listenable, addImplementation } from './Listenable';
 import { ListenerMap } from './ListenerMap';
 import { Event, EventLike } from './Event';
 import * as _ from 'lodash';
@@ -148,3 +148,5 @@ export class EventTarget extends Disposable implements Listenable {
     return returnValue;
   }
 }
+
+addImplementation(EventTarget);

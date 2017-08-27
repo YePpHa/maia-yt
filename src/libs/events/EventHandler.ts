@@ -1,4 +1,4 @@
-import { Disposable } from '../disposable';
+import { Disposable } from '../Disposable';
 import { Listener } from './Listener';
 import { Key, ListenableType, listen, listenOnce, getListener, unlistenByKey } from './index';
 import { EventTarget as LEventTarget } from './EventTarget';
