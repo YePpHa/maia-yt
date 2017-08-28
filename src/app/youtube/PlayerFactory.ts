@@ -2,6 +2,7 @@ import { Component } from '../../libs/Component';
 import { ServicePort } from '../../libs/messaging/ServicePort';
 import { Player } from './Player';
 import { v4 as uuidv4 } from 'uuid';
+import { EventType } from './EventType';
 
 export class PlayerFactory extends Component {
   private _port: ServicePort;
@@ -18,9 +19,11 @@ export class PlayerFactory extends Component {
    * @param element the player element.
    * @return the player instance.
    */
-  createPlayer(element: Element): Player {
-    var id = uuidv4();
-    var player = new Player(id, element, this._port);
+  createPlayer(element: Element, id?: string): Player {
+    if (!id) {
+      id = uuidv4();
+    }
+    let player = new Player(id, element, this._port);
 
     this._players[id] = player;
 
@@ -43,19 +46,27 @@ export class PlayerFactory extends Component {
   enterDocument() {
     super.enterDocument();
 
-    this._port.registerService("player#api", (id: string, name: string, ...args: any[]) => {
-      var player = this._players[id];
-      if (!player) throw new Error("Player with " + id + " couldn't be found.");
-
-      return (player.getApi() as any)[name].apply(null, args);
-    }, this);
+    this._port.registerService("player#api", this._handleApiCall, this);
+    this._port.registerService("player#event:preventDefault", this._handleEventPreventDefault, this);
   }
 
   /** @override */
   exitDocument() {
     this._port.deregisterService("player#api");
+    this._port.deregisterService("player#event:preventDefault");
 
     super.exitDocument();
+  }
+
+  private _handleApiCall(id: string, name: string, ...args: any[]): any {
+    let player = this._players[id];
+    if (!player) throw new Error("Player with " + id + " couldn't be found.");
+
+    return (player.getApi() as any)[name].apply(null, args);
+  }
+
+  private _handleEventPreventDefault(id: string, type: EventType): void {
+    console.warn("event.preventDefault() for player events have not been implemented yet.");
   }
 
   /**

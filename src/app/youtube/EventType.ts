@@ -6,8 +6,11 @@ export enum EventType {
   PAUSED = 'paused',
   BUFFERING = 'buffering',
   CUED = 'cued',
-  PLAYBACK_QUALITY_CHANGE = 'playback-quality-change',
-  PLAYBACK_RATE_CHANGE = 'playback-rate-change',
+  VOLUME_CHANGE = 'volume-change',
+  SEEKED = 'seeked',
+  QUALITY_CHANGE = 'quality-change',
+  RATE_CHANGE = 'rate-change',
   API_CHANGE = 'api-change',
+  SIZE_CHANGE = 'size-change',
   ERROR = 'error'
 };

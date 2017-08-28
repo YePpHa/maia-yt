@@ -2,7 +2,9 @@ import { wrapFunction } from '../libs/property/observer';
 import { ChannelPort } from '../libs/messaging/ChannelPort';
 import { ServicePort } from '../libs/messaging/ServicePort';
 import { PlayerFactory } from './youtube/PlayerFactory';
+import { Player } from './youtube/Player';
 import { PlayerConfig, PlayerConfigArguments } from './youtube/PlayerConfig';
+import { v4 as uuidv4 } from 'uuid';
 
 declare interface YTWindow extends Window {
   yt: { player: { Application: { create: Function } } };
@@ -11,16 +13,22 @@ declare interface YTWindow extends Window {
 
 const port = new ChannelPort();
 const servicePort = new ServicePort(port);
+
 servicePort.enterDocument();
+
+const players: {[key: string]: Player} = {};
 
 const handlePlayerUpdate = (playerConfig: PlayerConfig): PlayerConfig => {
   if (servicePort.isDisposed()) {
     return playerConfig;
   }
 
-  let playerId = playerConfig.attrs.id;
-  playerConfig = servicePort.callSync("player#update", playerId,
-    playerConfig) as PlayerConfig || playerConfig;
+  let elementId = playerConfig.attrs.id;
+  if (players[elementId]) {
+    let playerId = players[elementId].getId();
+    playerConfig = servicePort.callSync("player#update", playerId,
+      playerConfig) as PlayerConfig || playerConfig;
+  }
 
   return playerConfig;
 };
@@ -33,22 +41,24 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
     return;
   }
   
-  let playerId = playerConfig.attrs.id;
+  let elementId = playerConfig.attrs.id;
+  let playerId = uuidv4();
 
   // Send a beforecreate event to the core.
   let newplayerConfig = servicePort.callSync("player#beforecreate", playerId,
-    playerConfig) as PlayerConfig
+    playerConfig) as PlayerConfig;
   playerConfig = newplayerConfig || playerConfig;
 
   let playerApp = null;
   if (fn) {
     playerApp = fn(playerConfig);
   }
-
-  let playerElement = document.getElementById(playerId);
+  let playerElement = document.getElementById(elementId);
   if (!playerElement) return playerApp;
 
-  let player = playerFactory.createPlayer(playerElement);
+  let player = playerFactory.createPlayer(playerElement, playerId);
+  players[elementId] = player;
+
   player.enterDocument();
 
   let api = player.getApi();

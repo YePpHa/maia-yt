@@ -1,11 +1,10 @@
 import { injectJS } from '../libs/script';
 import { App } from './App';
+import * as i18n from 'i18next';
 
-declare var require: {
-  <T>(path: string): T;
-  (paths: string[], callback: (...modules: any[]) => void): void;
-  ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
-};
+i18n.init({
+  resources: require("i18next-resource-store-loader!../i18n/index.js")
+});
 
 const injectModule = require('../../webpack.inject.config.js') as string;
 
