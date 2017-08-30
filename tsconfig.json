@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "declaration": true,
+    "noEmitOnError": true,
+    "target": "es5",
+    "lib": ["es5", "es6", "es2015.collection", "es2015.iterable", "dom"],
+    "jsx": "react",
+    "sourceMap": true,
+
+    "preserveConstEnums": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}

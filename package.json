@@ -1,20 +1,50 @@
 {
   "name": "project-maia",
   "version": "1.0.0",
-  "description": "",
+  "description": "Enhances the user experience on YouTube by providing useful features.",
+  "keywords": [
+    "YouTube",
+    "userscript",
+    "extension",
+    "chrome",
+    "firefox",
+    "enhance"
+  ],
   "main": "webpack.config.js",
   "scripts": {
-    "build": "gulp build",
-    "build:userscript": "gulp build:userscript",
-    "test": "gulp test",
-    "test:closure": "gulp test:closure"
+    "build:userscript": "webpack --config webpack.userscript.config.js"
   },
-  "author": "Jeppe Rune Mortensen <jepperm@gmail.com>",
+  "author": {
+    "name": "Jeppe Rune Mortensen",
+    "email": "jepperm@gmail.com",
+    "url": "https://github.com/YePpHa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YePpHa/maia-yt.git"
+  },
   "license": "MIT",
   "devDependencies": {
-    "google-closure-compiler": "^20170521.0.0",
-    "google-closure-library": "^20170521.0.0",
-    "gulp": "^3.9.1",
-    "gulp-sourcemaps": "^2.6.0"
+    "@types/greasemonkey": "^0.0.28",
+    "@types/i18next": "^8.4.1",
+    "@types/lodash": "^4.14.73",
+    "@types/uuid": "^3.4.1",
+    "async": "^2.5.0",
+    "jasmine-core": "^2.8.0",
+    "karma": "^1.7.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.0",
+    "memory-fs": "^0.4.1",
+    "ts-jsdoc": "^2.0.5",
+    "ts-loader": "^2.3.4",
+    "typescript": "^2.4.2",
+    "webpack": "^3.5.5",
+    "wrapper-webpack-plugin": "^1.0.0"
+  },
+  "dependencies": {
+    "i18next": "^9.0.0",
+    "i18next-resource-store-loader": "^0.1.2",
+    "lodash": "^4.17.4",
+    "uuid": "^3.1.0"
   }
 }

@@ -1,9 +1,0 @@
-// ==UserScript==
-// @name         Project Maia
-// @namespace    https://github.com/YePpHa/
-// @version      1.0.0
-// @description  Imagine a world with lots of bits.
-// @author       Jeppe Rune Mortensen <jepperm@gmail.com>
-// @match        *://www.youtube.com/*
-// @run-at       document-start
-// ==/UserScript==
