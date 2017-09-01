@@ -1,7 +1,6 @@
 const path = require('path');
 
 module.exports = {
-  devtool: 'inline-source-map',
   entry: {
     index: './src/app/bootstrap.inject.ts'
   },

@@ -67,7 +67,6 @@ const metadata = {
 };
 
 module.exports = {
-  devtool: 'inline-source-map',
   entry: {
     index: './src/app/bootstrap.userscript.ts'
   },
