@@ -14,7 +14,7 @@
   "scripts": {
     "build:userscript": "webpack --config webpack.userscript.prod.config.js",
     "dev:userscript": "webpack --config webpack.userscript.dev.config.js",
-    "test:unit": "karma start"
+    "test": "karma start"
   },
   "author": {
     "name": "Jeppe Rune Mortensen",
