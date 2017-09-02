@@ -1,4 +1,5 @@
 language: node_js
+sudo: false
 node_js: "7"
 addons:
   chrome: stable
@@ -6,8 +7,11 @@ branches:
   only:
     - master
     - /^greenkeeper/.*$/
-matrix:
-  - node_js: "7"
-    before_script: yarn global install gulp
-    install: yarn install
-    script: yarn test
+cache:
+  yarn: true
+  directories:
+    - ./node_modules
+install:
+  - yarn install
+script:
+  - yarn test
