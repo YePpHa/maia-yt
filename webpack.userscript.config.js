@@ -1,7 +1,8 @@
 const path = require('path');
 const WrapperPlugin = require('wrapper-webpack-plugin');
 const package = require('./package.json');
-const webpackLoader = require('./bin/webpack-loader');
+const merge = require('webpack-merge');
+const common = require('./webpack.common.config.js');
 
 /**
  * Generate the user
@@ -66,8 +67,7 @@ const metadata = {
   'run-at': 'document-start'
 };
 
-module.exports = {
-  devtool: 'inline-source-map',
+module.exports = merge(common, {
   entry: {
     index: './src/app/bootstrap.userscript.ts'
   },
@@ -75,28 +75,10 @@ module.exports = {
     filename: 'maia.user.js',
     path: path.resolve(__dirname, 'dist')
   },
-  resolveLoader: {
-    alias: {
-      'webpack-loader': path.join(__dirname, 'bin/webpack-loader')
-    }
-  },
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js']
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.tsx?$/,
-        exclude: /node_modules/,
-        loader: 'ts-loader'
-      },
-      { test: /webpack\..+\.config\.js$/, loader: 'webpack-loader' }
-    ]
-  },
   plugins: [
     new WrapperPlugin({
       test: /\.js$/,
       header: generateMetadataBlock(metadata)
     })
   ]
-};
+});

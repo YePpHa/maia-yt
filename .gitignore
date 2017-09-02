@@ -4,3 +4,6 @@ node_modules
 # Distribution
 dist
 tmp
+
+# Test
+coverage

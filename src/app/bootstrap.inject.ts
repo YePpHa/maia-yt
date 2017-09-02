@@ -7,8 +7,8 @@ import { PlayerConfig, PlayerConfigArguments } from './youtube/PlayerConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 declare interface YTWindow extends Window {
-  yt: { player: { Application: { create: Function } } };
-  ytplayer: { config: PlayerConfig };
+  yt: { player?: { Application?: { create?: Function } } };
+  ytplayer: { config?: PlayerConfig };
 }
 
 const port = new ChannelPort();

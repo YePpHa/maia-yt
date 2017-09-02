@@ -12,7 +12,9 @@
   ],
   "main": "webpack.config.js",
   "scripts": {
-    "build:userscript": "webpack --config webpack.userscript.config.js"
+    "build:userscript": "webpack --config webpack.userscript.prod.config.js",
+    "dev:userscript": "webpack --config webpack.userscript.dev.config.js",
+    "test": "karma start"
   },
   "author": {
     "name": "Jeppe Rune Mortensen",
@@ -27,17 +29,26 @@
   "devDependencies": {
     "@types/greasemonkey": "^0.0.28",
     "@types/i18next": "^8.4.1",
+    "@types/jasmine": "^2.5.54",
     "@types/lodash": "^4.14.73",
+    "@types/sprintf-js": "^0.0.27",
     "@types/uuid": "^3.4.1",
     "async": "^2.5.0",
+    "istanbul-instrumenter-loader": "^3.0.0",
     "jasmine-core": "^2.8.0",
     "karma": "^1.7.0",
     "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
+    "karma-jasmine-html-reporter": "^0.2.2",
+    "karma-sauce-launcher": "^1.2.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^2.0.4",
     "memory-fs": "^0.4.1",
     "ts-jsdoc": "^2.0.5",
     "ts-loader": "^2.3.4",
     "typescript": "^2.4.2",
+    "uglifyjs-webpack-plugin": "^0.4.6",
     "webpack": "^3.5.5",
     "wrapper-webpack-plugin": "^1.0.0"
   },
@@ -45,6 +56,8 @@
     "i18next": "^9.0.0",
     "i18next-resource-store-loader": "^0.1.2",
     "lodash": "^4.17.4",
-    "uuid": "^3.1.0"
+    "sprintf-js": "^1.1.1",
+    "uuid": "^3.1.0",
+    "webpack-merge": "^4.1.0"
   }
 }

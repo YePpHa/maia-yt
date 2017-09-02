@@ -8,6 +8,9 @@
     "lib": ["es5", "es6", "es2015.collection", "es2015.iterable", "dom"],
     "jsx": "react",
     "sourceMap": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
 
     "preserveConstEnums": true,
     "noImplicitAny": true,

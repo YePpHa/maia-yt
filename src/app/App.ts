@@ -10,6 +10,9 @@ import { IPlayer } from './player/IPlayer';
 import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent } from './youtube/events';
 import { Event } from '../libs/events/Event';
+import { Logger } from '../libs/logging/Logger';
+
+const logger = new Logger('App');
 
 export class App extends Component {
   private _channel: Channel = new Channel('background');
@@ -51,6 +54,10 @@ export class App extends Component {
     return config;
   }
 
+  /**
+   * Attempts to handle new connections from YouTube.
+   * @param e the port event with the connected port.
+   */
   private _handleChannelConnect(e: PortEvent) {
     var port = new ServicePort(e.port);
     this._ports.push(port);
@@ -64,7 +71,7 @@ export class App extends Component {
 
       let player = this._handlePlayerCreate(id);
 
-      console.log("Player " + id + " has been created with config.", config);
+      logger.debug("Player %s has been created with config.", id);
       
       return this._handleUpdatePlayerConfig(player, config);
     });
@@ -72,9 +79,7 @@ export class App extends Component {
       if (!this._players.hasOwnProperty(id))
         throw new Error("Player with " + id + " doesn't exist.");
 
-      console.log("Player " + id + " has been updated with new config.", {
-        'playerConfig': config
-      });
+      logger.debug("Player %s has been updated with new config.", id);
       return this._handleUpdatePlayerConfig(this._players[id], config);
     });
     port.registerService("player#create", (id: string) => {
@@ -82,7 +87,7 @@ export class App extends Component {
       if (player.isInitialized())
         throw new Error("Player with " + id + " has already been initialized.");
 
-      console.log("Player " + id + " has been initialized.");
+      logger.debug("Player %s has been initialized.", id);
       player.initialize();
     });
     port.registerService("player#event", (id: string, type: YouTubeEventType, ...args: any[]) => {
@@ -90,7 +95,7 @@ export class App extends Component {
         throw new Error("Player with " + id + " doesn't exist.");
       let player = this._players[id];
 
-      console.log("Player " + id + " dispatched event " + type + ".", args);
+      logger.debug("Player %s dispatched event %s with arguments %j", id, type, args);
 
       let evt: Event;
       switch (type) {
