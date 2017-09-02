@@ -7,7 +7,7 @@
  * @param scope optional this object.
  * @return a function that removes the value descriptors
  */
-export function wrapFunction<T>(parent: any, property: string|string[], wrapperFn: ((this: T, value: any, scope: any, args: any[]) => any), scope?: T): Function {
+export function wrapFunction<T>(parent: any, property: string|string[], wrapperFn: ((this: T, value: any, scope: any, args: any[], otherValues: any[]) => any), scope?: T, onlyFirstValue: boolean = false): Function {
   let properties: string[];
   if (Array.isArray(property)) {
     properties = property;
@@ -26,6 +26,7 @@ export function wrapFunction<T>(parent: any, property: string|string[], wrapperF
     if (properties.length === 0 || !parent[property]) {
       // The value of the property.
       let value: any = parent[property];
+      let otherValues: any[] = [];
       lastValue = value;
 
       // Whether the property is the function to wrap.
@@ -34,7 +35,7 @@ export function wrapFunction<T>(parent: any, property: string|string[], wrapperF
       let valueWrapper: Function;
       if (isWrappedProperty) {
         valueWrapper = function(this: any, ...args: any[]) {
-          return wrapperFn.call(scope, value, this, args);
+          return wrapperFn.call(scope, value, this, args, otherValues);
         };
       }
 
@@ -42,7 +43,14 @@ export function wrapFunction<T>(parent: any, property: string|string[], wrapperF
       let defined = isWrappedProperty;
       Object.defineProperty(parent, property, {
         "set": val => {
-          value = val;
+          if (!isWrappedProperty || !onlyFirstValue) {
+            value = val;
+          } else if (typeof value !== "function") {
+            value = val;
+          } else {
+            otherValues.push(val);
+          }
+          
           if (!defined) {
             Object.defineProperty(parent, property, {
               "value": value,

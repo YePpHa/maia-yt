@@ -11,6 +11,9 @@ import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent } from './youtube/events';
 import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
+import { modules } from '../modules';
+import { ModuleConstructor, Module } from "../modules/Module";
+import { onPlayerConfiguration, onPlayerCreated } from "../modules/IModule";
 
 const logger = new Logger('App');
 
@@ -18,9 +21,14 @@ export class App extends Component {
   private _channel: Channel = new Channel('background');
   private _ports: ServicePort[] = [];
   private _players: {[key: string]: Player} = {};
+  private _modules: Module[] = [];
 
   constructor() {
     super();
+
+    for (let i = 0; i < modules.length; i++) {
+      this._modules.push(new modules[i]());
+    }
   }
 
   enterDocument() {
@@ -40,16 +48,29 @@ export class App extends Component {
     }, this);
   }
   
-  private _handlePlayerCreate(id: string) {
+  private _handlePlayerCreate(id: string, port: ServicePort) {
     if (!this._players.hasOwnProperty(id)) {
-      this._players[id] = new Player(id);
+      this._players[id] = new Player(id, port);
+
+      this._modules.forEach(m => {
+        const instance = (m as any) as onPlayerCreated;
+        if (typeof instance.onPlayerCreated === 'function') {
+          instance.onPlayerCreated(this._players[id]);
+        }
+      });
     }
 
     return this._players[id];
   }
 
   private _handleUpdatePlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
-    delete config.args.iv_invideo_url;
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPlayerConfiguration;
+      if (typeof instance.onPlayerConfiguration === 'function') {
+        config = instance.onPlayerConfiguration(player, config);
+      }
+    });
+    //delete config.args.iv_invideo_url;
 
     return config;
   }
@@ -69,7 +90,7 @@ export class App extends Component {
       if (this._players.hasOwnProperty(id))
         throw new Error("Player with " + id + " has already been created.");
 
-      let player = this._handlePlayerCreate(id);
+      let player = this._handlePlayerCreate(id, port);
 
       logger.debug("Player %s has been created with config.", id);
       
@@ -83,7 +104,7 @@ export class App extends Component {
       return this._handleUpdatePlayerConfig(this._players[id], config);
     });
     port.registerService("player#create", (id: string) => {
-      let player = this._handlePlayerCreate(id);
+      let player = this._handlePlayerCreate(id, port);
       if (player.isInitialized())
         throw new Error("Player with " + id + " has already been initialized.");
 
@@ -123,10 +144,10 @@ export class App extends Component {
     super.disposeInternal();
 
     this._channel.dispose();
-    this._ports.forEach(port => {
-      port.dispose();
-    }, this);
+    this._ports.forEach(port => port.dispose());
+    this._modules.forEach(m => m.dispose());
 
     this._ports = [];
+    this._modules = [];
   }
 }

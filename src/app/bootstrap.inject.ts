@@ -99,9 +99,14 @@ servicePort.addOnDisposeCallback(
     (fn: Function, self, args) => {
       const playerConfig = args[1] as PlayerConfig;
 
-      return handlePlayerCreate(playerFactory, playerConfig,
-          fn.bind(self, args[0]));
-    }
+      return handlePlayerCreate(
+        playerFactory,
+        playerConfig,
+        fn.bind(self, args[0])
+      );
+    },
+    undefined,
+    true
   )
 );
 

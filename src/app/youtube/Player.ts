@@ -60,8 +60,6 @@ export class Player extends Component {
 
   exitDocument() {
     super.exitDocument();
-
-    this._port.deregisterService("player#event:preventDefault");
   }
 
   getId(): string {
@@ -110,7 +108,7 @@ export class Player extends Component {
         type = EventType.ENDED;
         break;
       case 1:
-        type = EventType.PLAYING;
+        type = EventType.PLAYED;
         break;
       case 2:
         type = EventType.PAUSED;

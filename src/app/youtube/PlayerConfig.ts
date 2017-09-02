@@ -48,6 +48,7 @@ export declare interface PlayerConfigArguments {
   atc: string;
   author: string;
   authuser: number;
+  autoplay: string;
   avg_rating: string;
   baseUrl: string;
   c: string;

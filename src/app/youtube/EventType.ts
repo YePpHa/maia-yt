@@ -2,7 +2,7 @@ export enum EventType {
   READY = 'ready',
   UNSTARTED = 'unstarted',
   ENDED = 'ended',
-  PLAYING = 'playing',
+  PLAYED = 'played',
   PAUSED = 'paused',
   BUFFERING = 'buffering',
   CUED = 'cued',
