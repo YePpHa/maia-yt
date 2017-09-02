@@ -3,6 +3,10 @@ sudo: false
 node_js: "7"
 addons:
   chrome: stable
+  sauce_connect:
+    username: "Jinpha"
+    jwt:
+      secure: "rc+ZMNyDxA8k9jqSIWVRUPv7wJ5fZ1AOMQdStcKdEPbrWvVsWogwMgtiZ3y7G0p8eHS+d85GaMwaSaMiMN42vHUl+GqDNSQpNIWgGrYB8BfZ+zuKfJRLxgGo4tzKZOMGptQwty3wp/uQdJCPt7LQo51XJYE1oaKWK4ju07TIsXAMGrja82Lcne+3sRvWjDKsLsh08xfQWoBr8enVAwTIVNRQZmUefsRLn4sjCwkoLor2256V73931lO0qdLrF39Yo2ib8P7A5WDeeZuZnB4GUng8T2u5rZCHXvhGAJ6u4EDV+ake2vkSK4cwLZCTw4WtNBk7yGOlaKrSOqz/0vRlwPcWddnNETy+K6D5HMVcofdN0btN9yqMQEXMeEzajMsj484qxdSeQkztg3xlAIazfs2ieFS+CHgFKujEPLMaD4RV0Jd+euh04kZHEdvNWDpqCOY0Liy1vLP1PM6hrZZXWZWcNapWtSuBVKh5gzMnNfmwwhky9BFNHyBZc5UuQSdWBCqieKAVc8z9Ko0s6eP4xRu7iwFb4GVukd1pLdCL8kXs1qH2/ZWPbxRsAf4TJ6rQPSnB5r5m6gnDCGnjHVyuHlwRDxRELy9+Ng6GdeQ6rE3/0P4i8+tSNdq6/Oeq1xq7VMqY/ubkJ8m+sWHbXyRT1urUzGxN3U5A8DKoFTFx+Y4="
 branches:
   only:
     - master
