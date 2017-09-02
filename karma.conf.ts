@@ -50,9 +50,24 @@ module.exports = (config) => {
       dir: 'coverage',
       type: 'html'
     },
-    coverageIstanbulReporter: {
-      reports: [ 'text-summary' ],
-      fixWebpackSourcePaths: true
+    customLaunchers: {
+      'SL_Chrome': {
+        base: 'SauceLabs',
+        browserName: 'chrome'
+      }
+    },
+    sauceLabs: {
+      testName: 'Maia',
+      retryLimit: 3,
+      startConnect: false,
+      recordVideo: false,
+      recordScreenshots: false,
+      options: {
+        'selenium-version': '2.53.0',
+        'command-timeout': 600,
+        'idle-timeout': 600,
+        'max-duration': 5400,
+      }
     },
     reporters: ['progress', 'kjhtml', 'coverage'],
     port: 9876,
@@ -62,4 +77,15 @@ module.exports = (config) => {
     browsers: ['Chrome'],
     singleRun: false
   });
+
+  if (process.env.TRAVIS) {
+    var buildId =
+        'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')';
+    if (process.env.CI_MODE.startsWith('saucelabs')) {
+      config.sauceLabs.build = buildId;
+      config.sauceLabs.tunnelIdentifier = process.env.TRAVIS_JOB_NUMBER;
+
+      config.transports = ['polling'];
+    }
+  }
 }
