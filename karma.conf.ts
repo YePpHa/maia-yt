@@ -81,11 +81,9 @@ module.exports = (config) => {
   if (process.env.TRAVIS) {
     var buildId =
         'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')';
-    if (process.env.CI_MODE.startsWith('saucelabs')) {
-      config.sauceLabs.build = buildId;
-      config.sauceLabs.tunnelIdentifier = process.env.TRAVIS_JOB_NUMBER;
+    config.sauceLabs.build = buildId;
+    config.sauceLabs.tunnelIdentifier = process.env.TRAVIS_JOB_NUMBER;
 
-      config.transports = ['polling'];
-    }
+    config.transports = ['polling'];
   }
 }
