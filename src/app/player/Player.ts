@@ -25,8 +25,8 @@ export class Player extends EventTarget implements IPlayer {
     delete this._port;
   }
 
-  private _callApi(name: string, ...args: any[]) {
-    this._port.callSync("player#api", this._id, name, ...args);
+  private _callApi(name: string, ...args: any[]): any {
+    return this._port.callSync("player#api", this._id, name, ...args);
   }
 
   initialize(): void {

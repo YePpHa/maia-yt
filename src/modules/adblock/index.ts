@@ -4,9 +4,10 @@ import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
-const logger = new Logger("AutoPlayModule");
+const logger = new Logger("AdblockModule");
 
 export class AdblockModule extends Module implements onPlayerConfiguration {
+  public name: string = "Adblock";
 
   onPlayerConfiguration(player: Player, config: PlayerConfig): PlayerConfig {
     // Delete the ad-related properties from the configuration.

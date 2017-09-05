@@ -14,6 +14,7 @@ import { Logger } from '../libs/logging/Logger';
 import { modules } from '../modules';
 import { ModuleConstructor, Module } from "../modules/Module";
 import { onPlayerConfiguration, onPlayerCreated } from "../modules/IModule";
+import { Storage } from '../libs/storage/Storage';
 
 const logger = new Logger('App');
 
@@ -23,11 +24,12 @@ export class App extends Component {
   private _players: {[key: string]: Player} = {};
   private _modules: Module[] = [];
 
-  constructor() {
+  constructor(storage: Storage) {
     super();
 
     for (let i = 0; i < modules.length; i++) {
-      this._modules.push(new modules[i]());
+      let m = new modules[i](storage);
+      this._modules.push(m);
     }
   }
 

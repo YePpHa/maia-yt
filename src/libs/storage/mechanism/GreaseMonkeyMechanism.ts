@@ -3,7 +3,7 @@ import * as ErrorCode from '../ErrorCode';
 
 const STORAGE_AVAILABLE_KEY_ = '__sak';
 
-export default class GreaseMonkeyMechanism implements Mechanism {
+export class GreaseMonkeyMechanism implements Mechanism {
   /**
    * Determines whether or not the mechanism is available.
    */

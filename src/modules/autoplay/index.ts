@@ -7,11 +7,8 @@ import { EventType } from '../../app/youtube/EventType';
 const logger = new Logger("AutoPlayModule");
 
 export class AutoPlayModule extends Module implements onPlayerCreated {
-  /**
-   * Temporary property to quickly enable/disable this test module.
-   */
-  private enabled: boolean = false;
-
+  public name: string = "AutoPlay";
+  
   onPlayerCreated(player: Player): void {
     let unstarted: boolean = true;
     this.getHandler()
@@ -25,7 +22,9 @@ export class AutoPlayModule extends Module implements onPlayerCreated {
         unstarted = true;
       })
       .listen(player, EventType.PLAYED, () => {
-        if (this.enabled && unstarted) {
+        const enabled: boolean = this.getSettingsStorage().get('enabled', false);
+
+        if (enabled && unstarted) {
           logger.debug("Preveting auto-play by pausing the video.");
           player.pause();
         }
