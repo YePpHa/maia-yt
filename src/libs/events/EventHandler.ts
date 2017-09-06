@@ -7,7 +7,6 @@ import { ListenableKey } from './ListenableKey';
 export class EventHandler extends Disposable {
   private _scope: Object;
   private _keys: {[key: string]: ListenableKey} = {};
-  private _typeArray: string[] = [];
 
   constructor(scope?: any) {
     super();

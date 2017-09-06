@@ -26,25 +26,63 @@ export class Player extends Component {
 
   private _api: PlayerApi;
 
+  private _originalAddEventListener: Function;
+  private _originalRemoveEventListener: Function;
+  private _youtubeEvents: {[key: string]: Function} = {};
+  private _preventDefaultEvents: {[key: string]: boolean} = {};
+
+  private _playerListenable: PlayerListenable;
+
   constructor(id: string, element: Element, port: ServicePort) {
     super();
     this._id = id;
     this._element = element;
     this._port = port;
+
+    this._originalAddEventListener = (this._element as any)["addEventListener"];
+    this._originalRemoveEventListener = (this._element as any)["removeEventListener"];
+
+    (this._element as any)["addEventListener"] = (type: string, fn: Function|string) => this._addEventListener(type, fn);
+    (this._element as any)["removeEventListener"] = (type: string, fn: Function|string) => this._removeEventListener(type, fn);
   }
   
   protected disposeInternal() {
     super.disposeInternal();
 
+    (this._element as any)["addEventListener"] = this._originalAddEventListener;
+    (this._element as any)["removeEventListener"] = this._originalRemoveEventListener;
+
+    if (this._playerListenable) {
+      this._playerListenable.dispose();
+    }
+
+    delete this._playerListenable;
+    delete this._originalAddEventListener;
+    delete this._originalRemoveEventListener;
     delete this._element;
     delete this._api;
     delete this._port;
+  }
+  
+  private _addEventListener(type: string, fn: Function|string): void {
+    this.getPlayerListenable().ytAddEventListener(type, fn, this._originalAddEventListener.bind(this._element));
+  }
+  
+  private _removeEventListener(type: string, fn: Function|string): void {
+    this.getPlayerListenable().ytRemoveEventListener(type, fn, this._originalRemoveEventListener.bind(this._element));
+  }
+
+  public getPlayerListenable(): PlayerListenable {
+    if (!this._playerListenable) {
+      this._playerListenable = new PlayerListenable(this.getApi());
+    }
+    return this._playerListenable;
   }
 
   enterDocument() {
     super.enterDocument();
 
-    let player = new PlayerListenable(this.getApi());
+    let player = this.getPlayerListenable();
 
     this.getHandler()
       .listen(player, "onReady", this._handleOnReady, false)
@@ -113,9 +151,17 @@ export class Player extends Component {
 
     return this._api;
   }
+
+  private _fireEvent(e: PlayerEvent, type: EventType, ...args: any[]) {
+    const preventDefault = this._port.callSync("player#event", this.getId(), type, ...args) as boolean;
+
+    if (preventDefault) {
+      e.preventDefault();
+    }
+  }
   
-  private _handleOnReady() {
-    this._port.callSync("player#event", this.getId(), EventType.READY);
+  private _handleOnReady(e: PlayerEvent) {
+    this._fireEvent(e, EventType.READY);
   }
 
   private _handleStateChange(e: PlayerEvent) {
@@ -145,36 +191,36 @@ export class Player extends Component {
         return;
     }
   
-    this._port.callSync("player#event", this.getId(), type);
+    this._fireEvent(e, type);
   }
   
   private _handleVolumeChange(e: PlayerEvent) {
     let detail = e.detail as VolumeChangeDetail;
-    this._port.callSync("player#event", this.getId(), EventType.VOLUME_CHANGE, detail.volume, detail.muted);
+    this._fireEvent(e, EventType.VOLUME_CHANGE, detail.volume, detail.muted);
   }
     
   private _handleFullscreenChange(e: PlayerEvent) {
     let detail = e.detail as FullscreenChangeDetail;
-    this._port.callSync("player#event", this.getId(), EventType.FULLSCREEN_CHANGE, detail.fullscreen);
+    this._fireEvent(e, EventType.FULLSCREEN_CHANGE, detail.fullscreen);
   }
 
   private _handlePlaybackQualityChange(e: PlayerEvent) {
     let quality = e.detail as PlaybackQuality;
-    this._port.callSync("player#event", this.getId(), EventType.QUALITY_CHANGE, quality);
+    this._fireEvent(e, EventType.QUALITY_CHANGE, quality);
   }
 
   private _handlePlaybackRateChange(e: PlayerEvent) {
     let rate = e.detail as number;
-    this._port.callSync("player#event", this.getId(), EventType.RATE_CHANGE, rate);
+    this._fireEvent(e, EventType.RATE_CHANGE, rate);
   }
 
-  private _handleApiChange() {
-    this._port.callSync("player#event", this.getId(), EventType.API_CHANGE);
+  private _handleApiChange(e: PlayerEvent) {
+    this._fireEvent(e, EventType.API_CHANGE);
   }
 
   private _handleError(e: PlayerEvent) {
     let errorCode = e.detail as number;
-    this._port.callSync("player#event", this.getId(), EventType.ERROR, errorCode);
+    this._fireEvent(e, EventType.ERROR, errorCode);
   }
   
   private _handleDetailedError(e: PlayerEvent) {
@@ -182,7 +228,7 @@ export class Player extends Component {
   }
 
   private _handleSizeClicked(e: PlayerEvent) {
-    this._port.callSync("player#event", this.getId(), EventType.SIZE_CHANGE, e.detail as boolean);
+    this._fireEvent(e, EventType.SIZE_CHANGE, e.detail as boolean);
   }
   
   private _handleAdStateChange(e: PlayerEvent) {
@@ -212,11 +258,11 @@ export class Player extends Component {
         return;
     }
   
-    this._port.callSync("player#event", this.getId(), type);
+    this._fireEvent(e, type);
   }
 
   private _handleSharePanelOpened(e: PlayerEvent) {
-    this._port.callSync("player#event", this.getId(), EventType.SHARE_PANEL_OPENED);
+    this._fireEvent(e, EventType.SHARE_PANEL_OPENED);
   }
 
   private _handlePlaybackAudioChange(e: PlayerEvent) {
@@ -273,19 +319,19 @@ export class Player extends Component {
 
   private _handleLoadProgress(e: PlayerEvent) {
     const progress = e.detail as number;
-    this._port.callSync("player#event", this.getId(), EventType.LOAD_PROGRESS, progress);
+    this._fireEvent(e, EventType.LOAD_PROGRESS, progress);
   }
 
   private _handleVideoProgress(e: PlayerEvent) {
     const progress = e.detail as number;
-    this._port.callSync("player#event", this.getId(), EventType.VIDEO_PROGRESS, progress);
+    this._fireEvent(e, EventType.VIDEO_PROGRESS, progress);
   }
 
   private _handleReloadRequired(e: PlayerEvent) {
-    this._port.callSync("player#event", this.getId(), EventType.RELOAD_REQUIRED);
+    this._fireEvent(e, EventType.RELOAD_REQUIRED);
   }
 
   private _handleEventPreventDefault(type: EventType) {
-
+    this._preventDefaultEvents[type] = true;
   }
 }

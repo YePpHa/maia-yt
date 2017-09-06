@@ -8,22 +8,32 @@ const logger = new Logger("AdblockModule");
 
 export class AdblockModule extends Module implements onPlayerConfiguration {
   public name: string = "Adblock";
+  
+  isEnabled(): boolean {
+    return this.getStorage().get('enabled', false);
+  }
+
+  isUserChannelWhitelisted(channelId: string): boolean {
+    return false;
+  }
 
   onPlayerConfiguration(player: Player, config: PlayerConfig): PlayerConfig {
-    // Delete the ad-related properties from the configuration.
-    delete config.args.ad3_module;
-    delete config.args.ad_device;
-    delete config.args.ad_flags;
-    delete config.args.ad_logging_flag;
-    delete config.args.ad_preroll;
-    delete config.args.ad_slots;
-    delete config.args.ad_tag;
-    delete config.args.adsense_video_doc_id;
-    delete config.args.advideo;
-    delete config.args.afv;
-    delete config.args.afv_ad_tag;
+    if (this.isEnabled() && !this.isUserChannelWhitelisted(config.args.ucid)) {
+      // Delete the ad-related properties from the configuration.
+      delete config.args.ad3_module;
+      delete config.args.ad_device;
+      delete config.args.ad_flags;
+      delete config.args.ad_logging_flag;
+      delete config.args.ad_preroll;
+      delete config.args.ad_slots;
+      delete config.args.ad_tag;
+      delete config.args.adsense_video_doc_id;
+      delete config.args.advideo;
+      delete config.args.afv;
+      delete config.args.afv_ad_tag;
 
-    config.args.allow_html5_ads = "0";
+      config.args.allow_html5_ads = "0";
+    }
 
     return config;
   }

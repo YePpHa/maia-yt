@@ -136,9 +136,7 @@ export class App extends Component {
 
       player.dispatchEvent(evt);
 
-      if (evt.defaultPrevented) {
-        port.callSync("player#event:preventDefault", id, type);
-      }
+      return evt.defaultPrevented;
     });
   }
 

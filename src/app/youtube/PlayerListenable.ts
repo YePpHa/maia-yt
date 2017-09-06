@@ -4,6 +4,7 @@ import { ListenerMap } from '../../libs/events/ListenerMap';
 import { Listenable, addImplementation } from '../../libs/events/Listenable';
 import { ListenableKey } from '../../libs/events/ListenableKey';
 import { PlayerApi } from './PlayerApi';
+import { getObjectByName } from '../../libs/property';
 
 export class PlayerEvent extends Event {
   /**
@@ -23,6 +24,8 @@ export class PlayerListenable extends Disposable implements Listenable {
   private _listeners: ListenerMap = new ListenerMap(this);
   private _proxy: {[key: number]: [string, Function, boolean]} = {};
   private _api: PlayerApi;
+  private _ytListeners: {[key: string]: {[key: string]: Function}} = {};
+  private _ytTypesAllowed: {[key: string]: boolean} = {};
 
   /**
    * @param api the API interface.
@@ -38,15 +41,58 @@ export class PlayerListenable extends Disposable implements Listenable {
 
     this.removeAllListeners();
   }
+  
+  ytAddEventListener(type: string, fnOrName: Function|string, addEventListener: Function) {
+    let method: Function;
+    if (typeof fnOrName === "string") {
+      method = (...args: any[]) => {
+        if (this._listeners.listeners[type]
+          && this._listeners.listeners[type].length > 0
+          && !this._ytTypesAllowed[type])
+          return;
+
+        let fn = getObjectByName(fnOrName) as Function;
+
+        fn.apply(window, args);
+      };
+      if (!this._ytListeners[type]) this._ytListeners[type] = {};
+      this._ytListeners[type][fnOrName] = method;
+    } else {
+      method = fnOrName;
+    }
+    addEventListener(type, method);
+  }
+  
+  ytRemoveEventListener(type: string, fnOrName: Function|string, removeEventListener: Function) {
+    let method: Function;
+    if (typeof fnOrName === "string") {
+      if (!this._ytListeners[type]) return;
+
+      method = this._ytListeners[type][fnOrName];
+      delete this._ytListeners[type][fnOrName];
+      if (!method) return;
+    } else {
+      method = fnOrName;
+    }
+    removeEventListener(type, method);
+  }
 
   listen(type: string, listener: Function, useCapture?: boolean | undefined, listenerScope?: Object | undefined): ListenableKey {
-    var key = this._listeners.add(type, listener, false /* callOnce */,
+    let key = this._listeners.add(type, listener, false /* callOnce */,
       useCapture, listenerScope);
-    var proxy: [string, Function, boolean] = [
+    let proxy: [string, Function, boolean] = [
       key.type,
-      (detail: any) => {
-        return key.listener.call(key.handler, new PlayerEvent(detail, key.type,
-          key.src));
+      (detail: any, ...args: any[]) => {
+        let evt = new PlayerEvent(detail, key.type, key.src);
+        let returnValue = key.listener.call(key.handler, evt);
+
+        if (!evt.defaultPrevented && this._ytListeners[key.type]) {
+          this._ytTypesAllowed[key.type] = true;
+          for (let name in this._ytListeners[key.type]) {
+            this._ytListeners[key.type][name](detail, ...args);
+          }
+          this._ytTypesAllowed[key.type] = false;
+        }
       },
       !!useCapture
     ];
@@ -57,13 +103,21 @@ export class PlayerListenable extends Disposable implements Listenable {
   }
 
   listenOnce(type: string, listener: Function, useCapture?: boolean | undefined, listenerScope?: Object | undefined): ListenableKey {
-    var key = this._listeners.add(type, listener, true /* callOnce */,
+    let key = this._listeners.add(type, listener, true /* callOnce */,
       useCapture, listenerScope);
-    var proxy: [string, Function, boolean] = [
+    let proxy: [string, Function, boolean] = [
       key.type,
-      (detail: any) => {
-        return key.listener.call(key.handler, new PlayerEvent(detail, key.type,
-          key.src));
+      (detail: any, ...args: any[]) => {
+        let evt = new PlayerEvent(detail, key.type, key.src);
+        let returnValue = key.listener.call(key.handler, evt);
+
+        if (!evt.defaultPrevented && this._ytListeners[key.type]) {
+          this._ytTypesAllowed[key.type] = true;
+          for (let name in this._ytListeners[key.type]) {
+            this._ytListeners[key.type][name](detail, ...args);
+          }
+          this._ytTypesAllowed[key.type] = false;
+        }
       },
       !!useCapture
     ];

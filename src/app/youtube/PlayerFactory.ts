@@ -17,6 +17,7 @@ export class PlayerFactory extends Component {
   /**
    * Create a new player instance by element.
    * @param element the player element.
+   * @param id the id.
    * @return the player instance.
    */
   createPlayer(element: Element, id?: string): Player {
@@ -47,13 +48,11 @@ export class PlayerFactory extends Component {
     super.enterDocument();
 
     this._port.registerService("player#api", this._handleApiCall, this);
-    this._port.registerService("player#event:preventDefault", this._handleEventPreventDefault, this);
   }
 
   /** @override */
   exitDocument() {
     this._port.deregisterService("player#api");
-    this._port.deregisterService("player#event:preventDefault");
 
     super.exitDocument();
   }
@@ -63,10 +62,6 @@ export class PlayerFactory extends Component {
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
 
     return (player.getApi() as any)[name].apply(null, args);
-  }
-
-  private _handleEventPreventDefault(id: string, type: EventType): void {
-    console.warn("event.preventDefault() for player events have not been implemented yet.");
   }
 
   /**

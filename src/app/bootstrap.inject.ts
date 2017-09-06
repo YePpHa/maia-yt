@@ -33,6 +33,61 @@ const handlePlayerUpdate = (playerConfig: PlayerConfig): PlayerConfig => {
   return playerConfig;
 };
 
+const containsPlayerListeners = (obj: Object): boolean => {
+  for (let key in obj) {
+    if (key.substring(0, 8) === "ytPlayer")
+      return true;
+  }
+  return false;
+};
+
+const getPlayerApi = (player: any):{
+  element: Element|undefined,
+  api: {[key: string]: Function}|undefined,
+  internalApi: {[key: string]: Function}|undefined
+} => {
+  let element: Element|undefined = undefined;
+  let api: {[key: string]: Function}|undefined = undefined;
+  let internalApi: {[key: string]: Function}|undefined = undefined;
+
+  for (let key in player) {
+    if (!player.hasOwnProperty(key)
+      || !player[key]
+      || typeof player[key] !== 'object'
+      || !player[key].hasOwnProperty("app")
+      || !player[key].hasOwnProperty("playerType")) continue;
+    let app = player[key];
+    if (typeof app["getRootNode"] === "function") continue;
+
+    for (let key in app) {
+      if (typeof app[key] !== 'object' || !app[key] || key === "app") continue;
+
+      if (app[key] instanceof Element) {
+        element = app[key];
+      } else if (app[key].hasOwnProperty("getApiInterface")) {
+        api = app[key];
+      } else if (app[key].hasOwnProperty("getInternalApiInterface")) {
+        internalApi = app[key];
+      }
+    }
+    break;
+  }
+  
+  if (element && (element as any)["addEventListener"]) {
+    const originalAddEventListener = (element as any)["addEventListener"];
+
+    (element as any)["addEventListener"] = function(type: string, fn: string|Function): any {
+      return originalAddEventListener.apply(api, arguments);
+    };
+  }
+
+  return {
+    element: element,
+    api: api,
+    internalApi: internalApi
+  }
+};
+
 const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): any => {
   if (servicePort.isDisposed()) {
     if (fn) {
@@ -53,10 +108,12 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
   if (fn) {
     playerApp = fn(playerConfig);
   }
-  let playerElement = document.getElementById(elementId);
-  if (!playerElement) return playerApp;
 
-  let player = playerFactory.createPlayer(playerElement, playerId);
+  const playerInstance = getPlayerApi(playerApp);
+  
+  if (!playerInstance.element) return playerApp;
+
+  let player = playerFactory.createPlayer(playerInstance.element, playerId);
   players[elementId] = player;
 
   player.enterDocument();
