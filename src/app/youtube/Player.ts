@@ -48,14 +48,36 @@ export class Player extends Component {
 
     this.getHandler()
       .listen(player, "onReady", this._handleOnReady, false)
-      .listen(player, "onStateChange", this._handleOnStateChange, false)
-      .listen(player, "onVolumeChange", this._handleOnVolumeChange, false)
-      .listen(player, "onFullscreenChange", this._handleOnFullscreenChange, false)
-      .listen(player, "onPlaybackQualityChange", this._handleOnPlaybackQualityChange, false)
-      .listen(player, "onPlaybackRateChange", this._handleOnPlaybackRateChange, false)
-      .listen(player, "onApiChange", this._handleOnApiChange, false)
-      .listen(player, "onError", this._handleOnError, false)
-      .listen(player, "SIZE_CLICKED", this._handleSizeClicked, false);
+      .listen(player, "onStateChange", this._handleStateChange, false)
+      .listen(player, "onVolumeChange", this._handleVolumeChange, false)
+      .listen(player, "onFullscreenChange", this._handleFullscreenChange, false)
+      .listen(player, "onPlaybackQualityChange", this._handlePlaybackQualityChange, false)
+      .listen(player, "onPlaybackRateChange", this._handlePlaybackRateChange, false)
+      .listen(player, "onApiChange", this._handleApiChange, false)
+      .listen(player, "onError", this._handleError, false)
+      .listen(player, "onDetailedError", this._handleDetailedError, false)
+      .listen(player, "SIZE_CLICKED", this._handleSizeClicked, false)
+      .listen(player, "onAdStateChange", this._handleAdStateChange, false)
+      .listen(player, "onSharePanelOpened", this._handleSharePanelOpened, false)
+      .listen(player, "onPlaybackAudioChange", this._handlePlaybackAudioChange, false)
+      .listen(player, "onVideoDataChange", this._handleVideoDataChange, false)
+      .listen(player, "onPlaylistUpdate", this._handlePlaylistUpdate, false)
+      .listen(player, "onCueRangeEnter", this._handleCueRangeEnter, false)
+      .listen(player, "onCueRangeExit", this._handleCueRangeExit, false)
+      .listen(player, "onCueRangeMarkersUpdated", this._handleCueRangeMarkersUpdated, false)
+      .listen(player, "onCueRangesAdded", this._handleCueRangesAdded, false)
+      .listen(player, "onCueRangesRemoved", this._handleCueRangesRemoved, false)
+      .listen(player, "CONNECTION_ISSUE", this._handleConnectionIssue, false)
+      .listen(player, "SHARE_CLICKED", this._handleShareClicked, false)
+      .listen(player, "WATCH_LATER_VIDEO_ADDED", this._handleWatchLaterVideoAdded, false)
+      .listen(player, "WATCH_LATER_VIDEO_REMOVED", this._handleWatchLaterVideoRemoved, false)
+      .listen(player, "WATCH_LATER_ERROR", this._handleWatchLaterError, false)
+      .listen(player, "onLoadProgress", this._handleLoadProgress, false)
+      .listen(player, "onVideoProgress", this._handleVideoProgress, false)
+      .listen(player, "onReloadRequired", this._handleReloadRequired, false)
+      .listen(player, "onPlayVideo", console.log.bind(console, "onPlayVideo"), false)
+      .listen(player, "onPlaylistNext", console.log.bind(console, "onPlaylistNext"), false)
+      .listen(player, "onPlaylistPrevious", console.log.bind(console, "onPlaylistPrevious"), false);
   }
 
   exitDocument() {
@@ -96,7 +118,7 @@ export class Player extends Component {
     this._port.callSync("player#event", this.getId(), EventType.READY);
   }
 
-  private _handleOnStateChange(e: PlayerEvent) {
+  private _handleStateChange(e: PlayerEvent) {
     let state = e.detail as PlayerState;
 
     let type: EventType;
@@ -126,37 +148,141 @@ export class Player extends Component {
     this._port.callSync("player#event", this.getId(), type);
   }
   
-  private _handleOnVolumeChange(e: PlayerEvent) {
+  private _handleVolumeChange(e: PlayerEvent) {
     let detail = e.detail as VolumeChangeDetail;
     this._port.callSync("player#event", this.getId(), EventType.VOLUME_CHANGE, detail.volume, detail.muted);
   }
     
-  private _handleOnFullscreenChange(e: PlayerEvent) {
+  private _handleFullscreenChange(e: PlayerEvent) {
     let detail = e.detail as FullscreenChangeDetail;
-    this._port.callSync("player#event", this.getId(), EventType.VOLUME_CHANGE, detail.fullscreen);
+    this._port.callSync("player#event", this.getId(), EventType.FULLSCREEN_CHANGE, detail.fullscreen);
   }
 
-  private _handleOnPlaybackQualityChange(e: PlayerEvent) {
+  private _handlePlaybackQualityChange(e: PlayerEvent) {
     let quality = e.detail as PlaybackQuality;
     this._port.callSync("player#event", this.getId(), EventType.QUALITY_CHANGE, quality);
   }
 
-  private _handleOnPlaybackRateChange(e: PlayerEvent) {
+  private _handlePlaybackRateChange(e: PlayerEvent) {
     let rate = e.detail as number;
     this._port.callSync("player#event", this.getId(), EventType.RATE_CHANGE, rate);
   }
 
-  private _handleOnApiChange() {
+  private _handleApiChange() {
     this._port.callSync("player#event", this.getId(), EventType.API_CHANGE);
   }
 
-  private _handleOnError(e: PlayerEvent) {
+  private _handleError(e: PlayerEvent) {
     let errorCode = e.detail as number;
     this._port.callSync("player#event", this.getId(), EventType.ERROR, errorCode);
+  }
+  
+  private _handleDetailedError(e: PlayerEvent) {
+    
   }
 
   private _handleSizeClicked(e: PlayerEvent) {
     this._port.callSync("player#event", this.getId(), EventType.SIZE_CHANGE, e.detail as boolean);
+  }
+  
+  private _handleAdStateChange(e: PlayerEvent) {
+    let state = e.detail as PlayerState;
+    
+    let type: EventType;
+    switch (state) {
+      case -1:
+        type = EventType.AD_UNSTARTED;
+        break;
+      case 0:
+        type = EventType.AD_ENDED;
+        break;
+      case 1:
+        type = EventType.AD_PLAYED;
+        break;
+      case 2:
+        type = EventType.AD_PAUSED;
+        break;
+      case 3:
+        type = EventType.AD_BUFFERING;
+        break;
+      case 5:
+        type = EventType.AD_CUED;
+        break;
+      default:
+        return;
+    }
+  
+    this._port.callSync("player#event", this.getId(), type);
+  }
+
+  private _handleSharePanelOpened(e: PlayerEvent) {
+    this._port.callSync("player#event", this.getId(), EventType.SHARE_PANEL_OPENED);
+  }
+
+  private _handlePlaybackAudioChange(e: PlayerEvent) {
+
+  }
+
+  private _handleVideoDataChange(e: PlayerEvent) {
+
+  }
+  
+  private _handlePlaylistUpdate(e: PlayerEvent) {
+
+  }
+  
+  private _handleCueRangeEnter(e: PlayerEvent) {
+    
+  }
+
+  private _handleCueRangeExit(e: PlayerEvent) {
+
+  }
+
+  private _handleCueRangeMarkersUpdated(e: PlayerEvent) {
+
+  }
+
+  private _handleCueRangesAdded(e: PlayerEvent) {
+
+  }
+
+  private _handleCueRangesRemoved(e: PlayerEvent) {
+
+  }
+
+  private _handleConnectionIssue(e: PlayerEvent) {
+
+  }
+
+  private _handleShareClicked(e: PlayerEvent) {
+
+  }
+
+  private _handleWatchLaterVideoAdded(e: PlayerEvent) {
+
+  }
+
+  private _handleWatchLaterVideoRemoved(e: PlayerEvent) {
+
+  }
+
+  private _handleWatchLaterError(e: PlayerEvent) {
+
+  }
+
+  private _handleLoadProgress(e: PlayerEvent) {
+    const progress = e.detail as number;
+    this._port.callSync("player#event", this.getId(), EventType.LOAD_PROGRESS, progress);
+  }
+
+  private _handleVideoProgress(e: PlayerEvent) {
+    const progress = e.detail as number;
+    this._port.callSync("player#event", this.getId(), EventType.VIDEO_PROGRESS, progress);
+  }
+
+  private _handleReloadRequired(e: PlayerEvent) {
+    this._port.callSync("player#event", this.getId(), EventType.RELOAD_REQUIRED);
   }
 
   private _handleEventPreventDefault(type: EventType) {

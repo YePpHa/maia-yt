@@ -6,29 +6,83 @@ import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
 const logger = new Logger("AutoPlayModule");
 
-export class AutoPlayModule extends Module implements onPlayerCreated {
+export enum AutoPlayMode {
+  PAUSE,
+  STOP,
+  EMBEDDED
+}
+
+export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerConfiguration {
   public name: string = "AutoPlay";
+
+  private _unstarted: boolean = true;
+
+  isEnabled(): boolean {
+    return this.getStorage().get('enabled', false);
+  }
+
+  getMode(): AutoPlayMode {
+    return this.getStorage().get('mode', AutoPlayMode.PAUSE);
+  }
+
+  onPlayerConfiguration(player: Player, config: PlayerConfig): PlayerConfig {
+    const enabled: boolean = this.isEnabled();
+    if (enabled) {
+      const mode: AutoPlayMode = this.getMode();
+      switch (mode) {
+        case AutoPlayMode.EMBEDDED:
+          logger.debug("Preveting auto-play by changing player type to embedded type.");
+          config.args.iv_load_policy = "3";
+          break;
+      }
+    }
+
+    return config;
+  }
   
   onPlayerCreated(player: Player): void {
-    let unstarted: boolean = true;
     this.getHandler()
       .listen(player, EventType.ENDED, () => {
-        unstarted = false;
+        this._unstarted = false;
       })
       .listen(player, EventType.PAUSED, () => {
-        unstarted = false;
+        this._unstarted = false;
+      })
+      .listen(player, EventType.AD_ENDED, () => {
+        this._unstarted = false;
+      })
+      .listen(player, EventType.AD_PAUSED, () => {
+        this._unstarted = false;
       })
       .listen(player, EventType.UNSTARTED, () => {
-        unstarted = true;
+        this._unstarted = true;
       })
-      .listen(player, EventType.PLAYED, () => {
-        const enabled: boolean = this.getSettingsStorage().get('enabled', false);
+      .listen(player, EventType.AD_UNSTARTED, () => {
+        this._unstarted = true;
+      })
+      .listen(player, EventType.PLAYED, () => this.onPlayed(player))
+      .listen(player, EventType.AD_PLAYED, () => this.onPlayed(player));
+  }
 
-        if (enabled && unstarted) {
-          logger.debug("Preveting auto-play by pausing the video.");
+  private onPlayed(player: Player) {
+    const enabled: boolean = this.isEnabled();
+
+    if (enabled && this._unstarted) {
+      logger.debug("Preveting auto-play by pausing the video.");
+
+      const mode: AutoPlayMode = this.getMode();
+      switch (mode) {
+        case AutoPlayMode.EMBEDDED:
+          break;
+        case AutoPlayMode.STOP:
+          player.stop();
+          break;
+        case AutoPlayMode.PAUSE:
+        default:
           player.pause();
-        }
-        unstarted = false;
-      });
+          break;
+      }
+    }
+    this._unstarted = false;
   }
 }

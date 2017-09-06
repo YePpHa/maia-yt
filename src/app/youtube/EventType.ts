@@ -12,5 +12,17 @@ export enum EventType {
   RATE_CHANGE = 'rate-change',
   API_CHANGE = 'api-change',
   SIZE_CHANGE = 'size-change',
-  ERROR = 'error'
+  FULLSCREEN_CHANGE = 'fullscreen-change',
+  ERROR = 'error',
+  AD_UNSTARTED = 'ad-unstarted',
+  AD_ENDED = 'ad-ended',
+  AD_PLAYED = 'ad-played',
+  AD_PAUSED = 'ad-paused',
+  AD_BUFFERING = 'ad-buffering',
+  AD_CUED = 'ad-cued',
+  /** The share panel on embedded YouTube videos */
+  SHARE_PANEL_OPENED = 'share-panel-opened',
+  LOAD_PROGRESS = 'load-progress',
+  VIDEO_PROGRESS = 'video-progress',
+  RELOAD_REQUIRED = 'reload-required'
 };
