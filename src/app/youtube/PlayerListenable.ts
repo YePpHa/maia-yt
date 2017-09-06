@@ -46,7 +46,7 @@ export class PlayerListenable extends Disposable implements Listenable {
     let method: Function;
     if (typeof fnOrName === "string") {
       method = (...args: any[]) => {
-        if (this._listeners.listeners[type]
+        if (!this.isDisposed() && this._listeners.listeners[type]
           && this._listeners.listeners[type].length > 0
           && !this._ytTypesAllowed[type])
           return;

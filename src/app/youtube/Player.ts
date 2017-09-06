@@ -65,11 +65,19 @@ export class Player extends Component {
   }
   
   private _addEventListener(type: string, fn: Function|string): void {
-    this.getPlayerListenable().ytAddEventListener(type, fn, this._originalAddEventListener.bind(this._element));
+    if (this.isDisposed()) {
+      this._originalAddEventListener.call(this._element, type, fn);
+    } else {
+      this.getPlayerListenable().ytAddEventListener(type, fn, this._originalAddEventListener.bind(this._element));
+    }
   }
   
   private _removeEventListener(type: string, fn: Function|string): void {
-    this.getPlayerListenable().ytRemoveEventListener(type, fn, this._originalRemoveEventListener.bind(this._element));
+    if (this.isDisposed()) {
+      this._originalRemoveEventListener.call(this._element, type, fn);
+    } else {
+      this.getPlayerListenable().ytRemoveEventListener(type, fn, this._originalRemoveEventListener.bind(this._element));
+    }
   }
 
   public getPlayerListenable(): PlayerListenable {
