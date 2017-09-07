@@ -26,8 +26,8 @@ export class Player extends Component {
 
   private _api: PlayerApi;
 
-  private _originalAddEventListener: Function;
-  private _originalRemoveEventListener: Function;
+  private _originalAddEventListener: (type: string, fn: Function|string) => void;
+  private _originalRemoveEventListener: (type: string, fn: Function|string) => void;
   private _youtubeEvents: {[key: string]: Function} = {};
   private _preventDefaultEvents: {[key: string]: boolean} = {};
 
@@ -68,7 +68,7 @@ export class Player extends Component {
     if (this.isDisposed()) {
       this._originalAddEventListener.call(this._element, type, fn);
     } else {
-      this.getPlayerListenable().ytAddEventListener(type, fn, this._originalAddEventListener.bind(this._element));
+      this.getPlayerListenable().ytAddEventListener(type, fn);
     }
   }
   
@@ -76,13 +76,16 @@ export class Player extends Component {
     if (this.isDisposed()) {
       this._originalRemoveEventListener.call(this._element, type, fn);
     } else {
-      this.getPlayerListenable().ytRemoveEventListener(type, fn, this._originalRemoveEventListener.bind(this._element));
+      this.getPlayerListenable().ytRemoveEventListener(type, fn);
     }
   }
 
   public getPlayerListenable(): PlayerListenable {
     if (!this._playerListenable) {
-      this._playerListenable = new PlayerListenable(this.getApi());
+      this._playerListenable = new PlayerListenable(
+        this._originalAddEventListener,
+        this._originalRemoveEventListener
+      );
     }
     return this._playerListenable;
   }

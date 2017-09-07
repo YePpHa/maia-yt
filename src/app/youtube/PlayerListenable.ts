@@ -22,27 +22,40 @@ export class PlayerEvent extends Event {
  */
 export class PlayerListenable extends Disposable implements Listenable {
   private _listeners: ListenerMap = new ListenerMap(this);
-  private _proxy: {[key: number]: [string, Function, boolean]} = {};
-  private _api: PlayerApi;
+  private _proxy: {[key: number]: [string, Function]} = {};
+
   private _ytListeners: {[key: string]: {[key: string]: Function}} = {};
   private _ytTypesAllowed: {[key: string]: boolean} = {};
 
   /**
-   * @param api the API interface.
+   * @param addEventListener the addEventListener API.
+   * @param removeEventListener the removeEventListener API.
    */
-  constructor(api: PlayerApi) {
+  constructor(
+    private addEventListener: (type: string, fn: Function|string) => void,
+    private removeEventListener: (type: string, fn: Function|string) => void
+  ) {
     super();
-
-    this._api = api;
   }
 
   protected disposeInternal() {
     super.disposeInternal();
 
+    for (let type in this._ytListeners) {
+      if (!this._ytListeners.hasOwnProperty(type)) continue;
+      let listeners = this._ytListeners[type];
+      for (let key in listeners) {
+        if (!listeners.hasOwnProperty(key)) continue;
+
+        this.removeEventListener(type, listeners[key]);
+        this.addEventListener(type, key);
+      }
+    }
+
     this.removeAllListeners();
   }
   
-  ytAddEventListener(type: string, fnOrName: Function|string, addEventListener: Function) {
+  ytAddEventListener(type: string, fnOrName: Function|string) {
     let method: Function;
     if (typeof fnOrName === "string") {
       method = (...args: any[]) => {
@@ -60,10 +73,10 @@ export class PlayerListenable extends Disposable implements Listenable {
     } else {
       method = fnOrName;
     }
-    addEventListener(type, method);
+    this.addEventListener(type, method);
   }
   
-  ytRemoveEventListener(type: string, fnOrName: Function|string, removeEventListener: Function) {
+  ytRemoveEventListener(type: string, fnOrName: Function|string) {
     let method: Function;
     if (typeof fnOrName === "string") {
       if (!this._ytListeners[type]) return;
@@ -74,13 +87,13 @@ export class PlayerListenable extends Disposable implements Listenable {
     } else {
       method = fnOrName;
     }
-    removeEventListener(type, method);
+    this.removeEventListener(type, method);
   }
 
   listen(type: string, listener: Function, useCapture?: boolean | undefined, listenerScope?: Object | undefined): ListenableKey {
     let key = this._listeners.add(type, listener, false /* callOnce */,
       useCapture, listenerScope);
-    let proxy: [string, Function, boolean] = [
+    let proxy: [string, Function] = [
       key.type,
       (detail: any, ...args: any[]) => {
         let evt = new PlayerEvent(detail, key.type, key.src);
@@ -93,11 +106,10 @@ export class PlayerListenable extends Disposable implements Listenable {
           }
           this._ytTypesAllowed[key.type] = false;
         }
-      },
-      !!useCapture
+      }
     ];
     this._proxy[key.key] = proxy;
-    this._api.addEventListener(proxy[0], proxy[1], proxy[2]);
+    this.addEventListener(proxy[0], proxy[1]);
 
     return key;
   }
@@ -105,7 +117,7 @@ export class PlayerListenable extends Disposable implements Listenable {
   listenOnce(type: string, listener: Function, useCapture?: boolean | undefined, listenerScope?: Object | undefined): ListenableKey {
     let key = this._listeners.add(type, listener, true /* callOnce */,
       useCapture, listenerScope);
-    let proxy: [string, Function, boolean] = [
+    let proxy: [string, Function] = [
       key.type,
       (detail: any, ...args: any[]) => {
         let evt = new PlayerEvent(detail, key.type, key.src);
@@ -118,11 +130,10 @@ export class PlayerListenable extends Disposable implements Listenable {
           }
           this._ytTypesAllowed[key.type] = false;
         }
-      },
-      !!useCapture
+      }
     ];
     this._proxy[key.key] = proxy;
-    this._api.addEventListener(proxy[0], proxy[1], proxy[2]);
+    this.addEventListener(proxy[0], proxy[1]);
 
     return key;
   }
@@ -138,7 +149,7 @@ export class PlayerListenable extends Disposable implements Listenable {
     var proxy = this._proxy[key.key];
     delete this._proxy[key.key];
 
-    this._api.removeEventListener(proxy[0], proxy[1], proxy[2]);
+    this.removeEventListener(proxy[0], proxy[1]);
 
     return this._listeners.removeByKey(key);
   }
@@ -162,7 +173,7 @@ export class PlayerListenable extends Disposable implements Listenable {
           let proxy = this._proxy[key.key];
           delete this._proxy[key.key];
 
-          this._api.removeEventListener(proxy[0], proxy[1], proxy[2]);
+          this.removeEventListener(proxy[0], proxy[1]);
         }
       }
     }

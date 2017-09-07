@@ -119,8 +119,8 @@ export declare interface PlayerApi {
   getAvailableQualityLevels: () => PlaybackQuality[];
   getCurrentTime: () => number;
   getDuration: () => number;
-  addEventListener: (type: string, fn: Function, capture?: boolean) => void;
-  removeEventListener: (type: string, fn: Function, capture?: boolean) => void;
+  addEventListener: (type: string, fn: Function|string) => void;
+  removeEventListener: (type: string, fn: Function|string) => void;
   getVideoUrl: () => string;
   getDebugText: () => string;
   getVideoEmbedCode: () => string;
