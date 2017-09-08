@@ -13,12 +13,61 @@ export class AdblockModule extends Module implements onPlayerConfiguration {
     return this.getStorage().get('enabled', false);
   }
 
-  isUserChannelWhitelisted(channelId: string): boolean {
-    return false;
+  setEnabled(enabled: boolean): void {
+    this.getStorage().set('enabled', enabled);
+  }
+
+  isVideoBlacklisted(videoId: string): boolean {
+    const blacklist: string[] = this.getStorage().get('videoBlacklist', []);
+
+    return blacklist.indexOf(videoId) !== -1;
+  }
+
+  isVideoWhitelisted(videoId: string): boolean {
+    const whitelist: string[] = this.getStorage().get('videoWhitelist', []);
+
+    return whitelist.indexOf(videoId) !== -1;
+  }
+  
+  isChannelBlacklisted(channelId: string): boolean {
+    const blacklist: string[] = this.getStorage().get('channelBlacklist', []);
+    
+    return blacklist.indexOf(channelId) !== -1;
+  }
+  
+  isChannelWhitelisted(channelId: string): boolean {
+    const whitelist: string[] = this.getStorage().get('channelWhitelist', []);
+    
+    return whitelist.indexOf(channelId) !== -1;
+  }
+
+  isSubscribedChannelsWhitelisted(): boolean {
+    return this.getStorage().get('subscribedChannelsWhitelisted', false);
   }
 
   onPlayerConfiguration(player: Player, config: PlayerConfig): PlayerConfig {
-    if (this.isEnabled() && !this.isUserChannelWhitelisted(config.args.ucid)) {
+    if (!this.isEnabled()) return config;
+
+    const subscribed: boolean = config.args.subscribed === "1";
+
+    const videoId = config.args.video_id;
+    const channelId = config.args.ucid;
+
+    // Don't block ads if channel is subscribed to and the subscribed channels
+    // are whitelisted.
+    let blockAds: boolean = !subscribed || !this.isSubscribedChannelsWhitelisted();
+    
+    // Don't block ads if video or channel is whitelisted.
+    if (this.isVideoWhitelisted(videoId) || this.isChannelWhitelisted(channelId)) {
+      blockAds = false;
+    }
+
+    // Block ads if video or channel is blacklisted.
+    if (this.isVideoBlacklisted(videoId) || this.isChannelBlacklisted(channelId)) {
+      blockAds = true;
+    }
+
+    if (blockAds) {
       // Delete the ad-related properties from the configuration.
       delete config.args.ad3_module;
       delete config.args.ad_device;

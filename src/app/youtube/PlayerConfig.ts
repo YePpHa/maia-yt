@@ -161,4 +161,5 @@ export declare interface PlayerConfigArguments {
   watch_ajax_token: string;
   watermark: string;
   xhr_apiary_host: string;
+  subscribed: string;
 }
