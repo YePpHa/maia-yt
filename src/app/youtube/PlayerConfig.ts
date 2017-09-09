@@ -49,6 +49,7 @@ export declare interface PlayerData {
   author: string;
   authuser: number;
   autoplay: string;
+  autoplayoverride: string;
   avg_rating: string;
   baseUrl: string;
   c: string;
@@ -65,6 +66,7 @@ export declare interface PlayerData {
   cver: string;
   dbp: string;
   dclk: string;
+  delay: number;
   enablecsi: string;
   enabled_engage_types: string;
   enablejsapi: string;

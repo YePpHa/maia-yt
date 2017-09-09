@@ -50,9 +50,9 @@ export class App extends Component {
     }, this);
   }
   
-  private _handlePlayerCreate(id: string, port: ServicePort) {
+  private _handlePlayerCreate(id: string, elementId: string, port: ServicePort) {
     if (!this._players.hasOwnProperty(id)) {
-      this._players[id] = new Player(id, port);
+      this._players[id] = new Player(id, elementId, port);
 
       this._modules.forEach(m => {
         const instance = (m as any) as onPlayerCreated;
@@ -103,11 +103,11 @@ export class App extends Component {
       port.enterDocument();
     }
 
-    port.registerService("player#beforecreate", (id: string, config: PlayerConfig): any => {
+    port.registerService("player#beforecreate", (id: string, elementId: string, config: PlayerConfig): any => {
       if (this._players.hasOwnProperty(id))
         throw new Error("Player with " + id + " has already been created.");
 
-      let player = this._handlePlayerCreate(id, port);
+      let player = this._handlePlayerCreate(id, elementId, port);
 
       logger.debug("Player %s has been created with config.", id);
       
@@ -127,13 +127,15 @@ export class App extends Component {
       logger.debug("Player %s has been updated with new data.", id);
       return this._handleUpdatePlayerData(this._players[id], data);
     });
-    port.registerService("player#create", (id: string) => {
-      let player = this._handlePlayerCreate(id, port);
-      if (player.isInitialized())
+    port.registerService("player#create", (id: string, elementId: string, config: PlayerConfig) => {
+      let player = this._handlePlayerCreate(id, elementId, port);
+      if (player.isReady())
         throw new Error("Player with " + id + " has already been initialized.");
 
       logger.debug("Player %s has been initialized.", id);
-      player.initialize();
+      player.ready();
+
+      return this._handleUpdatePlayerConfig(this._players[id], config);
     });
     port.registerService("player#event", (id: string, type: YouTubeEventType, ...args: any[]) => {
       if (!this._players.hasOwnProperty(id))

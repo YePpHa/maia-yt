@@ -119,7 +119,7 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
   let playerId = uuidv4();
 
   // Send a beforecreate event to the core.
-  let newplayerConfig = servicePort.callSync("player#beforecreate", playerId,
+  let newplayerConfig = servicePort.callSync("player#beforecreate", playerId, elementId,
     playerConfig) as PlayerConfig;
   playerConfig = newplayerConfig || playerConfig;
 
@@ -154,7 +154,7 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
     api.loadVideoByPlayerVars(newplayerConfig.args);
   }
 
-  servicePort.call("player#create", player.getId());
+  servicePort.call("player#create", player.getId(), elementId, playerConfig);
 
   return playerApp;
 };

@@ -4,17 +4,19 @@ import { ServicePort } from "../../libs/messaging/ServicePort";
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
+  private _elementId: string;
   private _port: ServicePort;
 
   /**
    * Whether YouTube has initialized the player yet.
    */
-  private _initialized: boolean = false;
+  private _ready: boolean = false;
 
-  constructor(id: string, port: ServicePort) {
+  constructor(id: string, elementId: string, port: ServicePort) {
     super();
 
     this._id = id;
+    this._elementId = elementId;
     this._port = port;
   }
 
@@ -29,12 +31,16 @@ export class Player extends EventTarget implements IPlayer {
     return this._port.callSync("player#api", this._id, name, ...args);
   }
 
-  initialize(): void {
-    this._initialized = true;
+  getElementId(): string {
+    return this._elementId;
   }
 
-  isInitialized(): boolean {
-    return this._initialized;
+  ready(): void {
+    this._ready = true;
+  }
+
+  isReady(): boolean {
+    return this._ready;
   }
 
   play(): void {
