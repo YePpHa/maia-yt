@@ -71,7 +71,8 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       .listen(player, EventType.VIDEO_DATA_CHANGE, (e: VideoDataChangeEvent) => {
         if (this._stopUnstarted && e.dataType === "dataupdated") {
           logger.debug("Preveting auto-play by stopping player.");
-          this._stopPlayer(player);
+          player.stop();
+          player.cancelPlayback();
           this._stopUnstarted = false;
         }
       })

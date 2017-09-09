@@ -72,14 +72,6 @@ const getPlayerApi = (player: any):{
     }
     break;
   }
-  
-  if (element && (element as any)["addEventListener"]) {
-    const originalAddEventListener = (element as any)["addEventListener"];
-
-    (element as any)["addEventListener"] = function(type: string, fn: string|Function): any {
-      return originalAddEventListener.apply(api, arguments);
-    };
-  }
 
   return {
     element: element,

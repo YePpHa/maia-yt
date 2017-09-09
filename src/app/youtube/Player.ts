@@ -3,6 +3,7 @@ import { Component } from '../../libs/Component';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
+import { PlayerData } from "./PlayerConfig";
 
 declare interface PlayerApiElement extends Element {
   getApiInterface: () => string[];
@@ -33,6 +34,7 @@ export class Player extends Component {
 
   private _originalAddEventListener: (type: string, fn: Function|string) => void;
   private _originalRemoveEventListener: (type: string, fn: Function|string) => void;
+  private _originalLoadVideoByPlayerVars: (data: PlayerData) => void;
   private _youtubeEvents: {[key: string]: Function} = {};
   private _preventDefaultEvents: {[key: string]: boolean} = {};
 
@@ -46,9 +48,11 @@ export class Player extends Component {
 
     this._originalAddEventListener = (this._element as any)["addEventListener"];
     this._originalRemoveEventListener = (this._element as any)["removeEventListener"];
+    this._originalLoadVideoByPlayerVars = (this._element as any)["loadVideoByPlayerVars"];
 
     (this._element as any)["addEventListener"] = (type: string, fn: Function|string) => this._addEventListener(type, fn);
     (this._element as any)["removeEventListener"] = (type: string, fn: Function|string) => this._removeEventListener(type, fn);
+    (this._element as any)["loadVideoByPlayerVars"] = (data: PlayerData) => this._loadVideoByPlayerVars(data);
   }
   
   protected disposeInternal() {
@@ -56,6 +60,7 @@ export class Player extends Component {
 
     (this._element as any)["addEventListener"] = this._originalAddEventListener;
     (this._element as any)["removeEventListener"] = this._originalRemoveEventListener;
+    (this._element as any)["loadVideoByPlayerVars"] = this._originalLoadVideoByPlayerVars;
 
     if (this._playerListenable) {
       this._playerListenable.dispose();
@@ -64,6 +69,7 @@ export class Player extends Component {
     delete this._playerListenable;
     delete this._originalAddEventListener;
     delete this._originalRemoveEventListener;
+    delete this._originalLoadVideoByPlayerVars;
     delete this._element;
     delete this._api;
     delete this._port;
@@ -83,6 +89,15 @@ export class Player extends Component {
     } else {
       this.getPlayerListenable().ytRemoveEventListener(type, fn);
     }
+  }
+
+  private _loadVideoByPlayerVars(data: PlayerData): void {
+    if (!this.isDisposed()) {
+      data = this._port.callSync("player#data-update", this._id, data) as PlayerData
+        || data;
+    }
+
+    this._originalLoadVideoByPlayerVars.call(this._element, data);
   }
 
   public getPlayerListenable(): PlayerListenable {

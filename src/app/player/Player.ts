@@ -54,6 +54,14 @@ export class Player extends EventTarget implements IPlayer {
   stop(): void {
     this._callApi("stopVideo");
   }
+  
+  cancelPlayback(): void {
+    this._callApi("cancelPlayback");
+  }
+  
+  clearVideo(): void {
+    this._callApi("clearVideo");
+  }
 
   seekBy(time: number): void {
     this._callApi("seekBy", time);
