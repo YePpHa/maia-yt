@@ -15,8 +15,8 @@ export enum AutoPlayMode {
 export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onPlayerConfig {
   public name: string = "AutoPlay";
 
-  private _unstarted: boolean = true;
-  private _stopUnstarted: boolean = false;
+  private _unstarted: {[key: string]: boolean } = {};
+  private _stopping: {[key: string]: boolean } = {};
 
   isEnabled(): boolean {
     return this.getStorage().get('enabled', false);
@@ -58,7 +58,7 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       const mode: AutoPlayMode = this.getMode();
       switch (mode) {
         case AutoPlayMode.STOP:
-          this._stopUnstarted = true;
+          this._stopping[player.getId()] = true;
           break;
       }
     }
@@ -67,42 +67,48 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   }
   
   onPlayerCreated(player: Player): void {
+    const id: string = player.getId();
+    player.addOnDisposeCallback(() => {
+      delete this._stopping[id];
+      delete this._unstarted[id];
+    });
     this.getHandler()
       .listen(player, EventType.VIDEO_DATA_CHANGE, (e: VideoDataChangeEvent) => {
-        if (this._stopUnstarted && e.dataType === "dataupdated") {
+        if (this._stopping[id] && e.dataType === "dataupdated") {
           logger.debug("Preveting auto-play by stopping player.");
           player.stop();
-          player.cancelPlayback();
-          this._stopUnstarted = false;
+          this._stopping[id] = false;
         }
       })
       .listen(player, EventType.ENDED, () => {
-        this._unstarted = false;
+        this._unstarted[id] = false;
       })
       .listen(player, EventType.PAUSED, () => {
-        this._unstarted = false;
+        this._unstarted[id] = false;
       })
       .listen(player, EventType.AD_ENDED, () => {
-        this._unstarted = false;
+        this._unstarted[id] = false;
       })
       .listen(player, EventType.AD_PAUSED, () => {
-        this._unstarted = false;
+        this._unstarted[id] = false;
       })
       .listen(player, EventType.UNSTARTED, () => {
-        this._unstarted = true;
+        this._unstarted[id] = true;
       })
       .listen(player, EventType.AD_UNSTARTED, () => {
-        this._unstarted = true;
+        this._unstarted[id] = true;
       })
       .listen(player, EventType.PLAYED, () => this.onPlayed(player))
       .listen(player, EventType.AD_PLAYED, () => this.onPlayed(player));
   }
 
   private onPlayed(player: Player) {
+    const id = player.getId();
+
     const enabled: boolean = this.isEnabled();
     const embedded: boolean = this.isEmbeddedPlayer();
 
-    if (enabled && this._unstarted && !embedded) {
+    if (enabled && this._unstarted[id] && !embedded) {
       const mode: AutoPlayMode = this.getMode();
       switch (mode) {
         case AutoPlayMode.STOP:
@@ -114,6 +120,6 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
           break;
       }
     }
-    this._unstarted = false;
+    this._unstarted[id] = false;
   }
 }

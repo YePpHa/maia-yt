@@ -31,6 +31,10 @@ export class Player extends EventTarget implements IPlayer {
     return this._port.callSync("player#api", this._id, name, ...args);
   }
 
+  getId(): string {
+    return this._id;
+  }
+
   getElementId(): string {
     return this._elementId;
   }
