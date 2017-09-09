@@ -18,7 +18,6 @@ env:
 cache:
   yarn: true
   directories:
-    - ./node_modules
     - ./.chrome/chromium
 install:
   - yarn install
