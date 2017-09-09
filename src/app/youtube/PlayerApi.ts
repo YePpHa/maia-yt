@@ -1,4 +1,4 @@
-import { PlayerConfigArguments } from './PlayerConfig';
+import { PlayerData } from './PlayerConfig';
 
 export enum PlayerState {
   UNSTARTED = -1,
@@ -136,7 +136,7 @@ export declare interface PlayerApi {
   getPresentingPlayerType: () => number;
   addInfoCardXml: Function;
   cueVideoByPlayerVars: Function;
-  loadVideoByPlayerVars: (playerVars: PlayerConfigArguments) => void;
+  loadVideoByPlayerVars: (playerVars: PlayerData) => void;
   preloadVideoByPlayerVars: Function;
   seekBy: (seconds: number) => void;
   updatePlaylist: Function;

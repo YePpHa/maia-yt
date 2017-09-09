@@ -25,3 +25,15 @@ export class VolumeChangeEvent extends Event {
     super(EventType.VOLUME_CHANGE, target);
   }
 }
+
+export class CueRangeEvent extends Event {
+  constructor(public rangeId: string, type: string, target?: Object) {
+    super(type, target);
+  }
+}
+
+export class VideoDataChangeEvent extends Event {
+  constructor(public dataType: string, public playerType: number, target?: Object) {
+    super(EventType.VIDEO_DATA_CHANGE, target);
+  }
+}

@@ -19,6 +19,11 @@ declare interface FullscreenChangeDetail {
   videoId: string;
 }
 
+declare interface VideoDataChangeDetail {
+  playertype: number;
+  type: string;
+}
+
 export class Player extends Component {
   private _id: string;
   private _element: Element;
@@ -235,7 +240,7 @@ export class Player extends Component {
   }
   
   private _handleDetailedError(e: PlayerEvent) {
-    
+    console.log("DetailedError", e.detail);
   }
 
   private _handleSizeClicked(e: PlayerEvent) {
@@ -277,55 +282,56 @@ export class Player extends Component {
   }
 
   private _handlePlaybackAudioChange(e: PlayerEvent) {
-
+    console.log("PlaybackAudioChange", e.detail);
   }
 
   private _handleVideoDataChange(e: PlayerEvent) {
-
+    const data = e.detail as VideoDataChangeDetail;
+    this._fireEvent(e, EventType.VIDEO_DATA_CHANGE, data.type, data.playertype);
   }
   
   private _handlePlaylistUpdate(e: PlayerEvent) {
-
+    this._fireEvent(e, EventType.PLAYLIST_UPDATE);
   }
   
   private _handleCueRangeEnter(e: PlayerEvent) {
-    
+    this._fireEvent(e, EventType.CUE_RANGE_ENTER, e.detail);
   }
 
   private _handleCueRangeExit(e: PlayerEvent) {
-
+    this._fireEvent(e, EventType.CUE_RANGE_EXIT, e.detail);
   }
 
   private _handleCueRangeMarkersUpdated(e: PlayerEvent) {
-
+    console.log("CueRangeMarkersUpdated", e.detail);
   }
 
   private _handleCueRangesAdded(e: PlayerEvent) {
-
+    console.log("CueRangesAdded", e.detail);
   }
 
   private _handleCueRangesRemoved(e: PlayerEvent) {
-
+    console.log("CueRangesRemoved", e.detail);
   }
 
   private _handleConnectionIssue(e: PlayerEvent) {
-
+    this._fireEvent(e, EventType.CONNECTION_ISSUE);
   }
 
   private _handleShareClicked(e: PlayerEvent) {
-
+    this._fireEvent(e, EventType.SHARE_CLICKED);
   }
 
   private _handleWatchLaterVideoAdded(e: PlayerEvent) {
-
+    console.log("WatchLaterVideoAdded", e.detail);
   }
 
   private _handleWatchLaterVideoRemoved(e: PlayerEvent) {
-
+    console.log("WatchLaterVideoRemoved", e.detail);
   }
 
   private _handleWatchLaterError(e: PlayerEvent) {
-
+    console.log("WatchLaterError", e.detail);
   }
 
   private _handleLoadProgress(e: PlayerEvent) {
@@ -340,9 +346,5 @@ export class Player extends Component {
 
   private _handleReloadRequired(e: PlayerEvent) {
     this._fireEvent(e, EventType.RELOAD_REQUIRED);
-  }
-
-  private _handleEventPreventDefault(type: EventType) {
-    this._preventDefaultEvents[type] = true;
   }
 }

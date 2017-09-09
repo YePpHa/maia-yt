@@ -3,7 +3,7 @@ import { ChannelPort } from '../libs/messaging/ChannelPort';
 import { ServicePort } from '../libs/messaging/ServicePort';
 import { PlayerFactory } from './youtube/PlayerFactory';
 import { Player } from './youtube/Player';
-import { PlayerConfig, PlayerConfigArguments } from './youtube/PlayerConfig';
+import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 declare interface YTWindow extends Window {
@@ -88,6 +88,25 @@ const getPlayerApi = (player: any):{
   }
 };
 
+const getPlayerData = function(player: any) {
+  for (let key in player) {
+    if (!player.hasOwnProperty(key) || !player[key]) continue;
+    if (typeof player[key] !== "object") continue;
+    if (typeof player[key]["getCurrentTime"] !== "function") continue;
+    if (typeof player[key]["getDuration"] !== "function") continue;
+    if (typeof player[key]["getPlayerType"] !== "function") continue;
+
+    let app = player[key];
+    for (let key in app) {
+      if (!app.hasOwnProperty(key) || !app[key]) continue;
+      if (typeof app[key]["setData"] !== "function") continue;
+
+      return app[key];
+    }
+  }
+  return null;
+};
+
 const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): any => {
   if (servicePort.isDisposed()) {
     if (fn) {
@@ -108,8 +127,18 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
   if (fn) {
     playerApp = fn(playerConfig);
   }
-
+  const playerData = getPlayerData(playerApp);
   const playerInstance = getPlayerApi(playerApp);
+
+  const setData = playerData["setData"];
+  playerData["setData"] = (data: PlayerData) => {
+    let newData = servicePort.callSync("player#data-update", playerId,
+      data) as PlayerData;
+    setData.call(playerData, newData || data);
+  };
+  servicePort.addOnDisposeCallback(() => {
+    playerData["setData"] = setData;
+  });
   
   if (!playerInstance.element) return playerApp;
 

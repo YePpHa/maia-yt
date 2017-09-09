@@ -19,11 +19,11 @@ export declare interface PlayerConfig {
   messages: {
     player_fallback: string[]
   };
-  args: PlayerConfigArguments;
+  args: PlayerData;
   loaded: boolean;
 }
 
-export declare interface PlayerConfigArguments {
+export declare interface PlayerData {
   account_playback_token: string;
   ad3_module: string;
   ad_device: string;

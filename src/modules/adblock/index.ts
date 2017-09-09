@@ -1,12 +1,12 @@
-import { onPlayerConfiguration } from "../IModule";
-import { PlayerConfig } from "../../app/youtube/PlayerConfig";
+import { onPlayerConfig, onPlayerData } from "../IModule";
+import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
 const logger = new Logger("AdblockModule");
 
-export class AdblockModule extends Module implements onPlayerConfiguration {
+export class AdblockModule extends Module implements onPlayerData {
   public name: string = "Adblock";
   
   isEnabled(): boolean {
@@ -45,13 +45,13 @@ export class AdblockModule extends Module implements onPlayerConfiguration {
     return this.getStorage().get('subscribedChannelsWhitelisted', false);
   }
 
-  onPlayerConfiguration(player: Player, config: PlayerConfig): PlayerConfig {
-    if (!this.isEnabled()) return config;
+  onPlayerData(player: Player, data: PlayerData): PlayerData {
+    if (!this.isEnabled()) return data;
 
-    const subscribed: boolean = config.args.subscribed === "1";
+    const subscribed: boolean = data.subscribed === "1";
 
-    const videoId = config.args.video_id;
-    const channelId = config.args.ucid;
+    const videoId = data.video_id;
+    const channelId = data.ucid;
 
     // Don't block ads if channel is subscribed to and the subscribed channels
     // are whitelisted.
@@ -69,21 +69,21 @@ export class AdblockModule extends Module implements onPlayerConfiguration {
 
     if (blockAds) {
       // Delete the ad-related properties from the configuration.
-      delete config.args.ad3_module;
-      delete config.args.ad_device;
-      delete config.args.ad_flags;
-      delete config.args.ad_logging_flag;
-      delete config.args.ad_preroll;
-      delete config.args.ad_slots;
-      delete config.args.ad_tag;
-      delete config.args.adsense_video_doc_id;
-      delete config.args.advideo;
-      delete config.args.afv;
-      delete config.args.afv_ad_tag;
+      delete data.ad3_module;
+      delete data.ad_device;
+      delete data.ad_flags;
+      delete data.ad_logging_flag;
+      delete data.ad_preroll;
+      delete data.ad_slots;
+      delete data.ad_tag;
+      delete data.adsense_video_doc_id;
+      delete data.advideo;
+      delete data.afv;
+      delete data.afv_ad_tag;
 
-      config.args.allow_html5_ads = "0";
+      data.allow_html5_ads = "0";
     }
 
-    return config;
+    return data;
   }
 }

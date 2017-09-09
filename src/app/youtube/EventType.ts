@@ -24,5 +24,11 @@ export enum EventType {
   SHARE_PANEL_OPENED = 'share-panel-opened',
   LOAD_PROGRESS = 'load-progress',
   VIDEO_PROGRESS = 'video-progress',
-  RELOAD_REQUIRED = 'reload-required'
+  RELOAD_REQUIRED = 'reload-required',
+  CUE_RANGE_ENTER = 'cue-range-enter',
+  CUE_RANGE_EXIT = 'cue-range-exit',
+  SHARE_CLICKED = 'share-clicked',
+  CONNECTION_ISSUE = 'connection-issue',
+  VIDEO_DATA_CHANGE = 'video-data-change',
+  PLAYLIST_UPDATE = 'playlist-update'
 };

@@ -1,5 +1,5 @@
-import { onPlayerConfiguration, onPlayerCreated } from "../IModule";
-import { PlayerConfig } from "../../app/youtube/PlayerConfig";
+import { onPlayerConfig, onPlayerCreated, onPlayerData } from "../IModule";
+import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
@@ -12,7 +12,7 @@ export enum AutoPlayMode {
   EMBEDDED
 }
 
-export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerConfiguration {
+export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData {
   public name: string = "AutoPlay";
 
   private _unstarted: boolean = true;
@@ -21,23 +21,29 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerC
     return this.getStorage().get('enabled', false);
   }
 
+  isEmbeddedPlayer() {
+    return location.pathname.substring(0, 7) === "/embed/";
+  }
+
   getMode(): AutoPlayMode {
     return this.getStorage().get('mode', AutoPlayMode.PAUSE);
   }
 
-  onPlayerConfiguration(player: Player, config: PlayerConfig): PlayerConfig {
+  onPlayerData(player: Player, data: PlayerData): PlayerData {
     const enabled: boolean = this.isEnabled();
-    if (enabled) {
+    const embedded: boolean = this.isEmbeddedPlayer();
+
+    if (enabled && !embedded) {
       const mode: AutoPlayMode = this.getMode();
       switch (mode) {
         case AutoPlayMode.EMBEDDED:
           logger.debug("Preveting auto-play by changing player type to embedded type.");
-          config.args.iv_load_policy = "3";
+          data.iv_load_policy = "3";
           break;
       }
     }
 
-    return config;
+    return data;
   }
   
   onPlayerCreated(player: Player): void {
@@ -66,21 +72,26 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerC
 
   private onPlayed(player: Player) {
     const enabled: boolean = this.isEnabled();
+    const embedded: boolean = this.isEmbeddedPlayer();
 
     if (enabled && this._unstarted) {
-      logger.debug("Preveting auto-play by pausing the video.");
+      if (embedded) {
+        logger.debug("Preveting auto-play is disabled on embedded videos.");
+      } else {
+        logger.debug("Preveting auto-play by pausing the video.");
 
-      const mode: AutoPlayMode = this.getMode();
-      switch (mode) {
-        case AutoPlayMode.EMBEDDED:
-          break;
-        case AutoPlayMode.STOP:
-          player.stop();
-          break;
-        case AutoPlayMode.PAUSE:
-        default:
-          player.pause();
-          break;
+        const mode: AutoPlayMode = this.getMode();
+        switch (mode) {
+          case AutoPlayMode.EMBEDDED:
+            break;
+          case AutoPlayMode.STOP:
+            player.stop();
+            break;
+          case AutoPlayMode.PAUSE:
+          default:
+            player.pause();
+            break;
+        }
       }
     }
     this._unstarted = false;

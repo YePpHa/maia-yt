@@ -4,16 +4,16 @@ import { ServicePort } from '../libs/messaging/ServicePort';
 import { EventHandler } from '../libs/events/EventHandler';
 import { EventType } from '../libs/messaging/events/EventType';
 import { PortEvent } from '../libs/messaging/events/PortEvent';
-import { PlayerConfig } from './youtube/PlayerConfig';
+import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
 import { EventType as YouTubeEventType } from './youtube/EventType';
 import { IPlayer } from './player/IPlayer';
 import { Player } from './player/Player';
-import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent } from './youtube/events';
+import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent, CueRangeEvent, VideoDataChangeEvent } from './youtube/events';
 import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
 import { modules } from '../modules';
 import { ModuleConstructor, Module } from "../modules/Module";
-import { onPlayerConfiguration, onPlayerCreated } from "../modules/IModule";
+import { onPlayerConfig, onPlayerCreated, onPlayerData } from "../modules/IModule";
 import { Storage } from '../libs/storage/Storage';
 
 const logger = new Logger('App');
@@ -64,17 +64,32 @@ export class App extends Component {
 
     return this._players[id];
   }
-
+  
   private _handleUpdatePlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
     this._modules.forEach(m => {
-      const instance = (m as any) as onPlayerConfiguration;
-      if (typeof instance.onPlayerConfiguration === 'function') {
-        config = instance.onPlayerConfiguration(player, config);
+      const instanceConfig = (m as any) as onPlayerConfig;
+      const instanceData = (m as any) as onPlayerData;
+
+      if (typeof instanceConfig.onPlayerConfig === 'function') {
+        config = instanceConfig.onPlayerConfig(player, config);
+      }
+      if (typeof instanceData.onPlayerData === 'function') {
+        config.args = instanceData.onPlayerData(player, config.args);
       }
     });
-    //delete config.args.iv_invideo_url;
 
     return config;
+  }
+  
+  private _handleUpdatePlayerData(player: Player, data: PlayerData): PlayerData {
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPlayerData;
+      if (typeof instance.onPlayerData === 'function') {
+        data = instance.onPlayerData(player, data);
+      }
+    });
+
+    return data;
   }
 
   /**
@@ -105,6 +120,13 @@ export class App extends Component {
       logger.debug("Player %s has been updated with new config.", id);
       return this._handleUpdatePlayerConfig(this._players[id], config);
     });
+    port.registerService("player#data-update", (id: string, data: PlayerData): any => {
+      if (!this._players.hasOwnProperty(id))
+        throw new Error("Player with " + id + " doesn't exist.");
+
+      logger.debug("Player %s has been updated with new data.", id);
+      return this._handleUpdatePlayerData(this._players[id], data);
+    });
     port.registerService("player#create", (id: string) => {
       let player = this._handlePlayerCreate(id, port);
       if (player.isInitialized())
@@ -124,12 +146,23 @@ export class App extends Component {
       switch (type) {
         case YouTubeEventType.QUALITY_CHANGE:
           evt = new QualityChangeEvent(args[0], player);
+          break;
         case YouTubeEventType.RATE_CHANGE:
           evt = new RateChangeEvent(args[0], player);
+          break;
         case YouTubeEventType.SIZE_CHANGE:
           evt = new SizeChangeEvent(args[0], player);
+          break;
         case YouTubeEventType.VOLUME_CHANGE:
           evt = new VolumeChangeEvent(args[0], args[1], player);
+          break;
+        case YouTubeEventType.CUE_RANGE_ENTER:
+        case YouTubeEventType.CUE_RANGE_EXIT:
+          evt = new CueRangeEvent(args[0], type, player);
+          break;
+        case YouTubeEventType.VIDEO_DATA_CHANGE:
+          evt = new VideoDataChangeEvent(args[0], args[1], player);
+          break;
         default:
           evt = new Event(type, player);
       }

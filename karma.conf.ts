@@ -25,6 +25,16 @@ const webpackConfig = merge(common, {
 
 module.exports = (config) => {
   config.set({
+    plugins: [
+      'istanbul-instrumenter-loader',
+      'karma-chrome-launcher',
+      'karma-coverage',
+      'karma-jasmine',
+      'karma-jasmine-html-reporter',
+      'karma-sauce-launcher',
+      'karma-sourcemap-loader',
+      'karma-webpack'
+    ],
     basePath: '',
     frameworks: ['jasmine'],
     client:{
