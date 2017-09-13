@@ -66,7 +66,7 @@ export class App extends Component {
         let d = detail.response as spf.MultipartResponse;
         if (d.parts) {
           for (let i = 0; i < d.parts.length; i++) {
-            pageDetail.pageType = d.parts[i].title || d.parts[i].name;
+            pageDetail.pageType = d.parts[i].name || d.parts[i].title;
             let timing = d.parts[i].timing;
             if (timing) {
               pageDetail.fromHistory = !!timing['spfCached'];
@@ -75,13 +75,15 @@ export class App extends Component {
         }
       } else {
         let d = detail.response as spf.SingleResponse;
-        pageDetail.pageType = d.title || d.name;
+        pageDetail.pageType = d.name || d.title;
 
         if (d.timing) {
           pageDetail.fromHistory = !!d.timing['spfCached'];
         }
       }
     }
+
+    logger.debug("PageNavigationFinish - " + pageDetail.pageType + " - " + (pageDetail.fromHistory ? "true" : "false"));
 
     this._modules.forEach(m => {
       const instance = (m as any) as onPageNavigationFinish;
@@ -93,11 +95,17 @@ export class App extends Component {
 
   private _handleNavigateFinish(e: BrowserEvent): void {
     const detail = e.detail as PageNavigationDetail;
+    let pageDetail: PageNavigationDetail = {
+      fromHistory: detail.fromHistory,
+      pageType: detail.pageType
+    };
+
+    logger.debug("PageNavigationFinish - " + pageDetail.pageType + " - " + (pageDetail.fromHistory ? "true" : "false"));
 
     this._modules.forEach(m => {
       const instance = (m as any) as onPageNavigationFinish;
       if (typeof instance.onPageNavigationFinish === 'function') {
-        instance.onPageNavigationFinish(detail);
+        instance.onPageNavigationFinish(pageDetail);
       }
     });
   }
