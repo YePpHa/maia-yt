@@ -15,8 +15,8 @@ export enum AutoPlayMode {
 export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onPlayerConfig {
   public name: string = "AutoPlay";
 
-  private _unstarted: {[key: string]: boolean } = {};
-  private _stopping: {[key: string]: boolean } = {};
+  private _unstarted: {[key: string]: boolean} = {};
+  private _stopping: {[key: string]: boolean} = {};
 
   isEnabled(): boolean {
     return this.getStorage().get('enabled', false);
