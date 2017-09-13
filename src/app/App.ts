@@ -13,8 +13,10 @@ import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
 import { modules } from '../modules';
 import { ModuleConstructor, Module } from "../modules/Module";
-import { onPlayerConfig, onPlayerCreated, onPlayerData } from "../modules/IModule";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish } from "../modules/IModule";
 import { Storage } from '../libs/storage/Storage';
+import { BrowserEvent } from '../libs/events/BrowserEvent';
+import { PageNavigationDetail } from './youtube/PageNavigationDetail';
 
 const logger = new Logger('App');
 
@@ -38,7 +40,8 @@ export class App extends Component {
     this._channel.enterDocument();
 
     this.getHandler()
-      .listen(this._channel, EventType.CONNECT, this._handleChannelConnect, false);
+      .listen(this._channel, EventType.CONNECT, this._handleChannelConnect, false)
+      .listen(document.documentElement, "yt-navigate-finish", this._handleNavigateFinish, false);
   }
 
   exitDocument() {
@@ -48,6 +51,17 @@ export class App extends Component {
     this._ports.forEach(port => {
       port.exitDocument();
     }, this);
+  }
+
+  private _handleNavigateFinish(e: BrowserEvent): void {
+    const detail = e.detail as PageNavigationDetail;
+
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPageNavigationFinish;
+      if (typeof instance.onPageNavigationFinish === 'function') {
+        instance.onPageNavigationFinish(detail);
+      }
+    });
   }
   
   private _handlePlayerCreate(id: string, elementId: string, port: ServicePort) {

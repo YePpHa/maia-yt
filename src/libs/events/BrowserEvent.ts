@@ -25,6 +25,7 @@ export class BrowserEvent extends MyEvent {
   metaKey: boolean = false;
   state: Object|null = null;
   platformModifierKey: boolean = false;
+  detail: any = undefined;
 
   private _event: Event;
 
@@ -91,6 +92,9 @@ export class BrowserEvent extends MyEvent {
 
     let popStateEvent = event as PopStateEvent;
     this.state = popStateEvent.state;
+
+    let customEvent = event as CustomEvent;
+    this.detail = customEvent.detail;
 
     this._event = event;
     if (event.defaultPrevented) {
