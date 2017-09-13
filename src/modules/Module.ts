@@ -4,16 +4,16 @@ import { ISettingsStorage } from "../settings/ISettingsStorage";
 import { Storage } from "../libs/storage/Storage";
 import { ModuleSettings } from "../settings/ModuleSettingsStorage";
 
+let storage: Storage;
+
+export function setStorage(s: Storage): void {
+  storage = s;
+}
+
 export class Module extends Disposable {
   public name: string = "unknown";
   private _handler: EventHandler;
   private _settingsStorage: ISettingsStorage;
-
-  constructor(storage: Storage) {
-    super();
-
-    this._settingsStorage = new ModuleSettings(this.name, storage);
-  }
 
   protected disposeInternal() {
     super.disposeInternal();
@@ -29,10 +29,15 @@ export class Module extends Disposable {
   }
 
   getStorage(): ISettingsStorage {
+    if (!this._settingsStorage) {
+      if (!storage) throw new Error("Storage has not been initialized.");
+
+      this._settingsStorage = new ModuleSettings(this.name, storage);
+    }
     return this._settingsStorage;
   }
 }
 
 export interface ModuleConstructor {
-  new (storage: Storage): Module
+  new (): Module
 }

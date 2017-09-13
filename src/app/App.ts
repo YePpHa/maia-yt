@@ -12,7 +12,7 @@ import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent
 import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
 import { modules } from '../modules';
-import { ModuleConstructor, Module } from "../modules/Module";
+import { ModuleConstructor, Module, setStorage as setModuleStorage } from "../modules/Module";
 import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish } from "../modules/IModule";
 import { Storage } from '../libs/storage/Storage';
 import { BrowserEvent } from '../libs/events/BrowserEvent';
@@ -30,8 +30,10 @@ export class App extends Component {
   constructor(storage: Storage) {
     super();
 
+    setModuleStorage(storage);
+
     for (let i = 0; i < modules.length; i++) {
-      let m = new modules[i](storage);
+      let m = new modules[i]();
       this._modules.push(m);
     }
   }
