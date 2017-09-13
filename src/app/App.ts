@@ -17,6 +17,7 @@ import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish }
 import { Storage } from '../libs/storage/Storage';
 import { BrowserEvent } from '../libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
+import { spf } from './youtube/spf';
 
 const logger = new Logger('App');
 
@@ -41,7 +42,8 @@ export class App extends Component {
 
     this.getHandler()
       .listen(this._channel, EventType.CONNECT, this._handleChannelConnect, false)
-      .listen(document.documentElement, "yt-navigate-finish", this._handleNavigateFinish, false);
+      .listen(document.documentElement, "yt-navigate-finish", this._handleNavigateFinish, false)
+      .listen(window, "spfdone", this._handleSPFDone, false);
   }
 
   exitDocument() {
@@ -51,6 +53,42 @@ export class App extends Component {
     this._ports.forEach(port => {
       port.exitDocument();
     }, this);
+  }
+
+  private _handleSPFDone(e: BrowserEvent): void {
+    const detail = e.detail as spf.EventDetail;
+    let pageDetail: PageNavigationDetail = {
+      fromHistory: false,
+      pageType: undefined
+    };
+    if (detail.response) {
+      if ((detail.response as spf.MultipartResponse).type === "multipart") {
+        let d = detail.response as spf.MultipartResponse;
+        if (d.parts) {
+          for (let i = 0; i < d.parts.length; i++) {
+            pageDetail.pageType = d.parts[i].title || d.parts[i].name;
+            let timing = d.parts[i].timing;
+            if (timing) {
+              pageDetail.fromHistory = !!timing['spfCached'];
+            }
+          }
+        }
+      } else {
+        let d = detail.response as spf.SingleResponse;
+        pageDetail.pageType = d.title || d.name;
+
+        if (d.timing) {
+          pageDetail.fromHistory = !!d.timing['spfCached'];
+        }
+      }
+    }
+
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPageNavigationFinish;
+      if (typeof instance.onPageNavigationFinish === 'function') {
+        instance.onPageNavigationFinish(pageDetail);
+      }
+    });
   }
 
   private _handleNavigateFinish(e: BrowserEvent): void {
