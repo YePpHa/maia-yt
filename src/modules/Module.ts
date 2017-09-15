@@ -11,7 +11,7 @@ export function setStorage(s: Storage): void {
 }
 
 export class Module extends Disposable {
-  public name: string = "unknown";
+  protected name: string = "unknown";
   private _handler: EventHandler;
   private _settingsStorage: ISettingsStorage;
 

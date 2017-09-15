@@ -7,7 +7,7 @@ import { EventType } from '../../app/youtube/EventType';
 const logger = new Logger("AdblockModule");
 
 export class AdblockModule extends Module implements onPlayerData {
-  public name: string = "Adblock";
+  protected name: string = "Adblock";
   
   isEnabled(): boolean {
     return this.getStorage().get('enabled', false);
