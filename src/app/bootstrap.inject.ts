@@ -11,6 +11,18 @@ declare interface YTWindow extends Window {
   ytplayer: { config?: PlayerConfig };
 }
 
+declare interface SPFRequest {
+  onPartDone: (response: any) => void
+}
+
+declare interface SPFResponse {
+  part: {
+    page: string,
+    player?: PlayerConfig
+  },
+  url: string
+}
+
 const port = new ChannelPort();
 const servicePort = new ServicePort(port);
 
@@ -187,18 +199,6 @@ servicePort.addOnDisposeCallback(
     true
   )
 );
-
-declare interface SPFRequest {
-  onPartDone: (response: any) => void
-}
-
-declare interface SPFResponse {
-  part: {
-    page: string,
-    player?: PlayerConfig
-  },
-  url: string
-}
 
 servicePort.addOnDisposeCallback(
   wrapFunction(win, ['spf', 'request'],

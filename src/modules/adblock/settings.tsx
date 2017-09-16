@@ -1,0 +1,50 @@
+import { ISettingsReact } from "../../settings/ISettings";
+import { ISettingsStorage } from "../../settings/ISettingsStorage";
+import * as React from 'react';
+import { Checkbox } from '../../ui/checkbox';
+
+export class Settings implements ISettingsReact {
+  private _storage: ISettingsStorage;
+
+  constructor(storage: ISettingsStorage) {
+    this._storage = storage;
+  }
+
+  getStorage(): ISettingsStorage {
+    return this._storage;
+  }
+
+  getElement(): JSX.Element {
+    const onEnableChange = (checked: boolean) => {
+      this.getStorage().set("enabled", checked);
+    };
+    const onSubscribtionWhitelistChange = (checked: boolean) => {
+      this.getStorage().set("subscribedChannelsWhitelisted", checked);
+    };
+    const enabled: boolean = this.getStorage().get("enabled", false);
+    const subscribedChannelsWhitelisted: boolean = this.getStorage().get("subscribedChannelsWhitelisted", false);
+
+    return (
+      <div>
+        <div>
+          <Checkbox
+            label="Enable adblock"
+            disabled={false}
+            indeterminate={false}
+            checked={enabled}
+            onChange={onEnableChange}
+          />
+        </div>
+        <div>
+          <Checkbox
+            label="Whitelist subscribed channels"
+            disabled={false}
+            indeterminate={false}
+            checked={subscribedChannelsWhitelisted}
+            onChange={onSubscribtionWhitelistChange}
+          />
+        </div>
+      </div>
+    );
+  }
+}
