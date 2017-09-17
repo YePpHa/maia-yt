@@ -26,6 +26,7 @@ export class Settings implements ISettingsReact {
 
     return (
       <div>
+        <h2>Adblock</h2>
         <div>
           <Checkbox
             label="Enable adblock"

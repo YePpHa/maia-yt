@@ -22,6 +22,7 @@ export class Settings implements ISettingsReact {
 
     return (
       <div>
+        <h2>Prevent auto-play</h2>
         <div>
           <Checkbox
             label="Enable prevent auto-play"
