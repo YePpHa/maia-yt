@@ -1,10 +1,12 @@
-import { onPlayerConfig, onPlayerCreated, onPlayerData } from "../IModule";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onSettingsReactRegister } from "../IModule";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
 import { VideoDataChangeEvent } from "../../app/youtube/events";
+import { ISettingsReact } from "../../settings/ISettings";
+import { Settings as SettingsReact } from './settings';
 const logger = new Logger("AutoPlayModule");
 
 export enum AutoPlayMode {
@@ -12,7 +14,7 @@ export enum AutoPlayMode {
   STOP
 }
 
-export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onPlayerConfig {
+export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onPlayerConfig, onSettingsReactRegister {
   public name: string = "AutoPlay";
 
   private _unstarted: {[key: string]: boolean} = {};
@@ -121,5 +123,9 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       }
     }
     this._unstarted[id] = false;
+  }
+
+  onSettingsReactRegister(): ISettingsReact {
+    return new SettingsReact(this.getStorage());
   }
 }

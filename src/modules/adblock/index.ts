@@ -1,12 +1,14 @@
-import { onPlayerConfig, onPlayerData } from "../IModule";
+import { onPlayerConfig, onPlayerData, onSettingsReactRegister } from "../IModule";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
+import { ISettingsReact } from "../../settings/ISettings";
+import { Settings as SettingsReact } from './settings';
 const logger = new Logger("AdblockModule");
 
-export class AdblockModule extends Module implements onPlayerData {
+export class AdblockModule extends Module implements onPlayerData, onSettingsReactRegister {
   protected name: string = "Adblock";
   
   isEnabled(): boolean {
@@ -68,6 +70,8 @@ export class AdblockModule extends Module implements onPlayerData {
     }
 
     if (blockAds) {
+      logger.debug("Blocking ads on video (" + data.video_id + ")");
+
       // Delete the ad-related properties from the configuration.
       delete data.ad3_module;
       delete data.ad_device;
@@ -80,10 +84,21 @@ export class AdblockModule extends Module implements onPlayerData {
       delete data.advideo;
       delete data.afv;
       delete data.afv_ad_tag;
+      delete data.cafe_experiment_id;
+      delete data.excluded_ads;
+      delete data.midroll_freqcap;
+      delete data.invideo;
+      delete data.instream;
+      delete data.pyv_ad_channel;
+      delete data.encoded_ad_safety_reason;
 
       data.allow_html5_ads = "0";
     }
 
     return data;
+  }
+
+  onSettingsReactRegister(): ISettingsReact {
+    return new SettingsReact(this.getStorage());
   }
 }

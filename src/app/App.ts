@@ -38,6 +38,10 @@ export class App extends Component {
     }
   }
 
+  getModules(): Module[] {
+    return this._modules;
+  }
+
   enterDocument() {
     super.enterDocument();
     this._channel.enterDocument();

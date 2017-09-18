@@ -29,8 +29,11 @@
   "devDependencies": {
     "@types/greasemonkey": "^0.0.28",
     "@types/i18next": "^8.4.1",
+    "@types/immutable": "^3.8.7",
     "@types/jasmine": "^2.5.54",
     "@types/lodash": "^4.14.73",
+    "@types/react": "^16.0.5",
+    "@types/react-dom": "^15.5.4",
     "@types/sprintf-js": "^1.1.0",
     "@types/uuid": "^3.4.1",
     "async": "^2.5.0",
@@ -55,7 +58,11 @@
   "dependencies": {
     "i18next": "^9.0.0",
     "i18next-resource-store-loader": "^0.1.2",
+    "immutable": "^3.8.1",
     "lodash": "^4.17.4",
+    "material-components-web": "^0.20.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
     "sprintf-js": "^1.1.1",
     "uuid": "^3.1.0",
     "webpack-merge": "^4.1.0"
