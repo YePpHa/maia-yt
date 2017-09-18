@@ -39,6 +39,10 @@ export class Player extends EventTarget implements IPlayer {
     return this._elementId;
   }
 
+  getElement(): Element|null {
+    return document.getElementById(this.getElementId());
+  }
+
   ready(): void {
     this._ready = true;
   }
