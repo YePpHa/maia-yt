@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Set as ImmutableSet, Map as ImmutableMap } from 'immutable';
-//import { Checkbox as MaterialCheckbox } from '@material/checkbox';
+import { Checkbox as MaterialCheckbox } from '@material/checkbox';
 
 export interface IProps extends React.Props<Checkbox> {
   id?: string,

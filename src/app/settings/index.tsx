@@ -22,6 +22,12 @@ export function render(modules: Module[]) {
     </div>
   );
 
+  ReactDOM.render((
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet" />
+  ), document.head);
+
   ReactDOM.render(
     element,
     document.body
