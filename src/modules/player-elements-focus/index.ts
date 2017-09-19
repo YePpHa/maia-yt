@@ -4,6 +4,7 @@ import { Player } from "../../app/player/Player";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
+import { EventHandler } from "../../libs/events/EventHandler";
 
 const logger = new Logger("PlayerElementsFocusModule");
 
@@ -35,6 +36,15 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
 
       tabIndexes[i].removeAttribute("tabindex");
     }
+
+    const handler = new EventHandler();
+
+    const buttons = element.querySelectorAll("button");
+    for (let i = 0; i < buttons.length; i++) {
+      handler.listen(buttons[i], 'focus', () => (element as HTMLElement).focus(), false);
+    }
+
+    player.addOnDisposeCallback(() => handler.dispose());
   }
   
   onSettingsReactRegister(): ISettingsReact {
