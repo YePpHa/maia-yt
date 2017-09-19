@@ -36,14 +36,19 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
 
       tabIndexes[i].removeAttribute("tabindex");
     }
-
+    
     const handler = new EventHandler();
 
+    logger.debug("Attaching focus event listener to all player buttons.");
+
+    // Find all buttons and attach a focus event listener to them. The listener
+    // will focus the player element everytime the buttons gets focus.
     const buttons = element.querySelectorAll("button");
     for (let i = 0; i < buttons.length; i++) {
       handler.listen(buttons[i], 'focus', () => (element as HTMLElement).focus(), false);
     }
 
+    // Make sure to dispose of the handler when the player is disposed.
     player.addOnDisposeCallback(() => handler.dispose());
   }
   
