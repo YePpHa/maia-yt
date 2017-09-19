@@ -65,6 +65,7 @@ export class Player extends Component {
     (this._element as any)["addEventListener"] = this._originalAddEventListener;
     (this._element as any)["removeEventListener"] = this._originalRemoveEventListener;
     (this._element as any)["loadVideoByPlayerVars"] = this._originalLoadVideoByPlayerVars;
+    (this._element as any)["destroy"] = this._originalDestroy;
 
     if (this._playerListenable) {
       this._playerListenable.dispose();
@@ -74,6 +75,7 @@ export class Player extends Component {
     delete this._originalAddEventListener;
     delete this._originalRemoveEventListener;
     delete this._originalLoadVideoByPlayerVars;
+    delete this._originalDestroy;
     delete this._element;
     delete this._api;
     delete this._port;
@@ -357,6 +359,8 @@ export class Player extends Component {
     this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.DESTROY);
 
     this._originalDestroy.call(this._element);
+
+    this.dispose();
   }
 
   private _handleLoadProgress(e: PlayerEvent) {
