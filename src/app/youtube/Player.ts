@@ -3,6 +3,7 @@ import { Component } from '../../libs/Component';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
+import { Event } from '../../libs/events/Event';
 import { PlayerData } from "./PlayerConfig";
 
 declare interface PlayerApiElement extends Element {
@@ -35,6 +36,7 @@ export class Player extends Component {
   private _originalAddEventListener: (type: string, fn: Function|string) => void;
   private _originalRemoveEventListener: (type: string, fn: Function|string) => void;
   private _originalLoadVideoByPlayerVars: (data: PlayerData) => void;
+  private _originalDestroy: () => void;
   private _youtubeEvents: {[key: string]: Function} = {};
   private _preventDefaultEvents: {[key: string]: boolean} = {};
 
@@ -49,10 +51,12 @@ export class Player extends Component {
     this._originalAddEventListener = (this._element as any)["addEventListener"];
     this._originalRemoveEventListener = (this._element as any)["removeEventListener"];
     this._originalLoadVideoByPlayerVars = (this._element as any)["loadVideoByPlayerVars"];
+    this._originalDestroy = (this._element as any)["destroy"];
 
     (this._element as any)["addEventListener"] = (type: string, fn: Function|string) => this._addEventListener(type, fn);
     (this._element as any)["removeEventListener"] = (type: string, fn: Function|string) => this._removeEventListener(type, fn);
     (this._element as any)["loadVideoByPlayerVars"] = (data: PlayerData) => this._loadVideoByPlayerVars(data);
+    (this._element as any)["destroy"] = () => this._handleDestroy();
   }
   
   protected disposeInternal() {
@@ -347,6 +351,12 @@ export class Player extends Component {
 
   private _handleWatchLaterError(e: PlayerEvent) {
     console.log("WatchLaterError", e.detail);
+  }
+
+  private _handleDestroy() {
+    this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.DESTROY);
+
+    this._originalDestroy.call(this._element);
   }
 
   private _handleLoadProgress(e: PlayerEvent) {
