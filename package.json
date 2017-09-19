@@ -60,7 +60,7 @@
     "i18next-resource-store-loader": "^0.1.2",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
-    "material-components-web": "^0.20.0",
+    "material-components-web": "^0.21.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "sprintf-js": "^1.1.1",
