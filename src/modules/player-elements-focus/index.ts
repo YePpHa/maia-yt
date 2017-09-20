@@ -5,6 +5,7 @@ import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
+import { Api } from "./api";
 
 const logger = new Logger("PlayerElementsFocusModule");
 
@@ -14,13 +15,18 @@ const logger = new Logger("PlayerElementsFocusModule");
  */
 export class PlayerElementsFocusModule extends Module implements onPlayerCreated, onSettingsReactRegister {
   public name: string = "PlayerElementsFocus";
+  private _api: Api;
 
-  isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
+  getApi(): Api {
+    if (!this._api) {
+      this._api = new Api(this.getStorage());
+    }
+    return this._api;
   }
 
   onPlayerCreated(player: Player) {
-    if (!this.isEnabled()) return;
+    const api = this.getApi();
+    if (!api.isEnabled()) return;
 
     const element = player.getElement();
     if (!element) return;
@@ -53,6 +59,6 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
   }
   
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getStorage());
+    return new SettingsReact(this.getApi());
   }
 }

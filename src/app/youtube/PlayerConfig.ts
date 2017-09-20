@@ -23,6 +23,17 @@ export declare interface PlayerConfig {
   loaded: boolean;
 }
 
+export enum PlayerType {
+  AD_UNIT ="adunit",
+  DETAIL_PAGE = "detailpage",
+  EDIT_PAGE = "editpage",
+  EMBEDDED = "embedded",
+  LEANBACK = "leanback",
+  PREVIEW_PAGE = "previewpage",
+  PROFILE_PAGE = "profilepage",
+  UNPLUGGED = "unplugged"
+}
+
 export declare interface PlayerData {
   account_playback_token: string;
   ad3_module: string;
@@ -67,6 +78,7 @@ export declare interface PlayerData {
   dbp: string;
   dclk: string;
   delay: number;
+  el: PlayerType;
   enablecsi: string;
   enabled_engage_types: string;
   enablejsapi: string;
@@ -111,6 +123,7 @@ export declare interface PlayerData {
   midroll_prefetch_size: string;
   mpu: boolean;
   mpvid: string;
+  mutedautoplay: string;
   no_get_video_log: string;
   of: string;
   oid: string;

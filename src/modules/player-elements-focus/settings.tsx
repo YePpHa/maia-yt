@@ -1,24 +1,16 @@
 import { ISettingsReact } from "../../settings/ISettings";
-import { ISettingsStorage } from "../../settings/ISettingsStorage";
 import * as React from 'react';
 import { Checkbox } from '../../ui/checkbox';
+import { Api } from "./api";
 
 export class Settings implements ISettingsReact {
-  private _storage: ISettingsStorage;
-
-  constructor(storage: ISettingsStorage) {
-    this._storage = storage;
-  }
-
-  getStorage(): ISettingsStorage {
-    return this._storage;
-  }
+  constructor(private api: Api) {}
 
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {
-      this.getStorage().set("enabled", checked);
+      this.api.setEnabled(checked);
     };
-    const enabled: boolean = this.getStorage().get("enabled", false);
+    const enabled: boolean = this.api.isEnabled();
 
     return (
       <div>

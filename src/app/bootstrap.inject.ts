@@ -7,7 +7,16 @@ import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 declare interface YTWindow extends Window {
-  yt: { player?: { Application?: { create?: Function } } };
+  yt: {
+    player?: {
+      Application?: {
+        create?: Function
+      }
+    }
+    config_?: {
+      TIMING_AFT_KEYS?: string[]
+    }
+  };
   ytplayer: { config?: PlayerConfig };
 }
 
@@ -125,7 +134,7 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
   // Send a beforecreate event to the core.
   let newplayerConfig = servicePort.callSync("player#beforecreate", playerId, elementId,
     playerConfig) as PlayerConfig;
-  playerConfig = newplayerConfig || playerConfig;
+  Object.assign(playerConfig, newplayerConfig);
 
   let playerApp = null;
   if (fn) {
@@ -146,16 +155,14 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
   
   if (!playerInstance.element) return playerApp;
 
-  let player = playerFactory.createPlayer(playerInstance.element, playerId);
+  let player = playerFactory.createPlayer(playerInstance.element, playerConfig, playerId);
   players[elementId] = player;
 
   player.enterDocument();
 
-  let api = player.getApi();
-
   // If no initialization function.
   if (!fn && newplayerConfig) {
-    api.loadVideoByPlayerVars(newplayerConfig.args);
+    player.callApi("loadVideoByPlayerVars", newplayerConfig.args);
   }
 
   servicePort.call("player#create", player.getId(), elementId, playerConfig);

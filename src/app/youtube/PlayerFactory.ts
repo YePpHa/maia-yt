@@ -3,6 +3,7 @@ import { ServicePort } from '../../libs/messaging/ServicePort';
 import { Player } from './Player';
 import { v4 as uuidv4 } from 'uuid';
 import { EventType } from './EventType';
+import { PlayerConfig } from './PlayerConfig';
 
 export class PlayerFactory extends Component {
   private _port: ServicePort;
@@ -20,11 +21,11 @@ export class PlayerFactory extends Component {
    * @param id the id.
    * @return the player instance.
    */
-  createPlayer(element: Element, id?: string): Player {
+  createPlayer(element: Element, playerConfig: PlayerConfig, id?: string): Player {
     if (!id) {
       id = uuidv4();
     }
-    let player = new Player(id, element, this._port);
+    let player = new Player(id, element, playerConfig, this._port);
 
     this._players[id] = player;
 
@@ -48,11 +49,13 @@ export class PlayerFactory extends Component {
     super.enterDocument();
 
     this._port.registerService("player#api", this._handleApiCall, this);
+    this._port.registerService("player#loaded", this._handlePlayerLoaded, this);
   }
 
   /** @override */
   exitDocument() {
     this._port.deregisterService("player#api");
+    this._port.deregisterService("player#loaded");
 
     super.exitDocument();
   }
@@ -62,6 +65,13 @@ export class PlayerFactory extends Component {
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
 
     return (player.getApi() as any)[name].apply(null, args);
+  }
+
+  private _handlePlayerLoaded(id: string, loaded: boolean): void {
+    let player = this._players[id];
+    if (!player) throw new Error("Player with " + id + " couldn't be found.");
+
+    player.setLoaded(loaded);
   }
 
   /**

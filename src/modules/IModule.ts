@@ -27,3 +27,11 @@ export interface onPageNavigationFinish {
 export interface onSettingsReactRegister {
   onSettingsReactRegister(): ISettingsReact;
 }
+
+export interface onPlayerApiCall {
+  onPlayerApiCall(player: Player, name: string, ...args: any[]): onPlayerApiCallResponse|undefined|void;
+}
+
+export interface onPlayerApiCallResponse {
+  value: any;
+}

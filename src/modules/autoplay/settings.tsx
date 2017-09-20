@@ -1,24 +1,22 @@
 import { ISettingsReact } from "../../settings/ISettings";
-import { ISettingsStorage } from "../../settings/ISettingsStorage";
 import * as React from 'react';
 import { Checkbox } from '../../ui/checkbox';
+import { Select } from '../../ui/select';
+import { AutoPlayMode } from "./index";
+import { Api } from "./api";
 
 export class Settings implements ISettingsReact {
-  private _storage: ISettingsStorage;
-
-  constructor(storage: ISettingsStorage) {
-    this._storage = storage;
-  }
-
-  getStorage(): ISettingsStorage {
-    return this._storage;
-  }
+  constructor(private api: Api) {}
 
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {
-      this.getStorage().set("enabled", checked);
+      this.api.setEnabled(checked);
     };
-    const enabled: boolean = this.getStorage().get("enabled", false);
+    const onModeChange = (value: string) => {
+      this.api.setMode(value as AutoPlayMode);
+    };
+    const enabled: boolean = this.api.isEnabled();
+    const mode: string = this.api.getMode();
 
     return (
       <div>
@@ -31,6 +29,15 @@ export class Settings implements ISettingsReact {
             checked={enabled}
             onChange={onEnableChange}
           />
+        </div>
+        <div>
+          <Select
+            disabled={false}
+            onChange={onModeChange}
+            value={mode}>
+            <option value="pause">Pause (Allow buffering)</option>
+            <option value="stop">Stop (No buffering)</option>
+          </Select>
         </div>
       </div>
     );
