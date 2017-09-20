@@ -19,6 +19,7 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   public name: string = "AutoPlay";
 
   private _unstarted: {[key: string]: boolean} = {};
+  private _ready: {[key: string]: boolean} = {};
   private _api: Api;
 
   getApi(): Api {
@@ -38,7 +39,6 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     const embedded: boolean = this.isEmbeddedPlayer();
 
     if (enabled && !embedded) {
-      data.el = PlayerType.AD_UNIT;
       if (this.getApi().getMode() === AutoPlayMode.STOP) {
         data.autoplay = "0";
       }
@@ -48,18 +48,30 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   }
 
   onPlayerApiCall(player: Player, name: string, data: PlayerData): onPlayerApiCallResponse|undefined {
-    if (name !== "loadVideoByPlayerVars") return;
-    const api = this.getApi();
-    const enabled: boolean = api.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
-    if (!enabled || embedded) return;
+    const id = player.getId();
+    if (this._ready[id] && (name === "loadVideoByPlayerVars" || name === "cueVideoByPlayerVars")) {
+      logger.debug("Player stopped API %s from being called.", name);
+      delete this._ready[id];
+      return { value: undefined };
+    } else {
+      if (name !== "loadVideoByPlayerVars") return;
+      const api = this.getApi();
+      const enabled: boolean = api.isEnabled();
+      const embedded: boolean = this.isEmbeddedPlayer();
+      if (!enabled || embedded) return;
 
-    const mode: AutoPlayMode = api.getMode();
-    if (mode !== AutoPlayMode.STOP) return;
+      const mode: AutoPlayMode = api.getMode();
+      if (mode !== AutoPlayMode.STOP) return;
 
-    return {
-      value: player.cueVideoByPlayerVars(data)
-    };
+      try {
+        return {
+          value: player.cueVideoByPlayerVars(data)
+        };
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+    }
   }
   
   onPlayerCreated(player: Player): void {
@@ -68,6 +80,15 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     const embedded: boolean = this.isEmbeddedPlayer();
 
     const id: string = player.getId();
+
+    if (enabled && !embedded) {
+      this._ready[id] = true;
+      const mode: AutoPlayMode = api.getMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        player.pause();
+      }
+    }
+
     player.addOnDisposeCallback(() => {
       delete this._unstarted[id];
     });

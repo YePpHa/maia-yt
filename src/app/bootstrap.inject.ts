@@ -18,6 +18,7 @@ declare interface YTWindow extends Window {
     }
   };
   ytplayer: { config?: PlayerConfig };
+  _yt_player: any;
 }
 
 declare interface SPFRequest {
@@ -120,6 +121,37 @@ const getPlayerData = function(player: any) {
   return null;
 };
 
+/**
+ * Fixes the autoplay setting. Currently YouTube doesn't use the autoplay if the
+ * player is `detailpage`, which we need on /watch. This patch will fix it.
+ */
+const fixAutoplay = () => {
+  let win = window as YTWindow;
+  for (let key in win._yt_player) {
+    if (win._yt_player.hasOwnProperty(key) && typeof win._yt_player[key] === "function") {
+      const fn = win._yt_player[key];
+      const match = fn.toString().match(/{this\.([a-zA-Z0-9$_]+)=this\.([a-zA-Z0-9$_]+);this\.([a-zA-Z0-9$_]+)=this\.([a-zA-Z0-9$_]+)}/);
+      if (match && match[1] === match[2] && match[3] === match[4]) {
+        win._yt_player[key] = function(...args: any[]) {
+          const constructor = this.constructor.toString();
+          const match = constructor.match(/this\.([a-zA-Z0-9$_]+)=\(this\.([a-zA-Z0-9$_]+)\=[^;]+\.autoplay/);
+          if (match && match[1] && match[2]) {
+            Object.defineProperty(this, match[1], {
+              "set": () => {},
+              "get": () => this[match[2]],
+              "enumerable": true,
+              "configurable": true
+            });
+          }
+
+          return fn.apply(this, args);
+        };
+        win._yt_player[key].prototype = fn.prototype;
+      }
+    }
+  }
+};
+
 const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): any => {
   if (servicePort.isDisposed()) {
     if (fn) {
@@ -138,6 +170,9 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
 
   let playerApp = null;
   if (fn) {
+    if (playerConfig.args.hasOwnProperty("autoplay")) {
+      fixAutoplay();
+    }
     playerApp = fn(playerConfig);
   }
   const playerData = getPlayerData(playerApp);
