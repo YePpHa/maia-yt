@@ -29,16 +29,16 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     return this._api;
   }
 
-  isEmbeddedPlayer() {
-    return location.pathname.substring(0, 7) === "/embed/";
+  isDetailPage() {
+    return location.pathname === "/watch";
   }
 
   onPlayerData(player: Player, data: PlayerData): PlayerData {
     const api = this.getApi();
     const enabled: boolean = api.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
+    const detailPage: boolean = this.isDetailPage();
 
-    if (enabled && !embedded) {
+    if (enabled && detailPage) {
       if (this.getApi().getMode() === AutoPlayMode.STOP) {
         data.autoplay = "0";
       }
@@ -57,8 +57,8 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       if (name !== "loadVideoByPlayerVars") return;
       const api = this.getApi();
       const enabled: boolean = api.isEnabled();
-      const embedded: boolean = this.isEmbeddedPlayer();
-      if (!enabled || embedded) return;
+      const detailPage: boolean = this.isDetailPage();
+      if (!enabled || !detailPage) return;
 
       const mode: AutoPlayMode = api.getMode();
       if (mode !== AutoPlayMode.STOP) return;
@@ -77,11 +77,11 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   onPlayerCreated(player: Player): void {
     const api = this.getApi();
     const enabled: boolean = api.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
+    const detailPage: boolean = this.isDetailPage();
 
     const id: string = player.getId();
 
-    if (enabled && !embedded) {
+    if (enabled && detailPage) {
       this._ready[id] = true;
       const mode: AutoPlayMode = api.getMode();
       if (mode === AutoPlayMode.PAUSE) {
@@ -94,7 +94,7 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     });
     this.getHandler()
       .listen(player, EventType.READY, () => {
-        if (!enabled || embedded) return;
+        if (!enabled || !detailPage) return;
         player.setLoaded(true);
       })
       .listen(player, EventType.ENDED, () => {
@@ -118,7 +118,7 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       .listen(player, EventType.PLAYED, () => this.onPlayed(player))
       .listen(player, EventType.AD_PLAYED, () => this.onPlayed(player));
     
-    if (enabled && !embedded) {
+    if (enabled && detailPage) {
       player.setLoaded(false);
     }
   }
@@ -128,9 +128,9 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     const api = this.getApi();
 
     const enabled: boolean = api.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
+    const detailPage: boolean = this.isDetailPage();
 
-    if (enabled && this._unstarted[id] && !embedded) {
+    if (enabled && this._unstarted[id] && detailPage) {
       const mode: AutoPlayMode = api.getMode();
       if (mode === AutoPlayMode.PAUSE) {
         logger.debug("Preveting auto-play by pausing the video.");
