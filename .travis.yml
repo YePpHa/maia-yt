@@ -7,11 +7,6 @@ addons:
     username: Jinpha
     jwt:
       secure: rc+ZMNyDxA8k9jqSIWVRUPv7wJ5fZ1AOMQdStcKdEPbrWvVsWogwMgtiZ3y7G0p8eHS+d85GaMwaSaMiMN42vHUl+GqDNSQpNIWgGrYB8BfZ+zuKfJRLxgGo4tzKZOMGptQwty3wp/uQdJCPt7LQo51XJYE1oaKWK4ju07TIsXAMGrja82Lcne+3sRvWjDKsLsh08xfQWoBr8enVAwTIVNRQZmUefsRLn4sjCwkoLor2256V73931lO0qdLrF39Yo2ib8P7A5WDeeZuZnB4GUng8T2u5rZCHXvhGAJ6u4EDV+ake2vkSK4cwLZCTw4WtNBk7yGOlaKrSOqz/0vRlwPcWddnNETy+K6D5HMVcofdN0btN9yqMQEXMeEzajMsj484qxdSeQkztg3xlAIazfs2ieFS+CHgFKujEPLMaD4RV0Jd+euh04kZHEdvNWDpqCOY0Liy1vLP1PM6hrZZXWZWcNapWtSuBVKh5gzMnNfmwwhky9BFNHyBZc5UuQSdWBCqieKAVc8z9Ko0s6eP4xRu7iwFb4GVukd1pLdCL8kXs1qH2/ZWPbxRsAf4TJ6rQPSnB5r5m6gnDCGnjHVyuHlwRDxRELy9+Ng6GdeQ6rE3/0P4i8+tSNdq6/Oeq1xq7VMqY/ubkJ8m+sWHbXyRT1urUzGxN3U5A8DKoFTFx+Y4=
-branches:
-  only:
-  - master
-  - "/^greenkeeper/.*$/"
-  - /^v.*$/
 env:
   global:
   - secure: i6arwXo+JhmGex8WGxkP/ofh8yMHzAD5Xod7ihxzJIR4dt7jNjc4OBm8Jc/Ec4snFVsfKUvMkZQxSn5rxgxxDZOoB4USdg6lkkd6k3hHCGhUJN5x4e9uKphx6yjsq+dWb3mUTaXnOFjpl/q1mkr5+wHsOLWmLvBFX9vTF7ZB1q1RnIH+IZkDq71KbjoD9tgLrk6HS4ZsI0iwaq/hr7LIlUQtCbIk3VCxwgIsAQ9G6vemTuzzXL4iDIDffZW8h+QsityQYck37zJmriVIEtu1mDrNPXpiGvo1negCQI+wMTNv5gtULH9RPzMAlMvJecq9sIGvhG24sni0CN6zw0iExB/E41mzeHZ6/81kXhwX3vjx3eI2cf5qZzQcbU44iBVTZ7fMyzT2hovZZyEObYVGpQ3ZJFsclqrYJ8yZS7QoyOkSEUn44WQUtvQ/poGL8Ed2n64W7RH/KJIKmh263wAg4Vq/lXzmcnY6plWdubEZ+HFSSwmMDQOL5SxP8N+u8/GK7uRWzL4/+ZyUoA98WMj4pZQ/aR2ALKSgxBng4OA7f6QUSkwx9L0idzPuDHSsWbYKfUKqFHNkmtOm0JmgwsRMW6N76uejzEaPGtU+DS/WWYkqrYjGynacdc/nWT0LG2Ymdalb7eDiZG+eu3GvUZDV91EoAj+rh4KaNeFpCu1Q6Y4=
@@ -24,14 +19,13 @@ install:
 - yarn install
 script:
 - yarn test
-before_deploy:
 - yarn build:userscript
 deploy:
   provider: releases
   prerelease: true
   api_key:
     secure: gAUc1HZhkp85tdZYXNsrK2KjAKfVle2VyJmRUePJirhv2dVpu6KGUl6y8aGLbWNOPI1Fmc7J1nQWwCCJSvTeC6gIiZg43nekShmAZP3S2ih97Gd7RAliiPkFV+kebg9eaXZz5VRRTFscr5zW7FkFGZ8OYokP7XP7V5WAHxhkpFQpa7CxDAC4HmqsTwHzfwC8i34n8VXMlnic78qQZKW82Fm4K5T7mq4QIPt+y4gPFmBamkRdv0LCVTtHcgnXs+4Ke/hvM7TYTGzdIXomh/Lx7XsIeAQenvF+FE/KfFcB+8A+gqjcLUqrzTx6bJspqOdy16pqx1bFooXooQdy9NxbzMCeEBzTAxNZJngp3u3CCE5WKGWc9XfUzYMl2w15qx0zFnYVqs0Hp/0l60ba9XYumnYFJsZLHWSYTjv91Y/iNsAMovkdQTULP9IMMo1jSfrPMy506L76CgCkInxAPOEfr5Uc/j+F8E1hD/YwTF3wqT2K2RqGnb28emOB+uPrdNWJD4ucmmI9vx38AmM+6SY3eGf58gGP9kcy2gr1233QunEUlqwA8qja3hRZirGJR7cv9xgoCSqzzAZcBFy6DwqCcKVVSS4rCeqSqRCl6C5I9dD6Jn2DdItPhJgubl57h3bJn6RozgDEkwFRadXzXk8nIZ5Pbg++84jh9AjaFyu3POI=
-  file: dist/maia.user.js
+  file: "./dist/maia.user.js"
   on:
     tags: true
     all_branches: true
