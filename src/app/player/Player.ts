@@ -2,6 +2,7 @@ import { IPlayer } from './IPlayer';
 import { EventTarget } from '../../libs/events/EventTarget';
 import { ServicePort } from "../../libs/messaging/ServicePort";
 import { PlayerData } from '../youtube/PlayerConfig';
+import { PlaybackQuality } from '../youtube/PlayerApi';
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
@@ -90,5 +91,25 @@ export class Player extends EventTarget implements IPlayer {
 
   cueVideoByPlayerVars(data: PlayerData): void {
     this._callApi("cueVideoByPlayerVars", data);
+  }
+  
+  getPlaybackQuality(): PlaybackQuality {
+    return this._callApi("getPlaybackQuality");
+  }
+  
+  setPlaybackQuality(quality: PlaybackQuality): void {
+    return this._callApi("setPlaybackQuality", quality);
+  }
+  
+  setPlaybackQualityRange(start: PlaybackQuality, end: PlaybackQuality): void {
+    return this._callApi("setPlaybackQualityRange", start, end);
+  }
+
+  getAvailableQualityLevels(): PlaybackQuality[] {
+    return this._callApi("getAvailableQualityLevels");
+  }
+
+  getMaxPlaybackQuality(): PlaybackQuality {
+    return this._callApi("getMaxPlaybackQuality");
   }
 }

@@ -144,7 +144,7 @@ export class PlayerListenable extends Disposable implements Listenable {
   }
 
   unlistenByKey(key: ListenableKey): boolean {
-    var proxy = this._proxy[key.key];
+    const proxy = this._proxy[key.key];
     delete this._proxy[key.key];
 
     this.api.removeEventListener(proxy[0], proxy[1]);

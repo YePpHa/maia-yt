@@ -1,3 +1,5 @@
+import { PlaybackQuality } from "./PlayerApi";
+
 export declare interface PlayerConfig {
   url: string;
   attrs: {
@@ -172,6 +174,7 @@ export declare interface PlayerData {
   view_count: string;
   vm: string;
   vmap: string;
+  vq: PlaybackQuality;
   vss_host: string;
   watch_ajax_token: string;
   watermark: string;

@@ -189,7 +189,7 @@ export class App extends Component {
    * @param e the port event with the connected port.
    */
   private _handleChannelConnect(e: PortEvent) {
-    var port = new ServicePort(e.port);
+    const port = new ServicePort(e.port);
     this._ports.push(port);
     if (this.isInDocument()) {
       port.enterDocument();
