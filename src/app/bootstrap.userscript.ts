@@ -3,8 +3,12 @@ import { App } from './App';
 import * as i18n from 'i18next';
 import { Storage } from '../libs/storage/Storage';
 import { GreaseMonkeyMechanism } from '../libs/storage/mechanism/GreaseMonkeyMechanism';
+import { LocalStorageMechanism } from '../libs/storage/mechanism/LocalStorageMechanism';
 import { EventHandler } from '../libs/events/EventHandler';
 import { render as renderSettings } from './settings';
+import { Mechanism } from '../libs/storage/mechanism/Mechanism';
+import { Logger } from '../libs/logging/Logger';
+const logger = new Logger("Bootstrap");
 
 declare const PRODUCTION: boolean;
 
@@ -14,22 +18,42 @@ i18n.init({
 
 const injectModule = require('../../webpack.inject.' + (PRODUCTION ? 'prod' : 'dev') + '.config.js') as string;
 
-const app = new App(new Storage(new GreaseMonkeyMechanism()));
-app.enterDocument();
+let mechanism: Mechanism|undefined;
 
-injectJS(injectModule);
+const greaseMonkeyMechanism = new GreaseMonkeyMechanism();
+if (greaseMonkeyMechanism.isAvailable()) {
+  logger.debug("Using GreaseMonkey storage mechanism");
+  mechanism = greaseMonkeyMechanism;
+} else {
+  const localStorageMechanism = new LocalStorageMechanism();
+  if (localStorageMechanism.isAvailable()) {
+    logger.debug("Using LocalStorage storage mechanism");
+    mechanism = localStorageMechanism;
+  }
+}
 
-if (location.hostname === "www.youtube.com" && location.pathname === "/settings/maia") {
-  let handler = new EventHandler();
-  handler.listen(document, "readystatechange", () => {
-    switch (document.readyState) {
-      case "interactive":
-      case "complete":
-        handler.dispose();
-        document.body.innerHTML = "";
-        document.head.innerHTML = "";
-        renderSettings(app.getModules());
-        break;
-    }
-  });
+if (mechanism) {
+  const storage = new Storage(mechanism);
+
+  const app = new App(storage);
+  app.enterDocument();
+
+  injectJS(injectModule);
+
+  if (location.hostname === "www.youtube.com" && location.pathname === "/settings/maia") {
+    let handler = new EventHandler();
+    handler.listen(document, "readystatechange", () => {
+      switch (document.readyState) {
+        case "interactive":
+        case "complete":
+          handler.dispose();
+          document.body.innerHTML = "";
+          document.head.innerHTML = "";
+          renderSettings(app.getModules());
+          break;
+      }
+    });
+  }
+} else {
+  logger.error("No storage mechanism was available.");
 }

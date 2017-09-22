@@ -1,5 +1,5 @@
 import { Mechanism } from './mechanism/Mechanism';
-import * as ErrorCode from './ErrorCode';
+import { ErrorCode } from './ErrorCode';
 
 export class Storage {
   constructor(

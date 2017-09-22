@@ -1,5 +1,5 @@
 import { Mechanism } from './Mechanism';
-import * as ErrorCode from '../ErrorCode';
+import { ErrorCode } from '../ErrorCode';
 
 const STORAGE_AVAILABLE_KEY_ = '__sak';
 
