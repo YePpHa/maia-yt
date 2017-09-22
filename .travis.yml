@@ -19,10 +19,12 @@ install:
 - yarn install
 script:
 - yarn test
+before_deploy:
 - yarn build:userscript
 deploy:
   provider: releases
   prerelease: true
+  skip_cleanup: true
   api_key:
     secure: gAUc1HZhkp85tdZYXNsrK2KjAKfVle2VyJmRUePJirhv2dVpu6KGUl6y8aGLbWNOPI1Fmc7J1nQWwCCJSvTeC6gIiZg43nekShmAZP3S2ih97Gd7RAliiPkFV+kebg9eaXZz5VRRTFscr5zW7FkFGZ8OYokP7XP7V5WAHxhkpFQpa7CxDAC4HmqsTwHzfwC8i34n8VXMlnic78qQZKW82Fm4K5T7mq4QIPt+y4gPFmBamkRdv0LCVTtHcgnXs+4Ke/hvM7TYTGzdIXomh/Lx7XsIeAQenvF+FE/KfFcB+8A+gqjcLUqrzTx6bJspqOdy16pqx1bFooXooQdy9NxbzMCeEBzTAxNZJngp3u3CCE5WKGWc9XfUzYMl2w15qx0zFnYVqs0Hp/0l60ba9XYumnYFJsZLHWSYTjv91Y/iNsAMovkdQTULP9IMMo1jSfrPMy506L76CgCkInxAPOEfr5Uc/j+F8E1hD/YwTF3wqT2K2RqGnb28emOB+uPrdNWJD4ucmmI9vx38AmM+6SY3eGf58gGP9kcy2gr1233QunEUlqwA8qja3hRZirGJR7cv9xgoCSqzzAZcBFy6DwqCcKVVSS4rCeqSqRCl6C5I9dD6Jn2DdItPhJgubl57h3bJn6RozgDEkwFRadXzXk8nIZ5Pbg++84jh9AjaFyu3POI=
   file: "./dist/maia.user.js"
