@@ -33,3 +33,4 @@ deploy:
   file: dist/maia.user.js
   on:
     tags: true
+    all_branches: true
