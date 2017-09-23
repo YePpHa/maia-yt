@@ -37,7 +37,7 @@ export interface ListenableKey {
   proxy: Function|undefined;
 }
 
-var _counter: number = 0;
+let _counter: number = 0;
 export function reserveKey() {
   return ++_counter;
 }

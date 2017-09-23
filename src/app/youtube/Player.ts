@@ -3,7 +3,8 @@ import { Component } from '../../libs/Component';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
-import { PlayerData } from "./PlayerConfig";
+import { Event } from '../../libs/events/Event';
+import { PlayerData, PlayerConfig } from "./PlayerConfig";
 
 declare interface PlayerApiElement extends Element {
   getApiInterface: () => string[];
@@ -28,84 +29,108 @@ declare interface VideoDataChangeDetail {
 export class Player extends Component {
   private _id: string;
   private _element: Element;
+  private _config: PlayerConfig;
   private _port: ServicePort;
 
   private _api: PlayerApi;
 
-  private _originalAddEventListener: (type: string, fn: Function|string) => void;
-  private _originalRemoveEventListener: (type: string, fn: Function|string) => void;
-  private _originalLoadVideoByPlayerVars: (data: PlayerData) => void;
   private _youtubeEvents: {[key: string]: Function} = {};
   private _preventDefaultEvents: {[key: string]: boolean} = {};
 
   private _playerListenable: PlayerListenable;
 
-  constructor(id: string, element: Element, port: ServicePort) {
+  constructor(id: string, element: Element, playerConfig: PlayerConfig, port: ServicePort) {
     super();
     this._id = id;
     this._element = element;
+    this._config = playerConfig;
     this._port = port;
 
-    this._originalAddEventListener = (this._element as any)["addEventListener"];
-    this._originalRemoveEventListener = (this._element as any)["removeEventListener"];
-    this._originalLoadVideoByPlayerVars = (this._element as any)["loadVideoByPlayerVars"];
-
-    (this._element as any)["addEventListener"] = (type: string, fn: Function|string) => this._addEventListener(type, fn);
-    (this._element as any)["removeEventListener"] = (type: string, fn: Function|string) => this._removeEventListener(type, fn);
-    (this._element as any)["loadVideoByPlayerVars"] = (data: PlayerData) => this._loadVideoByPlayerVars(data);
+    // Wrap the player methods to allow for modifying the input.
+    const api = this.getApi();
+    for (let key in api) {
+      if (api.hasOwnProperty(key)) {
+        (this._element as any)[key] = (...args: any[]) => this.callApi(key, ...args);
+      }
+    }
   }
   
   protected disposeInternal() {
     super.disposeInternal();
 
-    (this._element as any)["addEventListener"] = this._originalAddEventListener;
-    (this._element as any)["removeEventListener"] = this._originalRemoveEventListener;
-    (this._element as any)["loadVideoByPlayerVars"] = this._originalLoadVideoByPlayerVars;
+    const api = this.getApi();
+    for (let key in api) {
+      if (api.hasOwnProperty(key)) {
+        (this._element as any)[key] = (api as any)[key];
+      }
+    }
 
     if (this._playerListenable) {
       this._playerListenable.dispose();
     }
 
     delete this._playerListenable;
-    delete this._originalAddEventListener;
-    delete this._originalRemoveEventListener;
-    delete this._originalLoadVideoByPlayerVars;
     delete this._element;
     delete this._api;
     delete this._port;
   }
   
+  callApi(name: string, ...args: any[]): any {
+    let returnValue: { value: any }|undefined = undefined;
+    switch (name) {
+      case "addEventListener":
+        this._addEventListener(args[0], args[1]);
+        break;
+      case "removeEventListener":
+        this._removeEventListener(args[0], args[1]);
+        break;
+      case "destroy":
+        this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.DESTROY);
+        break;
+      case "loadVideoByPlayerVars":
+      case "cueVideoByPlayerVars":
+      case "updateVideoData":
+        args[0] = this._port.callSync("player#data-update", this._id, args[0]) as PlayerData || args[0];
+      default:
+        returnValue = this._port.callSync("player#api-call", this._id, name, ...args);
+        break;
+    }
+
+    if (!returnValue) {
+      const api = this.getApi();
+      let value = (api as any)[name](...args);
+
+      if (name === "destroy") {
+        this.dispose();
+      }
+
+      return value;
+    } else {
+      return returnValue.value;
+    }
+  }
+  
   private _addEventListener(type: string, fn: Function|string): void {
+    const api = this.getApi();
     if (this.isDisposed()) {
-      this._originalAddEventListener.call(this._element, type, fn);
+      api.addEventListener(type, fn);
     } else {
       this.getPlayerListenable().ytAddEventListener(type, fn);
     }
   }
   
   private _removeEventListener(type: string, fn: Function|string): void {
+    const api = this.getApi();
     if (this.isDisposed()) {
-      this._originalRemoveEventListener.call(this._element, type, fn);
+      api.removeEventListener(type, fn);
     } else {
       this.getPlayerListenable().ytRemoveEventListener(type, fn);
     }
   }
 
-  private _loadVideoByPlayerVars(data: PlayerData): void {
-    if (!this.isDisposed()) {
-      data = this._port.callSync("player#data-update", this._id, data) as PlayerData
-        || data;
-    }
-
-    this._originalLoadVideoByPlayerVars.call(this._element, data);
-  }
-
   public getPlayerListenable(): PlayerListenable {
     if (!this._playerListenable) {
-      this._playerListenable = new PlayerListenable(
-        this._originalAddEventListener,
-        this._originalRemoveEventListener
-      );
+      this._playerListenable = new PlayerListenable(this.getApi());
     }
     return this._playerListenable;
   }
@@ -181,6 +206,15 @@ export class Player extends Component {
     }
 
     return this._api;
+  }
+
+  setLoaded(loaded: boolean): void {
+    Object.defineProperty(this._config, 'loaded', {
+      "get": () => loaded,
+      "set": () => {},
+      "enumerable": true,
+      "configurable": true
+    });
   }
 
   private _fireEvent(e: PlayerEvent, type: EventType, ...args: any[]) {

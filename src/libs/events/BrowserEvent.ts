@@ -129,8 +129,8 @@ export class BrowserEvent extends MyEvent {
         //
         // We therefore do this for all function keys as well as when Ctrl key
         // is pressed.
-        var VK_F1 = 112;
-        var VK_F12 = 123;
+        const VK_F1 = 112;
+        const VK_F12 = 123;
         let keyEvent = this._event as _KeyboardEvent;
         if (keyEvent.ctrlKey || keyEvent.keyCode >= VK_F1 && keyEvent.keyCode <= VK_F12) {
           keyEvent.keyCode = -1;

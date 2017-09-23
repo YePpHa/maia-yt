@@ -15,8 +15,8 @@ export const PASSIVE_EVENTS: boolean = purify(() => {
     return false;
   }
 
-  var passive = false;
-  var options = Object.defineProperty({}, 'passive', {
+  let passive = false;
+  const options = Object.defineProperty({}, 'passive', {
     get: function() {
       passive = true;
     }

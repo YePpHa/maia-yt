@@ -9,10 +9,13 @@ common.plugins = [];
 
 module.exports = merge(common, {
   plugins: [
-    new UglifyJSPlugin(),
     new webpack.DefinePlugin({
-      'PRODUCTION': JSON.stringify(true)
+      'PRODUCTION': JSON.stringify(true),
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
     }),
+    new UglifyJSPlugin(),
     ...plugins
   ]
 });

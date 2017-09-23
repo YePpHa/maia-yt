@@ -3,24 +3,7 @@ const merge = require('webpack-merge');
 const common = require('./webpack.common.config.js');
 
 const webpackConfig = merge(common, {
-  devtool: 'inline-source-map',
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        include: [
-          path.resolve(__dirname, './src')
-        ],
-        exclude: path.resolve(__dirname, './src/test.js'),
-        use: {
-          loader: 'istanbul-instrumenter-loader',
-          query: {
-            esModules: true
-          }
-        }
-      }
-    ]
-  },
+  devtool: 'inline-source-map'
 });
 
 module.exports = (config) => {
@@ -31,10 +14,10 @@ module.exports = (config) => {
       clearContext: false
     },
     files: [
-      { pattern: './src/test.js', watched: true }
+      './src/**/*.spec.ts'
     ],
     preprocessors: {
-      './src/test.js': ['webpack', 'sourcemap']
+      './src/**/*.spec.ts': ['webpack', 'sourcemap']
     },
     mime: {
       'text/x-typescript': ['ts','tsx']
@@ -45,10 +28,6 @@ module.exports = (config) => {
     },
     webpackMiddleware: {
       stats: 'errors-only'
-    },
-    coverageReporter: {
-      dir: 'coverage',
-      type: 'html'
     },
     customLaunchers: {
       'SL_Chrome': {
@@ -69,7 +48,7 @@ module.exports = (config) => {
         'max-duration': 5400,
       }
     },
-    reporters: ['progress', 'kjhtml', 'coverage'],
+    reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,

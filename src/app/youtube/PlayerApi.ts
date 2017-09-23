@@ -22,6 +22,23 @@ export enum PlaybackQuality {
   HIGHRES = 'highres'
 }
 
+export module PlaybackQuality {
+  export function getValues(): PlaybackQuality[] {
+    return [
+      PlaybackQuality.AUTO,
+      PlaybackQuality.TINY,
+      PlaybackQuality.SMALL,
+      PlaybackQuality.MEDIUM,
+      PlaybackQuality.LARGE,
+      PlaybackQuality.HD720,
+      PlaybackQuality.HD1080,
+      PlaybackQuality.HD1440,
+      PlaybackQuality.HD2160,
+      PlaybackQuality.HIGHRES
+    ];
+  }
+}
+
 export declare interface PlayerApi {
   cueVideoById: {
     (videoId: string, startSeconds?: number, suggestedQuality?: PlaybackQuality): void;
@@ -146,7 +163,7 @@ export declare interface PlayerApi {
   getStoryboardFormat: () => string;
   getProgressState: Function;
   getHousebrandProperties: Function;
-  setPlaybackQualityRange: Function;
+  setPlaybackQualityRange: (start: PlaybackQuality, end: PlaybackQuality) => void;
   getCurrentPlaylistSequence: Function;
   canPlayType: (mediaType: string) => boolean;
   sendVideoStatsEngageEvent: Function;

@@ -1,5 +1,5 @@
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onSettingsReactRegister } from "../IModule";
-import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
+import { PlayerConfig, PlayerData, PlayerType } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
@@ -7,80 +7,105 @@ import { EventType } from '../../app/youtube/EventType';
 import { VideoDataChangeEvent } from "../../app/youtube/events";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
+import { Api } from "./api";
 const logger = new Logger("AutoPlayModule");
 
 export enum AutoPlayMode {
-  PAUSE,
-  STOP
+  PAUSE = "pause",
+  STOP = "stop"
 }
 
-export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onPlayerConfig, onSettingsReactRegister {
-  public name: string = "AutoPlay";
-
+export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
   private _unstarted: {[key: string]: boolean} = {};
-  private _stopping: {[key: string]: boolean} = {};
+  private _ready: {[key: string]: boolean} = {};
+  private _api: Api;
 
-  isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
-  }
-
-  isEmbeddedPlayer() {
-    return location.pathname.substring(0, 7) === "/embed/";
-  }
-
-  getMode(): AutoPlayMode {
-    return this.getStorage().get('mode', AutoPlayMode.PAUSE);
-  }
-
-  private _stopPlayer(player: Player) {
-    const el = document.getElementById(player.getElementId());
-    if (!el) return;
-    const videoElement = el.querySelector("video");
-    if (!videoElement) return;
-    videoElement.removeAttribute("src");
-    videoElement.load();
-  }
-
-  onPlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
-    const enabled: boolean = this.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
-
-    if (enabled && !embedded && this.getMode() === AutoPlayMode.STOP) {
-      this._stopPlayer(player);
+  getApi(): Api {
+    if (!this._api) {
+      this._api = new Api()
     }
+    return this._api;
+  }
 
-    return config;
+  isDetailPage() {
+    return location.pathname === "/watch";
+  }
+
+  isChannelPage() {
+    return location.pathname.substring(0, 9) === "/channel/";
   }
 
   onPlayerData(player: Player, data: PlayerData): PlayerData {
-    const enabled: boolean = this.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
+    const api = this.getApi();
 
-    if (enabled && !embedded) {
-      const mode: AutoPlayMode = this.getMode();
-      switch (mode) {
-        case AutoPlayMode.STOP:
-          this._stopping[player.getId()] = true;
-          break;
+    if (api.isEnabled() && this.isDetailPage()) {
+      if (api.getMode() === AutoPlayMode.STOP) {
+        data.autoplay = "0";
+      }
+    } else if (api.isChannelEnabled() && this.isChannelPage()) {
+      if (api.getChannelMode() === AutoPlayMode.STOP) {
+        data.autoplay = "0";
       }
     }
 
     return data;
   }
+
+  onPlayerApiCall(player: Player, name: string, data: PlayerData): onPlayerApiCallResponse|undefined {
+    const id = player.getId();
+    if (this._ready[id] && (name === "loadVideoByPlayerVars" || name === "cueVideoByPlayerVars")) {
+      logger.debug("Player stopped API %s from being called.", name);
+      delete this._ready[id];
+      return { value: undefined };
+    } else {
+      if (name !== "loadVideoByPlayerVars") return;
+      const api = this.getApi();
+      const enabled: boolean = api.isEnabled();
+      const detailPage: boolean = this.isDetailPage();
+      if (!enabled || !detailPage) return;
+
+      const mode: AutoPlayMode = api.getMode();
+      if (mode !== AutoPlayMode.STOP) return;
+
+      try {
+        return {
+          value: player.cueVideoByPlayerVars(data)
+        };
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+    }
+  }
   
   onPlayerCreated(player: Player): void {
+    const api = this.getApi();
+    const enabled: boolean = api.isEnabled();
+    const detailPage: boolean = this.isDetailPage();
+
     const id: string = player.getId();
+
+    if (enabled && detailPage) {
+      this._ready[id] = true;
+      const mode: AutoPlayMode = api.getMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        player.pause();
+      }
+    } else if (api.isChannelEnabled() && this.isChannelPage()) {
+      this._ready[id] = true;
+      const mode: AutoPlayMode = api.getChannelMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        player.pause();
+      }
+    }
+
     player.addOnDisposeCallback(() => {
-      delete this._stopping[id];
       delete this._unstarted[id];
     });
     this.getHandler()
-      .listen(player, EventType.VIDEO_DATA_CHANGE, (e: VideoDataChangeEvent) => {
-        if (this._stopping[id] && e.dataType === "dataupdated") {
-          logger.debug("Preveting auto-play by stopping player.");
-          player.stop();
-          this._stopping[id] = false;
-        }
+      .listen(player, EventType.READY, () => {
+        if (!enabled || !detailPage) return;
+        player.setLoaded(true);
       })
       .listen(player, EventType.ENDED, () => {
         this._unstarted[id] = false;
@@ -102,30 +127,35 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       })
       .listen(player, EventType.PLAYED, () => this.onPlayed(player))
       .listen(player, EventType.AD_PLAYED, () => this.onPlayed(player));
+    
+    if (enabled && detailPage) {
+      player.setLoaded(false);
+    }
   }
 
   private onPlayed(player: Player) {
     const id = player.getId();
+    const api = this.getApi();
 
-    const enabled: boolean = this.isEnabled();
-    const embedded: boolean = this.isEmbeddedPlayer();
+    const unstarted: boolean = this._unstarted[id];
 
-    if (enabled && this._unstarted[id] && !embedded) {
-      const mode: AutoPlayMode = this.getMode();
-      switch (mode) {
-        case AutoPlayMode.STOP:
-          break;
-        case AutoPlayMode.PAUSE:
-        default:
-          logger.debug("Preveting auto-play by pausing the video.");
-          player.pause();
-          break;
+    if (api.isEnabled() && unstarted && this.isDetailPage()) {
+      const mode: AutoPlayMode = api.getMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        logger.debug("Preveting auto-play by pausing the video.");
+        player.pause();
+      }
+    } else if (api.isChannelEnabled() && unstarted && this.isChannelPage()) {
+      const mode: AutoPlayMode = api.getChannelMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        logger.debug("Preveting auto-play by pausing the video.");
+        player.pause();
       }
     }
     this._unstarted[id] = false;
   }
 
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getStorage());
+    return new SettingsReact(this.getApi());
   }
 }

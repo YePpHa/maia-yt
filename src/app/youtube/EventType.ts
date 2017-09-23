@@ -1,4 +1,5 @@
 export enum EventType {
+  DESTROY = 'destroy',
   READY = 'ready',
   UNSTARTED = 'unstarted',
   ENDED = 'ended',

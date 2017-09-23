@@ -26,6 +26,7 @@ Here's a simplistic overview of what needs to be done:
   video event.
 - Support for the new YouTube layout (including the old one)
 - (Maybe UI components on the page - only for testing)
+- Simple settings
 
 ## Beta milestone
 In this stage a lot of missing things in the first milestone will be added. This

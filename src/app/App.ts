@@ -13,7 +13,7 @@ import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
 import { modules } from '../modules';
 import { ModuleConstructor, Module, setStorage as setModuleStorage } from "../modules/Module";
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish } from "../modules/IModule";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../modules/IModule";
 import { Storage } from '../libs/storage/Storage';
 import { BrowserEvent } from '../libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
@@ -116,17 +116,31 @@ export class App extends Component {
     });
   }
   
-  private _handlePlayerCreate(id: string, elementId: string, port: ServicePort) {
+  private _handlePlayerBeforeCreate(id: string, elementId: string, port: ServicePort) {
     if (!this._players.hasOwnProperty(id)) {
       this._players[id] = new Player(id, elementId, port);
 
       this._modules.forEach(m => {
-        const instance = (m as any) as onPlayerCreated;
-        if (typeof instance.onPlayerCreated === 'function') {
-          instance.onPlayerCreated(this._players[id]);
+        const instance = (m as any) as onPlayerBeforeCreated;
+        if (typeof instance.onPlayerBeforeCreated === 'function') {
+          instance.onPlayerBeforeCreated(this._players[id]);
         }
       });
     }
+
+    return this._players[id];
+  }
+  
+  private _handlePlayerCreate(id: string, elementId: string, port: ServicePort) {
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player with " + id + " has not been created.");
+
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPlayerCreated;
+      if (typeof instance.onPlayerCreated === 'function') {
+        instance.onPlayerCreated(this._players[id]);
+      }
+    });
 
     return this._players[id];
   }
@@ -158,12 +172,24 @@ export class App extends Component {
     return data;
   }
 
+  private _handlePlayerApiCall(player: Player, name: string, ...args: any[]) {
+    let data: onPlayerApiCallResponse|undefined = undefined;
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPlayerApiCall;
+      if (typeof instance.onPlayerApiCall === 'function') {
+        data = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
+      }
+    });
+
+    return data;
+  }
+
   /**
    * Attempts to handle new connections from YouTube.
    * @param e the port event with the connected port.
    */
   private _handleChannelConnect(e: PortEvent) {
-    var port = new ServicePort(e.port);
+    const port = new ServicePort(e.port);
     this._ports.push(port);
     if (this.isInDocument()) {
       port.enterDocument();
@@ -173,11 +199,19 @@ export class App extends Component {
       if (this._players.hasOwnProperty(id))
         throw new Error("Player with " + id + " has already been created.");
 
-      let player = this._handlePlayerCreate(id, elementId, port);
+      let player = this._handlePlayerBeforeCreate(id, elementId, port);
 
       logger.debug("Player %s has been created with config.", id);
       
       return this._handleUpdatePlayerConfig(player, config);
+    });
+    port.registerService("player#create", (id: string, elementId: string, config: PlayerConfig) => {
+      let player = this._handlePlayerCreate(id, elementId, port);
+      if (player.isReady())
+        throw new Error("Player with " + id + " has already been initialized.");
+
+      logger.debug("Player %s has been initialized.", id);
+      player.ready();
     });
     port.registerService("player#update", (id: string, config: PlayerConfig): any => {
       if (!this._players.hasOwnProperty(id))
@@ -193,15 +227,12 @@ export class App extends Component {
       logger.debug("Player %s has been updated with new data.", id);
       return this._handleUpdatePlayerData(this._players[id], data);
     });
-    port.registerService("player#create", (id: string, elementId: string, config: PlayerConfig) => {
-      let player = this._handlePlayerCreate(id, elementId, port);
-      if (player.isReady())
-        throw new Error("Player with " + id + " has already been initialized.");
+    port.registerService("player#api-call", (id: string, name: string, ...args: any[]) => {
+      if (!this._players.hasOwnProperty(id))
+        throw new Error("Player with " + id + " doesn't exist.");
+      logger.debug("Player %s API -> %s", id, name);
 
-      logger.debug("Player %s has been initialized.", id);
-      player.ready();
-
-      return this._handleUpdatePlayerConfig(this._players[id], config);
+      return this._handlePlayerApiCall(this._players[id], name, ...args);
     });
     port.registerService("player#event", (id: string, type: YouTubeEventType, ...args: any[]) => {
       if (!this._players.hasOwnProperty(id))

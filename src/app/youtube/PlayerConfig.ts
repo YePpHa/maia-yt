@@ -1,3 +1,5 @@
+import { PlaybackQuality } from "./PlayerApi";
+
 export declare interface PlayerConfig {
   url: string;
   attrs: {
@@ -21,6 +23,17 @@ export declare interface PlayerConfig {
   };
   args: PlayerData;
   loaded: boolean;
+}
+
+export enum PlayerType {
+  AD_UNIT ="adunit",
+  DETAIL_PAGE = "detailpage",
+  EDIT_PAGE = "editpage",
+  EMBEDDED = "embedded",
+  LEANBACK = "leanback",
+  PREVIEW_PAGE = "previewpage",
+  PROFILE_PAGE = "profilepage",
+  UNPLUGGED = "unplugged"
 }
 
 export declare interface PlayerData {
@@ -67,6 +80,7 @@ export declare interface PlayerData {
   dbp: string;
   dclk: string;
   delay: number;
+  el: PlayerType;
   enablecsi: string;
   enabled_engage_types: string;
   enablejsapi: string;
@@ -111,6 +125,7 @@ export declare interface PlayerData {
   midroll_prefetch_size: string;
   mpu: boolean;
   mpvid: string;
+  mutedautoplay: string;
   no_get_video_log: string;
   of: string;
   oid: string;
@@ -159,6 +174,7 @@ export declare interface PlayerData {
   view_count: string;
   vm: string;
   vmap: string;
+  vq: PlaybackQuality;
   vss_host: string;
   watch_ajax_token: string;
   watermark: string;

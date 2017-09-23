@@ -21,34 +21,34 @@ export class EventHandler extends Disposable {
   }
 
   listen(src: ListenableType, type: string, fn?: Function, options: boolean|AddEventListenerOptions = false, scope?: Object): EventHandler {
-    var listenerObj = listen(src, type, fn || this.handleEvent, options, scope || this._scope || this);
+    const listenerObj = listen(src, type, fn || this.handleEvent, options, scope || this._scope || this);
 
     if (!listenerObj) {
       return this;
     }
 
-    var key = listenerObj.key;
+    const key = listenerObj.key;
     this._keys[key] = listenerObj;
   
     return this;
   }
 
   listenOnce(src: ListenableType, type: string, fn?: Function, options: boolean|AddEventListenerOptions = false, scope?: Object): EventHandler {
-    var listenerObj = listenOnce(src, type, fn || this.handleEvent, options, scope || this._scope || this);
+    const listenerObj = listenOnce(src, type, fn || this.handleEvent, options, scope || this._scope || this);
     
     if (!listenerObj) {
       return this;
     }
 
-    var key = listenerObj.key;
+    const key = listenerObj.key;
     this._keys[key] = listenerObj;
   
     return this;
   }
 
   unlisten(src: ListenableType, type: string, fn?: Function, options: boolean|AddEventListenerOptions = false, scope?: Object) {
-    var capture = typeof options === 'object' ? !!options.capture : !!options;
-    var listener = getListener(src, type, fn || this.handleEvent, capture,
+    const capture = typeof options === 'object' ? !!options.capture : !!options;
+    const listener = getListener(src, type, fn || this.handleEvent, capture,
         scope || this._scope || this);
 
     if (listener) {
@@ -71,8 +71,8 @@ export class EventHandler extends Disposable {
   }
 
   getListenerCount(): number {
-    var count = 0;
-    for (var key in this._keys) {
+    let count = 0;
+    for (let key in this._keys) {
       if (Object.prototype.hasOwnProperty.call(this._keys, key)) {
         count++;
       }

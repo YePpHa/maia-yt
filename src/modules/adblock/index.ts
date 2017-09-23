@@ -6,49 +6,22 @@ import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
+import { Api } from "./api";
 const logger = new Logger("AdblockModule");
 
 export class AdblockModule extends Module implements onPlayerData, onSettingsReactRegister {
-  protected name: string = "Adblock";
-  
-  isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
-  }
+  private _api: Api;
 
-  setEnabled(enabled: boolean): void {
-    this.getStorage().set('enabled', enabled);
-  }
-
-  isVideoBlacklisted(videoId: string): boolean {
-    const blacklist: string[] = this.getStorage().get('videoBlacklist', []);
-
-    return blacklist.indexOf(videoId) !== -1;
-  }
-
-  isVideoWhitelisted(videoId: string): boolean {
-    const whitelist: string[] = this.getStorage().get('videoWhitelist', []);
-
-    return whitelist.indexOf(videoId) !== -1;
-  }
-  
-  isChannelBlacklisted(channelId: string): boolean {
-    const blacklist: string[] = this.getStorage().get('channelBlacklist', []);
-    
-    return blacklist.indexOf(channelId) !== -1;
-  }
-  
-  isChannelWhitelisted(channelId: string): boolean {
-    const whitelist: string[] = this.getStorage().get('channelWhitelist', []);
-    
-    return whitelist.indexOf(channelId) !== -1;
-  }
-
-  isSubscribedChannelsWhitelisted(): boolean {
-    return this.getStorage().get('subscribedChannelsWhitelisted', false);
+  getApi(): Api {
+    if (!this._api) {
+      this._api = new Api()
+    }
+    return this._api;
   }
 
   onPlayerData(player: Player, data: PlayerData): PlayerData {
-    if (!this.isEnabled()) return data;
+    const api = this.getApi();
+    if (!api.isEnabled()) return data;
 
     const subscribed: boolean = data.subscribed === "1";
 
@@ -57,15 +30,15 @@ export class AdblockModule extends Module implements onPlayerData, onSettingsRea
 
     // Don't block ads if channel is subscribed to and the subscribed channels
     // are whitelisted.
-    let blockAds: boolean = !subscribed || !this.isSubscribedChannelsWhitelisted();
+    let blockAds: boolean = !subscribed || !api.isSubscribedChannelsWhitelisted();
     
     // Don't block ads if video or channel is whitelisted.
-    if (this.isVideoWhitelisted(videoId) || this.isChannelWhitelisted(channelId)) {
+    if (api.isVideoWhitelisted(videoId) || api.isChannelWhitelisted(channelId)) {
       blockAds = false;
     }
 
     // Block ads if video or channel is blacklisted.
-    if (this.isVideoBlacklisted(videoId) || this.isChannelBlacklisted(channelId)) {
+    if (api.isVideoBlacklisted(videoId) || api.isChannelBlacklisted(channelId)) {
       blockAds = true;
     }
 
@@ -99,6 +72,6 @@ export class AdblockModule extends Module implements onPlayerData, onSettingsRea
   }
 
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getStorage());
+    return new SettingsReact(this.getApi());
   }
 }

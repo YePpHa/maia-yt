@@ -71,7 +71,7 @@ export class EventTarget extends Disposable implements Listenable {
   }
 
   fireListeners(type: string, capture: boolean, event: Event) {
-    var listenerArray = this._eventTargetListeners.listeners[String(type)];
+    let listenerArray = this._eventTargetListeners.listeners[String(type)];
     if (!listenerArray) {
       return true;
     }

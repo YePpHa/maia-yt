@@ -1,6 +1,8 @@
 import { IPlayer } from './IPlayer';
 import { EventTarget } from '../../libs/events/EventTarget';
 import { ServicePort } from "../../libs/messaging/ServicePort";
+import { PlayerData } from '../youtube/PlayerConfig';
+import { PlaybackQuality } from '../youtube/PlayerApi';
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
@@ -31,12 +33,20 @@ export class Player extends EventTarget implements IPlayer {
     return this._port.callSync("player#api", this._id, name, ...args);
   }
 
+  setLoaded(loaded: boolean) {
+    return this._port.callSync("player#loaded", this._id, loaded);
+  }
+
   getId(): string {
     return this._id;
   }
 
   getElementId(): string {
     return this._elementId;
+  }
+
+  getElement(): Element|null {
+    return document.getElementById(this.getElementId());
   }
 
   ready(): void {
@@ -73,5 +83,33 @@ export class Player extends EventTarget implements IPlayer {
 
   seekTo(time: number): void {
     this._callApi("seekTo", time);
+  }
+
+  loadVideoByPlayerVars(data: PlayerData): void {
+    this._callApi("loadVideoByPlayerVars", data);
+  }
+
+  cueVideoByPlayerVars(data: PlayerData): void {
+    this._callApi("cueVideoByPlayerVars", data);
+  }
+  
+  getPlaybackQuality(): PlaybackQuality {
+    return this._callApi("getPlaybackQuality");
+  }
+  
+  setPlaybackQuality(quality: PlaybackQuality): void {
+    return this._callApi("setPlaybackQuality", quality);
+  }
+  
+  setPlaybackQualityRange(start: PlaybackQuality, end: PlaybackQuality): void {
+    return this._callApi("setPlaybackQualityRange", start, end);
+  }
+
+  getAvailableQualityLevels(): PlaybackQuality[] {
+    return this._callApi("getAvailableQualityLevels");
+  }
+
+  getMaxPlaybackQuality(): PlaybackQuality {
+    return this._callApi("getMaxPlaybackQuality");
   }
 }
