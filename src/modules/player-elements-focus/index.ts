@@ -14,12 +14,11 @@ const logger = new Logger("PlayerElementsFocusModule");
  * it will outline the clicked element and that element will then have focus.
  */
 export class PlayerElementsFocusModule extends Module implements onPlayerCreated, onSettingsReactRegister {
-  public name: string = "PlayerElementsFocus";
   private _api: Api;
 
   getApi(): Api {
     if (!this._api) {
-      this._api = new Api(this.getStorage());
+      this._api = new Api()
     }
     return this._api;
   }

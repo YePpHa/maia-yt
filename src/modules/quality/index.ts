@@ -11,12 +11,11 @@ import { PlaybackQuality } from "../../app/youtube/PlayerApi";
 const logger = new Logger("QualityModule");
 
 export class QualityModule extends Module implements onPlayerData, onSettingsReactRegister {
-  protected name: string = "Quality";
   private _api: Api;
 
   getApi(): Api {
     if (!this._api) {
-      this._api = new Api(this.getStorage());
+      this._api = new Api()
     }
     return this._api;
   }
@@ -31,25 +30,42 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
 
     if (!player.isReady()) return data;
 
+    this.updatePlaybackQuality(player, quality, api.isBetterQualityPreferred());
+
+    return data;
+  }
+
+  onPlayerCreated(player: Player): void {
+    const api = this.getApi();
+    this.getHandler()
+      .listen(player, EventType.UNSTARTED, () => {
+        this.updatePlaybackQuality(player, api.getQuality(), api.isBetterQualityPreferred());
+      })
+  }
+
+  private updatePlaybackQuality(player: Player, quality: PlaybackQuality, bestQualityPreferred: boolean): void {
     let availableLevels = player.getAvailableQualityLevels();
     let currentLevel = player.getPlaybackQuality();
-    if (currentLevel === quality || availableLevels.length === 0) return data;
+    if (availableLevels.length === 0) {
+      logger.debug("No quality levels are available.");
+      return;
+    }
+    if (currentLevel === quality) return;
 
     if (availableLevels.indexOf(quality) !== -1) {
       player.setPlaybackQualityRange(quality, quality);
       logger.debug("Settings quality (%s) through API", quality);
 
-      return data;
+      return;
     }
 
-    const bestQualityPreferred = api.isBetterQualityPreferred();
     const values = PlaybackQuality.getValues();
 
     const availableLevelIndexes = availableLevels.map(level => values.indexOf(level));
     const levelIndex = values.indexOf(quality);
     if (levelIndex === -1) {
       logger.warning("Quality (%s) can't be found in values.", quality);
-      return data;
+      return;
     }
 
     const findLowerQuality = (): PlaybackQuality|undefined => {
@@ -59,7 +75,7 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
         }
       }
 
-      return undefined;
+      return;
     };
 
     const findBetterQuality = (): PlaybackQuality|undefined => {
@@ -69,7 +85,7 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
         }
       }
 
-      return undefined;
+      return;
     };
 
     let nextQuality: PlaybackQuality|undefined;
@@ -88,8 +104,6 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
     } else {
       logger.debug("Couldn't find a quality close to %s.", quality);
     }
-
-    return data;
   }
 
   onSettingsReactRegister(): ISettingsReact {

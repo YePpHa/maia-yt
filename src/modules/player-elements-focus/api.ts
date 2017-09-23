@@ -1,7 +1,12 @@
 import { ISettingsStorage } from "../../settings/ISettingsStorage";
+import { getSettingsStorage } from "../Module";
 
 export class Api {
-  constructor(private storage: ISettingsStorage) {}
+  private storage: ISettingsStorage;
+  
+  constructor() {
+    this.storage = getSettingsStorage("PlayerElementsFocus");
+  }
 
   setEnabled(enabled: boolean): void {
     this.storage.set('enabled', enabled);

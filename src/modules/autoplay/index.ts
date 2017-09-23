@@ -16,15 +16,13 @@ export enum AutoPlayMode {
 }
 
 export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
-  public name: string = "AutoPlay";
-
   private _unstarted: {[key: string]: boolean} = {};
   private _ready: {[key: string]: boolean} = {};
   private _api: Api;
 
   getApi(): Api {
     if (!this._api) {
-      this._api = new Api(this.getStorage());
+      this._api = new Api()
     }
     return this._api;
   }

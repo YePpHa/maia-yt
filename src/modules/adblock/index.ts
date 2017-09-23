@@ -10,12 +10,11 @@ import { Api } from "./api";
 const logger = new Logger("AdblockModule");
 
 export class AdblockModule extends Module implements onPlayerData, onSettingsReactRegister {
-  protected name: string = "Adblock";
   private _api: Api;
 
   getApi(): Api {
     if (!this._api) {
-      this._api = new Api(this.getStorage());
+      this._api = new Api()
     }
     return this._api;
   }

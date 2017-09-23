@@ -1,8 +1,13 @@
 import { ISettingsStorage } from "../../settings/ISettingsStorage";
 import { AutoPlayMode } from "./index";
+import { getSettingsStorage } from "../Module";
 
 export class Api {
-  constructor(private storage: ISettingsStorage) {}
+  private storage: ISettingsStorage;
+  
+  constructor() {
+    this.storage = getSettingsStorage("AutoPlay");
+  }
 
   setEnabled(enabled: boolean): void {
     this.storage.set('enabled', enabled);

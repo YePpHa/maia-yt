@@ -10,10 +10,14 @@ export function setStorage(s: Storage): void {
   storage = s;
 }
 
+export function getSettingsStorage(name: string): ISettingsStorage {
+  if (!storage) throw new Error("Storage has not been initialized.");
+
+  return new ModuleSettings(name, storage);
+}
+
 export class Module extends Disposable {
-  protected name: string = "unknown";
   private _handler: EventHandler;
-  private _settingsStorage: ISettingsStorage;
 
   protected disposeInternal() {
     super.disposeInternal();
@@ -26,15 +30,6 @@ export class Module extends Disposable {
       this._handler = new EventHandler(this);
     }
     return this._handler;
-  }
-
-  getStorage(): ISettingsStorage {
-    if (!this._settingsStorage) {
-      if (!storage) throw new Error("Storage has not been initialized.");
-
-      this._settingsStorage = new ModuleSettings(this.name, storage);
-    }
-    return this._settingsStorage;
   }
 }
 
