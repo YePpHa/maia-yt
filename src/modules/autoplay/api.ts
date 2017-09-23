@@ -24,4 +24,20 @@ export class Api {
   getMode(): AutoPlayMode {
     return this.storage.get('mode', AutoPlayMode.PAUSE);
   }
+  
+  setChannelEnabled(enabled: boolean): void {
+    this.storage.set('channelEnabled', enabled);
+  }
+  
+  isChannelEnabled(): boolean {
+    return this.storage.get('channelEnabled', false);
+  }
+
+  setChannelMode(mode: AutoPlayMode): void {
+    this.storage.set('channelMode', mode);
+  }
+
+  getChannelMode(): AutoPlayMode {
+    return this.storage.get('channelMode', AutoPlayMode.PAUSE);
+  }
 }

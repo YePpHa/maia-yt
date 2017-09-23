@@ -31,13 +31,19 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     return location.pathname === "/watch";
   }
 
+  isChannelPage() {
+    return location.pathname.substring(0, 9) === "/channel/";
+  }
+
   onPlayerData(player: Player, data: PlayerData): PlayerData {
     const api = this.getApi();
-    const enabled: boolean = api.isEnabled();
-    const detailPage: boolean = this.isDetailPage();
 
-    if (enabled && detailPage) {
-      if (this.getApi().getMode() === AutoPlayMode.STOP) {
+    if (api.isEnabled() && this.isDetailPage()) {
+      if (api.getMode() === AutoPlayMode.STOP) {
+        data.autoplay = "0";
+      }
+    } else if (api.isChannelEnabled() && this.isChannelPage()) {
+      if (api.getChannelMode() === AutoPlayMode.STOP) {
         data.autoplay = "0";
       }
     }
@@ -85,6 +91,12 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       if (mode === AutoPlayMode.PAUSE) {
         player.pause();
       }
+    } else if (api.isChannelEnabled() && this.isChannelPage()) {
+      this._ready[id] = true;
+      const mode: AutoPlayMode = api.getChannelMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        player.pause();
+      }
     }
 
     player.addOnDisposeCallback(() => {
@@ -125,11 +137,16 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     const id = player.getId();
     const api = this.getApi();
 
-    const enabled: boolean = api.isEnabled();
-    const detailPage: boolean = this.isDetailPage();
+    const unstarted: boolean = this._unstarted[id];
 
-    if (enabled && this._unstarted[id] && detailPage) {
+    if (api.isEnabled() && unstarted && this.isDetailPage()) {
       const mode: AutoPlayMode = api.getMode();
+      if (mode === AutoPlayMode.PAUSE) {
+        logger.debug("Preveting auto-play by pausing the video.");
+        player.pause();
+      }
+    } else if (api.isChannelEnabled() && unstarted && this.isChannelPage()) {
+      const mode: AutoPlayMode = api.getChannelMode();
       if (mode === AutoPlayMode.PAUSE) {
         logger.debug("Preveting auto-play by pausing the video.");
         player.pause();
