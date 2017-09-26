@@ -62,7 +62,7 @@
     "lodash": "^4.17.4",
     "material-components-web": "^0.21.0",
     "react": "^15.6.1",
-    "react-dom": "^15.6.1",
+    "react-dom": "^16.0.0",
     "sprintf-js": "^1.1.1",
     "uuid": "^3.1.0",
     "webpack-merge": "^4.1.0"
