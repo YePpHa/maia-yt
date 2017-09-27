@@ -100,10 +100,6 @@ export class Player extends Component {
       const api = this.getApi();
       let value = (api as any)[name](...args);
 
-      if (name === "destroy") {
-        this.dispose();
-      }
-
       return value;
     } else {
       return returnValue.value;
@@ -185,6 +181,7 @@ export class Player extends Component {
   getApi(): PlayerApi {
     if (!this._api) {
       let player = this._element as PlayerApiElement;
+      if (!player) throw new Error("Player (" + this.getId() + ") is not initialized.");
 
       // Determine whether the API interface is on the element.
       if (typeof player.getApiInterface !== "function") {

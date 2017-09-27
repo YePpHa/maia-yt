@@ -122,10 +122,17 @@ const getPlayerData = function(player: any) {
 };
 
 /**
+ * Whether the auto-play patch has been applied.
+ */
+let appliedAutoPlayPatch = false;
+
+/**
  * Fixes the autoplay setting. Currently YouTube doesn't use the autoplay if the
  * player is `detailpage`, which we need on /watch. This patch will fix it.
  */
 const fixAutoplay = () => {
+  if (appliedAutoPlayPatch) return;
+  appliedAutoPlayPatch = true;
   let win = window as YTWindow;
   for (let key in win._yt_player) {
     if (win._yt_player.hasOwnProperty(key) && typeof win._yt_player[key] === "function") {

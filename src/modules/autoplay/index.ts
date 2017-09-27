@@ -27,22 +27,14 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     return this._api;
   }
 
-  isDetailPage() {
-    return location.pathname === "/watch";
-  }
-
-  isChannelPage() {
-    return location.pathname.substring(0, 9) === "/channel/";
-  }
-
   onPlayerData(player: Player, data: PlayerData): PlayerData {
     const api = this.getApi();
 
-    if (api.isEnabled() && this.isDetailPage()) {
+    if (api.isEnabled() && player.isDetailPage()) {
       if (api.getMode() === AutoPlayMode.STOP) {
         data.autoplay = "0";
       }
-    } else if (api.isChannelEnabled() && this.isChannelPage()) {
+    } else if (api.isChannelEnabled() && player.isProfilePage()) {
       if (api.getChannelMode() === AutoPlayMode.STOP) {
         data.autoplay = "0";
       }
@@ -60,12 +52,12 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     } else {
       if (name !== "loadVideoByPlayerVars") return;
       const api = this.getApi();
-      const enabled: boolean = api.isEnabled();
-      const detailPage: boolean = this.isDetailPage();
-      if (!enabled || !detailPage) return;
 
-      const mode: AutoPlayMode = api.getMode();
-      if (mode !== AutoPlayMode.STOP) return;
+      const detailPage = api.isEnabled() && player.isDetailPage() && api.getMode() === AutoPlayMode.STOP;
+      const profilePage = api.isChannelEnabled() && player.isProfilePage() && api.getChannelMode() === AutoPlayMode.STOP;
+
+      if (!detailPage && !profilePage)
+        return;
 
       try {
         return {
@@ -81,21 +73,26 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   onPlayerCreated(player: Player): void {
     const api = this.getApi();
     const enabled: boolean = api.isEnabled();
-    const detailPage: boolean = this.isDetailPage();
+    const detailPage: boolean = player.isDetailPage();
 
     const id: string = player.getId();
 
-    if (enabled && detailPage) {
-      this._ready[id] = true;
-      const mode: AutoPlayMode = api.getMode();
-      if (mode === AutoPlayMode.PAUSE) {
-        player.pause();
+    if (detailPage) {
+      if (enabled) {
+        this._ready[id] = true;
+        const mode: AutoPlayMode = api.getMode();
+        if (mode === AutoPlayMode.PAUSE) {
+          player.pause();
+        }
+      } else {
+        player.play();
       }
-    } else if (api.isChannelEnabled() && this.isChannelPage()) {
-      this._ready[id] = true;
-      const mode: AutoPlayMode = api.getChannelMode();
-      if (mode === AutoPlayMode.PAUSE) {
-        player.pause();
+    } else if (player.isProfilePage()) {
+      if (api.isChannelEnabled()) {
+        const mode: AutoPlayMode = api.getChannelMode();
+        if (mode === AutoPlayMode.PAUSE) {
+          player.pause();
+        }
       }
     }
 
@@ -139,13 +136,13 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
 
     const unstarted: boolean = this._unstarted[id];
 
-    if (api.isEnabled() && unstarted && this.isDetailPage()) {
+    if (api.isEnabled() && unstarted && player.isDetailPage()) {
       const mode: AutoPlayMode = api.getMode();
       if (mode === AutoPlayMode.PAUSE) {
         logger.debug("Preveting auto-play by pausing the video.");
         player.pause();
       }
-    } else if (api.isChannelEnabled() && unstarted && this.isChannelPage()) {
+    } else if (api.isChannelEnabled() && unstarted && player.isProfilePage()) {
       const mode: AutoPlayMode = api.getChannelMode();
       if (mode === AutoPlayMode.PAUSE) {
         logger.debug("Preveting auto-play by pausing the video.");

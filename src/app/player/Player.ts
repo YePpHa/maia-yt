@@ -1,13 +1,14 @@
 import { IPlayer } from './IPlayer';
 import { EventTarget } from '../../libs/events/EventTarget';
 import { ServicePort } from "../../libs/messaging/ServicePort";
-import { PlayerData } from '../youtube/PlayerConfig';
+import { PlayerData, PlayerType } from '../youtube/PlayerConfig';
 import { PlaybackQuality } from '../youtube/PlayerApi';
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
   private _elementId: string;
   private _port: ServicePort;
+  private _data: PlayerData;
 
   /**
    * Whether YouTube has initialized the player yet.
@@ -35,6 +36,22 @@ export class Player extends EventTarget implements IPlayer {
 
   setLoaded(loaded: boolean) {
     return this._port.callSync("player#loaded", this._id, loaded);
+  }
+
+  setData(data: PlayerData): void {
+    this._data = data;
+  }
+
+  getData(data: PlayerData): PlayerData {
+    return this._data;
+  }
+
+  isDetailPage(): boolean {
+    return this._data.el === PlayerType.DETAIL_PAGE || !this._data.el;
+  }
+
+  isProfilePage(): boolean {
+    return this._data.el === PlayerType.PROFILE_PAGE;
   }
 
   getId(): string {

@@ -146,6 +146,7 @@ export class App extends Component {
   }
   
   private _handleUpdatePlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
+    player.setData(config.args);
     this._modules.forEach(m => {
       const instanceConfig = (m as any) as onPlayerConfig;
       const instanceData = (m as any) as onPlayerData;
@@ -156,16 +157,19 @@ export class App extends Component {
       if (typeof instanceData.onPlayerData === 'function') {
         config.args = instanceData.onPlayerData(player, config.args);
       }
+      player.setData(config.args);
     });
 
     return config;
   }
   
   private _handleUpdatePlayerData(player: Player, data: PlayerData): PlayerData {
+    player.setData(data);
     this._modules.forEach(m => {
       const instance = (m as any) as onPlayerData;
       if (typeof instance.onPlayerData === 'function') {
         data = instance.onPlayerData(player, data);
+        player.setData(data);
       }
     });
 
