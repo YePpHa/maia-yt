@@ -1,7 +1,6 @@
 import { PlayerConfig, PlayerData } from "../app/youtube/PlayerConfig";
 import { Player } from "../app/player/Player";
 import { PageNavigationDetail } from "../app/youtube/PageNavigationDetail";
-import * as React from 'react';
 import { ISettingsReact } from "../settings/ISettings";
 
 export interface onPlayerConfig {

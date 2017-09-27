@@ -1,5 +1,5 @@
 import { ISettingsReact } from "../../settings/ISettings";
-import * as React from 'react';
+import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
 import { Api } from "./api";
