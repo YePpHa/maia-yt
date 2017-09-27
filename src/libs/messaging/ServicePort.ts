@@ -177,6 +177,7 @@ export class ServicePort extends Component {
       delete this._serviceInstances[id];
 
       if (instance.returnError) {
+        console.error(instance.returnError);
         throw instance.returnError;
       } else {
         return instance.returnValue;
@@ -242,6 +243,7 @@ export class ServicePort extends Component {
         break;
       case ServiceType.CALL_RESPONSE_ERROR:
         this._handleCallResponseErrorMessage(detail as ServicePayloadError);
+        break;
       case ServiceType.DISPOSE:
         this._receivedDispose = true;
         this.dispose();
@@ -276,6 +278,7 @@ export class ServicePort extends Component {
             response.returnValue = returnValue;
             this._port.send(response);
           }, (err: Error) => {
+            console.error(err);
             let response = {} as ServicePayloadError;
             response.id = id;
             response.type = ServiceType.CALL_RESPONSE_ERROR;
