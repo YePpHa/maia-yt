@@ -43,14 +43,13 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     return data;
   }
 
-  onPlayerApiCall(player: Player, name: string, data: PlayerData): onPlayerApiCallResponse|undefined {
+  onPlayerApiCall(player: Player, name: string, data: PlayerData): onPlayerApiCallResponse|undefined|void {
     const id = player.getId();
     if (this._ready[id] && (name === "loadVideoByPlayerVars" || name === "cueVideoByPlayerVars")) {
       logger.debug("Player stopped API %s from being called.", name);
       delete this._ready[id];
       return { value: undefined };
-    } else {
-      if (name !== "loadVideoByPlayerVars") return;
+    } else if (name === "loadVideoByPlayerVars") {
       const api = this.getApi();
 
       const detailPage = api.isEnabled() && player.isDetailPage() && api.getMode() === AutoPlayMode.STOP;
@@ -65,8 +64,11 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
         };
       } catch (e) {
         console.error(e);
-        return;
       }
+    } else if (name === "setAutonavState") {
+      const api = this.getApi();
+      if (api.isAutoNavigationEnabled())
+        return { value: undefined };
     }
   }
   
@@ -93,6 +95,11 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
         }
       }
     }
+    if (api.isAutoNavigationEnabled()) {
+      logger.debug("Setting auto navigation state.");
+      player.setAutoNavigationState(api.getAutoNavigationState());
+    }
+    this._unstarted[id] = true;
 
     player.addOnDisposeCallback(() => {
       delete this._unstarted[id];
@@ -133,10 +140,6 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     const api = this.getApi();
 
     const unstarted: boolean = this._unstarted[id];
-
-    if (api.isAutoNavigationEnabled() && unstarted) {
-      player.setAutoNavigationState(api.getAutoNavigationState());
-    }
 
     if (api.isEnabled() && unstarted && player.isDetailPage()) {
       const mode: AutoPlayMode = api.getMode();
