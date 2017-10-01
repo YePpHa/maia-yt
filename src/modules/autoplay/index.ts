@@ -84,8 +84,6 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
         if (mode === AutoPlayMode.PAUSE) {
           player.pause();
         }
-      } else {
-        player.play();
       }
     } else if (player.isProfilePage()) {
       if (api.isChannelEnabled()) {
