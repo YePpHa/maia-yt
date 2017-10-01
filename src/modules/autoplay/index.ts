@@ -8,6 +8,7 @@ import { VideoDataChangeEvent } from "../../app/youtube/events";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
+import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 const logger = new Logger("AutoPlayModule");
 
 export enum AutoPlayMode {
@@ -17,6 +18,7 @@ export enum AutoPlayMode {
 
 export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
   private _unstarted: {[key: string]: boolean} = {};
+  private _autoNavigationCalls: {[key: string]: number} = {};
   private _ready: {[key: string]: boolean} = {};
   private _api: Api;
 
@@ -67,8 +69,20 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       }
     } else if (name === "setAutonavState") {
       const api = this.getApi();
-      if (api.isAutoNavigationEnabled())
+      if (api.isAutoNavigationEnabled() && this._autoNavigationCalls[id] < 2) {
+        this._autoNavigationCalls[id]++;
+        const toggle = document.querySelector("#toggle");
+        if (toggle) {
+          if (api.getAutoNavigationState() === AutoNavigationState.ENABLED) {
+            toggle.setAttribute("checked", "");
+            toggle.setAttribute("active", "");
+          } else {
+            toggle.removeAttribute("checked");
+            toggle.removeAttribute("active");
+          }
+        }
         return { value: undefined };
+      }
     }
   }
   
@@ -100,6 +114,7 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
       player.setAutoNavigationState(api.getAutoNavigationState());
     }
     this._unstarted[id] = true;
+    this._autoNavigationCalls[id] = 0;
 
     player.addOnDisposeCallback(() => {
       delete this._unstarted[id];
