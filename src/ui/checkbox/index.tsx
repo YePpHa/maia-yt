@@ -1,6 +1,6 @@
-import * as React from 'react';
+import { h, Component } from 'preact';
 
-export interface IProps extends React.Props<Checkbox> {
+export interface IProps {
   label: string,
   checked: boolean,
   disabled: boolean,
@@ -14,7 +14,9 @@ export interface IState {
   indeterminateInternal: boolean
 }
 
-export class Checkbox extends React.PureComponent<IProps, IState> {
+export class Checkbox extends Component<IProps, IState> {
+  private _input: HTMLInputElement|undefined = undefined;
+
   static defaultProps: IProps = {
     label: "",
     checked: false,
@@ -28,8 +30,9 @@ export class Checkbox extends React.PureComponent<IProps, IState> {
     indeterminateInternal: this.props.indeterminate
   }
 
-  handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const checked = e.target.checked;
+  handleChange(e: Event) {
+    const target = e.target as HTMLInputElement;
+    const checked = target.checked;
 
     this.setState({
       checkedInternal: checked,
@@ -48,11 +51,11 @@ export class Checkbox extends React.PureComponent<IProps, IState> {
     return (
       <label>
         <input
-          ref="nativeCb"
+          ref={(input: HTMLInputElement) => { this._input = input }}
           type="checkbox"
           checked={checkedInternal}
           disabled={disabledInternal}
-          onChange={this.handleChange.bind(this)}
+          onChange={(e: Event) => this.handleChange(e)}
         />
         { label }
       </label>
@@ -79,8 +82,8 @@ export class Checkbox extends React.PureComponent<IProps, IState> {
   }
 
   componentDidUpdate() {
-    if (this.refs.nativeCb) {
-      (this.refs.nativeCb as HTMLInputElement).indeterminate = this.state.indeterminateInternal;
+    if (this._input) {
+      this._input.indeterminate = this.state.indeterminateInternal;
     }
   }
 }

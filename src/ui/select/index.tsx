@@ -1,7 +1,6 @@
-import * as React from 'react';
+import { h, Component } from 'preact';
 
-export interface IProps extends React.Props<Select> {
-  children: JSX.Element[],
+export interface IProps {
   value: string,
   disabled: boolean,
   onChange?: (value: string) => void
@@ -12,9 +11,8 @@ export interface IState {
   disabledInternal: boolean
 }
 
-export class Select extends React.PureComponent<IProps, IState> {
+export class Select extends Component<IProps, IState> {
   static defaultProps: IProps = {
-    children: [],
     value: "",
     disabled: false
   }
@@ -24,8 +22,9 @@ export class Select extends React.PureComponent<IProps, IState> {
     disabledInternal: this.props.disabled
   }
 
-  handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const value = e.target.value;
+  handleChange(e: Event) {
+    const target = e.target as HTMLSelectElement;
+    const value = target.value;
 
     this.setState({
       valueInternal: value
@@ -44,7 +43,7 @@ export class Select extends React.PureComponent<IProps, IState> {
       <select
         value={valueInternal}
         disabled={disabledInternal}
-        onChange={this.handleChange.bind(this)}
+        onChange={(e: Event) => this.handleChange(e)}
       >{children}</select>
     );
   }

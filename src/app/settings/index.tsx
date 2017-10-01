@@ -1,5 +1,4 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { h, render as pRender } from 'preact';
 import { Module } from '../../modules/Module';
 import { onSettingsReactRegister } from '../../modules/IModule';
 
@@ -22,8 +21,5 @@ export function render(modules: Module[]) {
     </div>
   );
 
-  ReactDOM.render(
-    element,
-    document.body
-  );
+  pRender(element, document.body);
 }
