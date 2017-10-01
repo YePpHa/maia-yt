@@ -1,5 +1,5 @@
 import { Module } from "../Module";
-import { onPlayerCreated, onSettingsReactRegister } from "../IModule";
+import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
 import { Player } from "../../app/player/Player";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
@@ -23,12 +23,27 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
     return this._api;
   }
 
-  onPlayerCreated(player: Player) {
+  private _handleKeyDown(player: Player, e: KeyboardEvent) {
+    const api = this.getApi();
+    if (!api.isGlobalShortcutsEnabled()) return;
+
+    if (player.triggerKeyDown(e.keyCode, e.bubbles)) {
+      e.preventDefault();
+    }
+  }
+
+  onPlayerCreated(player: Player): void {
     const api = this.getApi();
     if (!api.isEnabled()) return;
 
     const element = player.getElement();
     if (!element) return;
+    
+    const handler = new EventHandler();
+    if (player.getElementId() === "movie_player") {
+      handler
+        .listen(document, 'keydown', (e: KeyboardEvent) => this._handleKeyDown(player, e), false);
+    }
 
     logger.debug("Removing `tabindex` attributes.");
 
@@ -41,8 +56,6 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
 
       tabIndexes[i].removeAttribute("tabindex");
     }
-    
-    const handler = new EventHandler();
 
     logger.debug("Attaching focus event listener to all player buttons.");
 

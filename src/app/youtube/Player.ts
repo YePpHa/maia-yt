@@ -74,6 +74,10 @@ export class Player extends Component {
     delete this._api;
     delete this._port;
   }
+
+  getElement(): Element {
+    return this._element;
+  }
   
   callApi(name: string, ...args: any[]): any {
     let returnValue: { value: any }|undefined = undefined;
