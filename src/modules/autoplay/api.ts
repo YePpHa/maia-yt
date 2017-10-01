@@ -1,6 +1,7 @@
 import { ISettingsStorage } from "../../settings/ISettingsStorage";
 import { AutoPlayMode } from "./index";
 import { getSettingsStorage } from "../Module";
+import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 
 export class Api {
   private storage: ISettingsStorage;
@@ -39,5 +40,21 @@ export class Api {
 
   getChannelMode(): AutoPlayMode {
     return this.storage.get('channelMode', AutoPlayMode.PAUSE);
+  }
+  
+  isAutoNavigationEnabled(): boolean {
+    return this.storage.get('autoNavigationEnabled', false);
+  }
+  
+  setAutoNavigationEnabled(enabled: boolean): void {
+    this.storage.set('autoNavigationEnabled', enabled);
+  }
+
+  setAutoNavigationState(state: AutoNavigationState): void {
+    this.storage.set('autonavState', state);
+  }
+
+  getAutoNavigationState(): AutoNavigationState {
+    return this.storage.get('autonavState', AutoNavigationState.DISABLED);
   }
 }

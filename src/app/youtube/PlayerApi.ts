@@ -9,6 +9,11 @@ export enum PlayerState {
   CUED = 5
 }
 
+export enum AutoNavigationState {
+  DISABLED = 1,
+  ENABLED = 2
+}
+
 export enum PlaybackQuality {
   AUTO = 'auto',
   TINY = 'tiny',
@@ -176,7 +181,7 @@ export declare interface PlayerApi {
   setSizeStyle: Function;
   forceFrescaUpdate: Function;
   setAutonav: Function;
-  setAutonavState: Function;
+  setAutonavState: (state: AutoNavigationState) => void;
   showControls: Function;
   hideControls: Function;
   getVisibilityState: () => number;

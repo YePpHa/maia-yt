@@ -2,7 +2,7 @@ import { IPlayer } from './IPlayer';
 import { EventTarget } from '../../libs/events/EventTarget';
 import { ServicePort } from "../../libs/messaging/ServicePort";
 import { PlayerData, PlayerType } from '../youtube/PlayerConfig';
-import { PlaybackQuality } from '../youtube/PlayerApi';
+import { PlaybackQuality, AutoNavigationState } from '../youtube/PlayerApi';
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
@@ -52,6 +52,10 @@ export class Player extends EventTarget implements IPlayer {
 
   isProfilePage(): boolean {
     return this._data.el === PlayerType.PROFILE_PAGE;
+  }
+
+  setAutoNavigationState(state: AutoNavigationState): void {
+    this._callApi('setAutonavState', state);
   }
 
   getId(): string {

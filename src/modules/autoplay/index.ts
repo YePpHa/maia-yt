@@ -134,6 +134,10 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
 
     const unstarted: boolean = this._unstarted[id];
 
+    if (api.isAutoNavigationEnabled() && unstarted) {
+      player.setAutoNavigationState(api.getAutoNavigationState());
+    }
+
     if (api.isEnabled() && unstarted && player.isDetailPage()) {
       const mode: AutoPlayMode = api.getMode();
       if (mode === AutoPlayMode.PAUSE) {

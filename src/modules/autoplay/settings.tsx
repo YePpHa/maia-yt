@@ -4,6 +4,7 @@ import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
 import { AutoPlayMode } from "./index";
 import { Api } from "./api";
+import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 
 export class Settings implements ISettingsReact {
   constructor(private api: Api) {}
@@ -21,10 +22,19 @@ export class Settings implements ISettingsReact {
     const onChannelModeChange = (value: string) => {
       this.api.setChannelMode(value as AutoPlayMode);
     };
+    const onAutoNavigationEnableChange = (checked: boolean) => {
+      this.api.setAutoNavigationEnabled(checked);
+    };
+    const onAutoNavigationStateChange = (value: string) => {
+      this.api.setAutoNavigationState(parseInt(value, 10));
+    };
     const enabled: boolean = this.api.isEnabled();
     const mode: string = this.api.getMode();
     const channelEnabled: boolean = this.api.isChannelEnabled();
     const channelMode: string = this.api.getChannelMode();
+
+    const autoNavigationEnabled: boolean = this.api.isAutoNavigationEnabled();
+    const autoNavigationState: string = this.api.getAutoNavigationState().toString();
 
     return (
       <div>
@@ -63,6 +73,25 @@ export class Settings implements ISettingsReact {
             value={channelMode}>
             <option value="pause">Pause (Allow buffering)</option>
             <option value="stop">Stop (No buffering)</option>
+          </Select>
+        </div>
+        <h3>Auto Navigation</h3>
+        <div>
+          <Checkbox
+            label="Enable Force Auto Navigation"
+            disabled={false}
+            indeterminate={false}
+            checked={autoNavigationEnabled}
+            onChange={onAutoNavigationEnableChange}
+          />
+        </div>
+        <div>
+          <Select
+            disabled={false}
+            onChange={onAutoNavigationStateChange}
+            value={autoNavigationState}>
+            <option value={AutoNavigationState.DISABLED.toString()}>Disabled</option>
+            <option value={AutoNavigationState.ENABLED.toString()}>Enabled</option>
           </Select>
         </div>
       </div>
