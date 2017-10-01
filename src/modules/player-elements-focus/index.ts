@@ -1,13 +1,16 @@
 import { Module } from "../Module";
-import { onPlayerCreated, onSettingsReactRegister } from "../IModule";
+import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
 import { Player } from "../../app/player/Player";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { Api } from "./api";
+import { getPath } from "../../libs/dom";
 
 const logger = new Logger("PlayerElementsFocusModule");
+
+const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
 
 /**
  * If you click on some of the elements on the YouTube player (volume, progress)
@@ -23,12 +26,30 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
     return this._api;
   }
 
-  onPlayerCreated(player: Player) {
+  private _handleKeyDown(player: Player, e: KeyboardEvent) {
+    const path = getPath(e.target as Node).map((node: Element) => node.tagName);
+    if (path.findIndex(tagName => BLACKLISTED_TAGNAMES.indexOf(tagName) !== -1) !== -1) return;
+
+    const api = this.getApi();
+    if (!api.isGlobalShortcutsEnabled()) return;
+
+    if (player.triggerKeyDown(e.keyCode, e.bubbles)) {
+      e.preventDefault();
+    }
+  }
+
+  onPlayerCreated(player: Player): void {
     const api = this.getApi();
     if (!api.isEnabled()) return;
 
     const element = player.getElement();
     if (!element) return;
+    
+    const handler = new EventHandler();
+    if (player.getElementId() === "movie_player") {
+      handler
+        .listen(document, 'keydown', (e: KeyboardEvent) => this._handleKeyDown(player, e), false);
+    }
 
     logger.debug("Removing `tabindex` attributes.");
 
@@ -41,8 +62,6 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
 
       tabIndexes[i].removeAttribute("tabindex");
     }
-    
-    const handler = new EventHandler();
 
     logger.debug("Attaching focus event listener to all player buttons.");
 

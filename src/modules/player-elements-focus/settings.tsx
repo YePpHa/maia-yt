@@ -10,7 +10,11 @@ export class Settings implements ISettingsReact {
     const onEnableChange = (checked: boolean) => {
       this.api.setEnabled(checked);
     };
+    const onGlobalShortcutsEnabled = (checked: boolean) => {
+      this.api.setGlobalShortcutsEnabled(checked);
+    };
     const enabled: boolean = this.api.isEnabled();
+    const globalShortcutsEnabled: boolean  = this.api.isGlobalShortcutsEnabled();
 
     return (
       <div>
@@ -22,6 +26,15 @@ export class Settings implements ISettingsReact {
             indeterminate={false}
             checked={enabled}
             onChange={onEnableChange}
+          />
+        </div>
+        <div>
+          <Checkbox
+            label="Make player shortcuts global"
+            disabled={false}
+            indeterminate={false}
+            checked={globalShortcutsEnabled}
+            onChange={onGlobalShortcutsEnabled}
           />
         </div>
       </div>

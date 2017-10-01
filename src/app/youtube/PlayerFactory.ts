@@ -50,12 +50,14 @@ export class PlayerFactory extends Component {
 
     this._port.registerService("player#api", this._handleApiCall, this);
     this._port.registerService("player#loaded", this._handlePlayerLoaded, this);
+    this._port.registerService("player#events#keydown", this._handleKeyboardEvent, this)
   }
 
   /** @override */
   exitDocument() {
     this._port.deregisterService("player#api");
     this._port.deregisterService("player#loaded");
+    this._port.deregisterService("player#events#keydown");
 
     super.exitDocument();
   }
@@ -72,6 +74,21 @@ export class PlayerFactory extends Component {
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
 
     player.setLoaded(loaded);
+  }
+
+  private _handleKeyboardEvent(id: string, keyCode: number, bubbles: boolean): boolean {
+    let player = this._players[id];
+    if (!player) throw new Error("Player with " + id + " couldn't be found.");
+
+    const target = player.getElement();
+    let evt = document.createEvent('event') as any;
+    evt.initEvent('keydown', bubbles, true);
+
+    evt['keyCode'] = evt['charCode'] = evt['which'] = keyCode;
+
+    target.dispatchEvent(evt);
+
+    return (evt as Event).defaultPrevented;
   }
 
   /**

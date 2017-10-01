@@ -38,6 +38,10 @@ export class Player extends EventTarget implements IPlayer {
     return this._port.callSync("player#loaded", this._id, loaded);
   }
 
+  triggerKeyDown(keyCode: number, bubbles: boolean): void {
+    return this._port.callSync("player#events#keydown", this._id, keyCode, bubbles);
+  }
+
   setData(data: PlayerData): void {
     this._data = data;
   }
@@ -132,5 +136,9 @@ export class Player extends EventTarget implements IPlayer {
 
   getMaxPlaybackQuality(): PlaybackQuality {
     return this._callApi("getMaxPlaybackQuality");
+  }
+
+  handleGlobalKeyDown(keyCode: number, bubbling: boolean): void {
+    return this._callApi("handleGlobalKeyDown", keyCode, bubbling);
   }
 }
