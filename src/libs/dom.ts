@@ -45,3 +45,15 @@ export function createCustomEvent(type: string, payload: string): CustomEvent {
     return evt as CustomEvent;
   }
 }
+
+export function getPath(node: Node): Node[] {
+  const nodes: Node[] = [];
+  let currentNode: Node|null = node;
+
+  while (currentNode) {
+    nodes.push(currentNode);
+    currentNode = currentNode.parentNode;
+  }
+
+  return nodes;
+}

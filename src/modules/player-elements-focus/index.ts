@@ -6,8 +6,11 @@ import { Settings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { Api } from "./api";
+import { getPath } from "../../libs/dom";
 
 const logger = new Logger("PlayerElementsFocusModule");
+
+const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
 
 /**
  * If you click on some of the elements on the YouTube player (volume, progress)
@@ -24,6 +27,9 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
   }
 
   private _handleKeyDown(player: Player, e: KeyboardEvent) {
+    const path = getPath(e.target as Node).map((node: Element) => node.tagName);
+    if (path.findIndex(tagName => BLACKLISTED_TAGNAMES.indexOf(tagName) !== -1) !== -1) return;
+
     const api = this.getApi();
     if (!api.isGlobalShortcutsEnabled()) return;
 
