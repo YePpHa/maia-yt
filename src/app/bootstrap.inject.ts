@@ -3,7 +3,7 @@ import { ChannelPort } from '../libs/messaging/ChannelPort';
 import { ServicePort } from '../libs/messaging/ServicePort';
 import { PlayerFactory } from './youtube/PlayerFactory';
 import { Player } from './youtube/Player';
-import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
+import { PlayerConfig, PlayerData, PlayerType } from './youtube/PlayerConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 declare interface YTWindow extends Window {
@@ -130,7 +130,7 @@ let appliedAutoPlayPatch = false;
  * Fixes the autoplay setting. Currently YouTube doesn't use the autoplay if the
  * player is `detailpage`, which we need on /watch. This patch will fix it.
  */
-const fixAutoplay = () => {
+const applyAutoPlayPatch = () => {
   if (appliedAutoPlayPatch) return;
   appliedAutoPlayPatch = true;
   let win = window as YTWindow;
@@ -178,7 +178,9 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
   let playerApp = null;
   if (fn) {
     if (playerConfig.args.hasOwnProperty("autoplay")) {
-      fixAutoplay();
+      if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
+        applyAutoPlayPatch();
+      }
     }
     playerApp = fn(playerConfig);
   }
