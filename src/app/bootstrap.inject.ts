@@ -189,8 +189,10 @@ const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerCo
 
   const setData = playerData["setData"];
   playerData["setData"] = (data: PlayerData) => {
-    let newData = servicePort.callSync("player#data-update", playerId,
-      data) as PlayerData;
+    let newData: PlayerData|undefined = undefined;
+    if (data.video_id) {
+      newData = servicePort.callSync("player#data-update", playerId, data) as PlayerData;
+    }
     setData.call(playerData, newData || data);
   };
   servicePort.addOnDisposeCallback(() => {

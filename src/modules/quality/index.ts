@@ -1,4 +1,4 @@
-import { onPlayerConfig, onPlayerData, onSettingsReactRegister } from "../IModule";
+import { onPlayerData, onSettingsReactRegister } from "../IModule";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
