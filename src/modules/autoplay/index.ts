@@ -47,11 +47,19 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
 
   onPlayerApiCall(player: Player, name: string, data: PlayerData): onPlayerApiCallResponse|undefined|void {
     const id = player.getId();
-    if (this._ready[id] && (name === "loadVideoByPlayerVars" || name === "cueVideoByPlayerVars")) {
-      logger.debug("Player stopped API %s from being called.", name);
+    const videoLoaded = !!player.getVideoData().video_id;
+    const loadDataReady = this._ready[id] && (name === "loadVideoByPlayerVars" || name === "cueVideoByPlayerVars");
+    if (loadDataReady) {
+      // Remove the ready object for player ID.
       delete this._ready[id];
+    }
+    if (loadDataReady && videoLoaded) {
+      // Prevent the video data from being loaded twice in the player.
+      logger.debug("Player stopped API %s from being called.", name);
+
       return { value: undefined };
     } else if (name === "loadVideoByPlayerVars") {
+      // Cue video data if the prevent auto-play mode is STOP
       const api = this.getApi();
 
       const detailPage = api.isEnabled() && player.isDetailPage() && api.getMode() === AutoPlayMode.STOP;
@@ -59,6 +67,8 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
 
       if (!detailPage && !profilePage)
         return;
+
+      logger.debug("Cue video data instead of loading it immediately (loadVideoByPlayerVars -> cueVideoByPlayerVars).");
 
       try {
         return {

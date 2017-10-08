@@ -1,6 +1,6 @@
 {
   "name": "project-maia",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Enhances the user experience on YouTube by providing useful features.",
   "keywords": [
     "YouTube",
@@ -12,6 +12,7 @@
   ],
   "main": "webpack.config.js",
   "scripts": {
+    "build": "npm run build:userscript",
     "build:userscript": "webpack --config webpack.userscript.prod.config.js",
     "dev:userscript": "webpack --config webpack.userscript.dev.config.js",
     "test": "karma start"

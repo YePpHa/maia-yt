@@ -146,4 +146,8 @@ export class Player extends EventTarget implements IPlayer {
   handleGlobalKeyDown(keyCode: number, bubbling: boolean): void {
     return this._callApi("handleGlobalKeyDown", keyCode, bubbling);
   }
+
+  getVideoData(): PlayerData {
+    return this._callApi("getVideoData");
+  }
 }
