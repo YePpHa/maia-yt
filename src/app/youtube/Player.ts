@@ -94,10 +94,7 @@ export class Player extends Component {
       case "loadVideoByPlayerVars":
       case "cueVideoByPlayerVars":
       case "updateVideoData":
-        let data = args[0] as PlayerData;
-        if (data.video_id) {
-          args[0] = this._port.callSync("player#data-update", this._id, data) as PlayerData || data;
-        }
+        args[0] = this._port.callSync("player#data-update", this._id, args[0]) as PlayerData || args[0];
       default:
         returnValue = this._port.callSync("player#api-call", this._id, name, ...args);
         break;

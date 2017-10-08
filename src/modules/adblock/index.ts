@@ -23,10 +23,12 @@ export class AdblockModule extends Module implements onPlayerData, onSettingsRea
     const api = this.getApi();
     if (!api.isEnabled()) return data;
 
-    const subscribed: boolean = data.subscribed === "1";
+    const subscribed: boolean = player.getData().subscribed === "1";
 
-    const videoId = data.video_id;
-    const channelId = data.ucid;
+    const videoId = player.getData().video_id;
+    if (!videoId) return data;
+    const channelId = player.getData().ucid;
+    if (!channelId) return data;
 
     // Don't block ads if channel is subscribed to and the subscribed channels
     // are whitelisted.
@@ -43,7 +45,7 @@ export class AdblockModule extends Module implements onPlayerData, onSettingsRea
     }
 
     if (blockAds) {
-      logger.debug("Blocking ads on video (" + data.video_id + ")");
+      logger.debug("Blocking ads on video (" + videoId + ")");
 
       // Delete the ad-related properties from the configuration.
       delete data.ad3_module;
