@@ -1,4 +1,4 @@
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
+import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
 import { PlayerConfig, PlayerData, PlayerType } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
@@ -109,7 +109,7 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
         }
       }
     }
-    if (api.isAutoNavigationEnabled()) {
+    if (api.isAutoNavigationEnabled() && player.isDetailPage()) {
       logger.debug("Setting auto navigation state.");
       player.setAutoNavigationState(api.getAutoNavigationState());
     }

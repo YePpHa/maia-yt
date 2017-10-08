@@ -65,7 +65,6 @@ export class PlayerFactory extends Component {
   private _handleApiCall(id: string, name: string, ...args: any[]): any {
     let player = this._players[id];
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
-
     return (player.getApi() as any)[name].apply(null, args);
   }
 
