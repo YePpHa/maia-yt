@@ -1,4 +1,4 @@
-import { onPlayerConfig, onPlayerData, onSettingsReactRegister } from "../IModule";
+import { onPlayerData, onSettingsReactRegister } from "../IModule";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
@@ -37,8 +37,15 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
 
   onPlayerCreated(player: Player): void {
     const api = this.getApi();
+    let unstarted = false;
     this.getHandler()
       .listen(player, EventType.UNSTARTED, () => {
+        unstarted = true;
+        this.updatePlaybackQuality(player, api.getQuality(), api.isBetterQualityPreferred());
+      })
+      .listen(player, EventType.API_CHANGE, () => {
+        if (!unstarted) return;
+        unstarted = false;
         this.updatePlaybackQuality(player, api.getQuality(), api.isBetterQualityPreferred());
       })
   }
@@ -53,7 +60,11 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
     if (currentLevel === quality) return;
 
     if (availableLevels.indexOf(quality) !== -1) {
-      player.setPlaybackQualityRange(quality, quality);
+      if (player.isEmbedded()) {
+        player.setPlaybackQuality(quality);
+      } else {
+        player.setPlaybackQualityRange(quality, quality);
+      }
       logger.debug("Settings quality (%s) through API", quality);
 
       return;
@@ -99,7 +110,11 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
     }
 
     if (nextQuality) {
-      player.setPlaybackQualityRange(nextQuality, nextQuality);
+      if (player.isEmbedded()) {
+        player.setPlaybackQuality(nextQuality);
+      } else {
+        player.setPlaybackQualityRange(nextQuality, nextQuality);
+      }
       logger.debug("Changing quality to %s instead of %s due to it not being available.", nextQuality, quality);
     } else {
       logger.debug("Couldn't find a quality close to %s.", quality);

@@ -3,12 +3,13 @@ import { EventTarget } from '../../libs/events/EventTarget';
 import { ServicePort } from "../../libs/messaging/ServicePort";
 import { PlayerData, PlayerType } from '../youtube/PlayerConfig';
 import { PlaybackQuality, AutoNavigationState } from '../youtube/PlayerApi';
+import * as _ from 'lodash';
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
   private _elementId: string;
   private _port: ServicePort;
-  private _data: PlayerData;
+  private _data: PlayerData = {};
 
   /**
    * Whether YouTube has initialized the player yet.
@@ -43,10 +44,10 @@ export class Player extends EventTarget implements IPlayer {
   }
 
   setData(data: PlayerData): void {
-    this._data = data;
+    _.merge(this._data, data);
   }
 
-  getData(data: PlayerData): PlayerData {
+  getData(): PlayerData {
     return this._data;
   }
 
@@ -56,6 +57,10 @@ export class Player extends EventTarget implements IPlayer {
 
   isProfilePage(): boolean {
     return this._data.el === PlayerType.PROFILE_PAGE;
+  }
+
+  isEmbedded(): boolean {
+    return this._data.el === PlayerType.EMBEDDED;
   }
 
   setAutoNavigationState(state: AutoNavigationState): void {
@@ -140,5 +145,9 @@ export class Player extends EventTarget implements IPlayer {
 
   handleGlobalKeyDown(keyCode: number, bubbling: boolean): void {
     return this._callApi("handleGlobalKeyDown", keyCode, bubbling);
+  }
+
+  getVideoData(): PlayerData {
+    return this._callApi("getVideoData");
   }
 }
