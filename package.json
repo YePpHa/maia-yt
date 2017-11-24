@@ -13,8 +13,8 @@
   "main": "webpack.config.js",
   "scripts": {
     "build": "npm run build:userscript",
-    "build:userscript": "webpack --config webpack.userscript.prod.config.js",
-    "dev:userscript": "webpack --config webpack.userscript.dev.config.js",
+    "build:userscript": "webpack --config build/webpack.userscript.prod.config.js",
+    "dev:userscript": "webpack --config build/webpack.userscript.dev.config.js",
     "test": "karma start"
   },
   "author": {
