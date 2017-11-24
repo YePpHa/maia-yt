@@ -1,6 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
-const common = require('./webpack.common.config.js');
+const common = require('./build/webpack.common.config.js');
 
 const webpackConfig = merge(common, {
   devtool: 'inline-source-map'

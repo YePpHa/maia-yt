@@ -67,13 +67,13 @@ const metadata = {
   'run-at': 'document-start'
 };
 
-module.exports = merge(common, {
+const config = merge(common, {
   entry: {
     index: './src/app/bootstrap.userscript.ts'
   },
   output: {
     filename: 'maia.user.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, '../dist')
   },
   plugins: [
     new WrapperPlugin({
@@ -82,3 +82,5 @@ module.exports = merge(common, {
     })
   ]
 });
+
+module.exports = config;
