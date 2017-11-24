@@ -59,7 +59,7 @@
     "i18next-resource-store-loader": "^0.1.2",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
-    "material-components-web": "^0.22.0",
+    "material-components-web": "^0.23.0",
     "preact": "^8.2.5",
     "sprintf-js": "^1.1.1",
     "uuid": "^3.1.0",
