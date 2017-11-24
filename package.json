@@ -13,7 +13,7 @@
   "main": "webpack.config.js",
   "scripts": {
     "build": "npm run build:userscript",
-    "build:userscript": "cross-env NODE_ENV=production webpack -p --config build/webpack.userscript.config.js",
+    "build:userscript": "cross-env NODE_ENV=production webpack --config build/webpack.userscript.config.js",
     "dev:userscript": "webpack --config build/webpack.userscript.config.js",
     "test": "karma start"
   },
