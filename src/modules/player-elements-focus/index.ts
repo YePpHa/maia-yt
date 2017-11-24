@@ -27,6 +27,10 @@ export class PlayerElementsFocusModule extends Module implements onPlayerCreated
   }
 
   private _handleKeyDown(player: Player, e: KeyboardEvent) {
+    if (e.altKey || e.shiftKey || e.metaKey || e.ctrlKey) return;
+    const playerElement = player.getElement();
+    if (playerElement && (playerElement === e.target || playerElement.contains(e.target as Node)))
+      return;
     const path = getPath(e.target as Node).map((node: Element) => node.tagName);
     if (path.findIndex(tagName => BLACKLISTED_TAGNAMES.indexOf(tagName) !== -1) !== -1) return;
 
