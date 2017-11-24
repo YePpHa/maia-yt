@@ -13,8 +13,8 @@
   "main": "webpack.config.js",
   "scripts": {
     "build": "npm run build:userscript",
-    "build:userscript": "webpack --config webpack.userscript.prod.config.js",
-    "dev:userscript": "webpack --config webpack.userscript.dev.config.js",
+    "build:userscript": "webpack --config build/webpack.userscript.prod.config.js",
+    "dev:userscript": "webpack --config build/webpack.userscript.dev.config.js",
     "test": "karma start"
   },
   "author": {
@@ -48,7 +48,7 @@
     "karma-webpack": "^2.0.4",
     "memory-fs": "^0.4.1",
     "ts-jsdoc": "^2.0.5",
-    "ts-loader": "^2.3.4",
+    "ts-loader": "^3.0.0",
     "typescript": "^2.4.2",
     "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
     "webpack": "^3.5.5",
@@ -59,7 +59,7 @@
     "i18next-resource-store-loader": "^0.1.2",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
-    "material-components-web": "^0.22.0",
+    "material-components-web": "^0.23.0",
     "preact": "^8.2.5",
     "sprintf-js": "^1.1.1",
     "uuid": "^3.1.0",
