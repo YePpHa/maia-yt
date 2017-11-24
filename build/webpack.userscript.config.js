@@ -67,7 +67,7 @@ const metadata = {
   'run-at': 'document-start'
 };
 
-module.exports = merge(common, {
+const config = merge(common, {
   entry: {
     index: './src/app/bootstrap.userscript.ts'
   },
@@ -82,3 +82,5 @@ module.exports = merge(common, {
     })
   ]
 });
+
+module.exports = config;

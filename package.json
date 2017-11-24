@@ -13,8 +13,8 @@
   "main": "webpack.config.js",
   "scripts": {
     "build": "npm run build:userscript",
-    "build:userscript": "webpack --config build/webpack.userscript.prod.config.js",
-    "dev:userscript": "webpack --config build/webpack.userscript.dev.config.js",
+    "build:userscript": "cross-env NODE_ENV=production webpack -p --config build/webpack.userscript.config.js",
+    "dev:userscript": "webpack --config build/webpack.userscript.config.js",
     "test": "karma start"
   },
   "author": {
@@ -36,6 +36,7 @@
     "@types/sprintf-js": "^1.1.0",
     "@types/uuid": "^3.4.1",
     "async": "^2.5.0",
+    "cross-env": "^5.1.1",
     "istanbul-instrumenter-loader": "^3.0.0",
     "jasmine-core": "^2.8.0",
     "karma": "^1.7.0",

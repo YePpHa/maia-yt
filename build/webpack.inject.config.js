@@ -2,7 +2,7 @@ const path = require('path');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.config.js');
 
-module.exports = merge(common, {
+const config = merge(common, {
   entry: {
     index: './src/app/bootstrap.inject.ts'
   },
@@ -11,3 +11,5 @@ module.exports = merge(common, {
     path: path.resolve(__dirname, '../dist')
   }
 });
+
+module.exports = config;
