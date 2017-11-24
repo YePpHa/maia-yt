@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   resolveLoader: {
     alias: {
-      'webpack-loader': path.join(__dirname, 'bin/webpack-loader')
+      'webpack-loader': path.join(__dirname, '../bin/webpack-loader')
     }
   },
   resolve: {

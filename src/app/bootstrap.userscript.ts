@@ -16,7 +16,7 @@ i18n.init({
   resources: require("i18next-resource-store-loader!../i18n/index.js")
 });
 
-const injectModule = require('../../webpack.inject.' + (PRODUCTION ? 'prod' : 'dev') + '.config.js') as string;
+const injectModule = require('../../build/webpack.inject.' + (PRODUCTION ? 'prod' : 'dev') + '.config.js') as string;
 
 let mechanism: Mechanism|undefined;
 
