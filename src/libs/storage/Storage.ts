@@ -6,18 +6,18 @@ export class Storage {
     protected mechanism: Mechanism
   ) {}
 
-  set(key: string, value: any): void {
+  async set(key: string, value: any): Promise<void> {
     if (value === void 0) {
-      this.mechanism.remove(key);
+      await this.mechanism.remove(key);
       return;
     }
-    this.mechanism.set(key, JSON.stringify(value));
+    await this.mechanism.set(key, JSON.stringify(value));
   }
 
-  get(key: string): any {
+  async get(key: string): Promise<any> {
     let json;
     try {
-      json = this.mechanism.get(key);
+      json = await this.mechanism.get(key);
     } catch (e) {
       return undefined;
     }
@@ -32,7 +32,7 @@ export class Storage {
     }
   }
 
-  remove(key: string): void {
-    this.mechanism.remove(key);
+  async remove(key: string): Promise<void> {
+    await this.mechanism.remove(key);
   }
 }

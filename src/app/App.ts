@@ -27,6 +27,9 @@ export class App extends Component {
   private _players: {[key: string]: Player} = {};
   private _modules: Module[] = [];
 
+  private _storageLoaded: boolean = false;
+  private _storageLoadedListeners: Function[] = [];
+
   constructor(storage: Storage) {
     super();
 
@@ -35,6 +38,23 @@ export class App extends Component {
     for (let i = 0; i < modules.length; i++) {
       let m = new modules[i]();
       this._modules.push(m);
+    }
+  }
+
+  isStorageLoaded(): boolean {
+    return this._storageLoaded;
+  }
+
+  async loadStorage(): Promise<void> {
+    this._storageLoaded = false;
+    for (let i = 0; i < this._modules.length; i++) {
+      await this._modules[i].getApi().updateCache();
+    }
+    this._storageLoaded = true;
+
+    let fn;
+    while (fn = this._storageLoadedListeners.shift()) {
+      await fn();
     }
   }
 
@@ -198,6 +218,14 @@ export class App extends Component {
     if (this.isInDocument()) {
       port.enterDocument();
     }
+
+    port.registerService("settings#ensureLoaded", async () => {
+      if (!this.isStorageLoaded()) {
+        await new Promise((resolve) => {
+          this._storageLoadedListeners.push(resolve);
+        });
+      }
+    });
 
     port.registerService("player#beforecreate", (id: string, elementId: string, config: PlayerConfig): any => {
       if (this._players.hasOwnProperty(id))

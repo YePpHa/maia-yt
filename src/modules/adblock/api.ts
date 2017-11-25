@@ -1,50 +1,47 @@
-import { ISettingsStorage } from "../../settings/ISettingsStorage";
-import { getSettingsStorage } from "../Module";
+import { ModuleApi } from "../ModuleApi";
 
-export class Api {
-  private storage: ISettingsStorage;
-
+export class Api extends ModuleApi {
   constructor() {
-    this.storage = getSettingsStorage("Adblock");
+    super("Adblock");
   }
 
   setEnabled(enabled: boolean): void {
-    this.storage.set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this.storage.get('enabled', false);
+    return this._storage.get('enabled', false);
   }
 
   isVideoBlacklisted(videoId: string): boolean {
-    const blacklist: string[] = this.storage.get('videoBlacklist', []);
+    const blacklist: string[] = this._storage.get('videoBlacklist', []);
 
     return blacklist.indexOf(videoId) !== -1;
   }
 
   isVideoWhitelisted(videoId: string): boolean {
-    const whitelist: string[] = this.storage.get('videoWhitelist', []);
+    const whitelist: string[] = this._storage.get('videoWhitelist', []);
 
     return whitelist.indexOf(videoId) !== -1;
   }
   
   isChannelBlacklisted(channelId: string): boolean {
-    const blacklist: string[] = this.storage.get('channelBlacklist', []);
+    const blacklist: string[] = this._storage.get('channelBlacklist', []);
     
     return blacklist.indexOf(channelId) !== -1;
   }
   
   isChannelWhitelisted(channelId: string): boolean {
-    const whitelist: string[] = this.storage.get('channelWhitelist', []);
+    const whitelist: string[] = this._storage.get('channelWhitelist', []);
     
     return whitelist.indexOf(channelId) !== -1;
   }
 
   setSubscribedChannelsWhitelisted(whitelisted: boolean): void {
-    this.storage.set('subscribedChannelsWhitelisted', whitelisted);
+    this._storage.set('subscribedChannelsWhitelisted', whitelisted);
   }
 
   isSubscribedChannelsWhitelisted(): boolean {
-    return this.storage.get('subscribedChannelsWhitelisted', false);
+    return this._storage.get('subscribedChannelsWhitelisted', false);
   }
 }

@@ -4,17 +4,17 @@ export interface Mechanism {
    * @param key The key to set.
    * @param value The string to save.
    */
-  set(key: string, value: string): void;
+  set(key: string, value: string): Promise<void>|void;
 
   /**
    * Returns the value stored under a key.
    * @param key The key to get.
    */
-  get(key: string): string;
+  get(key: string): Promise<string>|string;
 
   /**
    * Remove a key and its value.
    * @param key The key to remove.
    */
-  remove(key: string): void;
+  remove(key: string): Promise<void>|void;
 }

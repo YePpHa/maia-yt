@@ -159,13 +159,15 @@ const applyAutoPlayPatch = () => {
   }
 };
 
-const handlePlayerCreate = (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): any => {
+const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): Promise<any> => {
   if (servicePort.isDisposed()) {
     if (fn) {
       return fn(playerConfig);
     }
     return;
   }
+
+  await servicePort.call("settings#ensureLoaded");
   
   let elementId = playerConfig.attrs.id;
   let playerId = uuidv4();
@@ -234,6 +236,17 @@ if (win.ytplayer && win.ytplayer.config
 // Hijack the yt.player.Application.create() method.
 win.yt = win.yt || {};
 win.ytplayer = win.ytplayer || {};
+
+servicePort.addOnDisposeCallback(
+  wrapFunction(win.ytplayer, ['load'],
+    async (fn: Function, self, args) => {
+      await win.yt.player!.Application!.create!("player-api", win.ytplayer.config);
+      win.ytplayer.config!.loaded = true;
+    },
+    undefined,
+    true
+  )
+);
 
 servicePort.addOnDisposeCallback(
   wrapFunction(win.yt, ['player', 'Application', 'create'],

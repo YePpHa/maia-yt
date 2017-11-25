@@ -1,35 +1,32 @@
-import { ISettingsStorage } from "../../settings/ISettingsStorage";
 import { PlaybackQuality } from "../../app/youtube/PlayerApi";
-import { getSettingsStorage } from '../Module';
+import { ModuleApi } from "../ModuleApi";
 
-export class Api {
-  private storage: ISettingsStorage;
-  
+export class Api extends ModuleApi {
   constructor() {
-    this.storage = getSettingsStorage("Quality");
+    super("Quality");
   }
 
   setEnabled(enabled: boolean): void {
-    this.storage.set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this.storage.get('enabled', false);
+    return this._storage.get('enabled', false);
   }
 
   setQuality(quality: PlaybackQuality): void {
-    this.storage.set('quality', quality);
+    this._storage.set('quality', quality);
   }
 
   getQuality(): PlaybackQuality {
-    return this.storage.get('quality', PlaybackQuality.AUTO);
+    return this._storage.get('quality', PlaybackQuality.AUTO);
   }
   
   setBetterQualityPreferred(preferred: boolean): void {
-    this.storage.set('bestQualityPreferred', preferred);
+    this._storage.set('bestQualityPreferred', preferred);
   }
 
   isBetterQualityPreferred(): boolean {
-    return this.storage.get('bestQualityPreferred', true);
+    return this._storage.get('bestQualityPreferred', true);
   }
 }

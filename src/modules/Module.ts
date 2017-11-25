@@ -3,6 +3,7 @@ import { EventHandler } from "../libs/events/EventHandler";
 import { ISettingsStorage } from "../settings/ISettingsStorage";
 import { Storage } from "../libs/storage/Storage";
 import { ModuleSettings } from "../settings/ModuleSettingsStorage";
+import { ModuleApi } from "./ModuleApi";
 
 let storage: Storage;
 
@@ -16,7 +17,7 @@ export function getSettingsStorage(name: string): ISettingsStorage {
   return new ModuleSettings(name, storage);
 }
 
-export class Module extends Disposable {
+export abstract class Module extends Disposable {
   private _handler: EventHandler;
 
   protected disposeInternal() {
@@ -31,6 +32,8 @@ export class Module extends Disposable {
     }
     return this._handler;
   }
+
+  abstract getApi(): ModuleApi;
 }
 
 export interface ModuleConstructor {

@@ -64,6 +64,7 @@
     "preact": "^8.2.5",
     "sprintf-js": "^1.1.1",
     "uuid": "^3.1.0",
+    "webextension-polyfill": "^0.2.1",
     "webpack-merge": "^4.1.0"
   }
 }

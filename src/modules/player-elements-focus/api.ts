@@ -1,26 +1,23 @@
-import { ISettingsStorage } from "../../settings/ISettingsStorage";
-import { getSettingsStorage } from "../Module";
+import { ModuleApi } from "../ModuleApi";
 
-export class Api {
-  private storage: ISettingsStorage;
-  
+export class Api extends ModuleApi {
   constructor() {
-    this.storage = getSettingsStorage("PlayerElementsFocus");
+    super("PlayerElementsFocus");
   }
 
   setEnabled(enabled: boolean): void {
-    this.storage.set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this.storage.get('enabled', false);
+    return this._storage.get('enabled', false);
   }
 
   setGlobalShortcutsEnabled(enabled: boolean): void {
-    this.storage.set('globalShortcutsEnabled', enabled);
+    this._storage.set('globalShortcutsEnabled', enabled);
   }
   
   isGlobalShortcutsEnabled(): boolean {
-    return this.storage.get('globalShortcutsEnabled', false);
+    return this._storage.get('globalShortcutsEnabled', false);
   }
 }

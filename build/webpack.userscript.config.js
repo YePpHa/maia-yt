@@ -61,7 +61,10 @@ const metadata = {
   'grant': [
     'GM_setValue',
     'GM_getValue',
-    'GM_deleteValue'
+    'GM_deleteValue',
+    'GM.setValue',
+    'GM.getValue',
+    'GM.deleteValue'
   ],
   'noframes': undefined,
   'run-at': 'document-start'
