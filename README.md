@@ -2,8 +2,8 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/YePpHa/maia-yt.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/YePpHa/maia-yt.svg?branch=master)](https://travis-ci.org/YePpHa/maia-yt)
-![Latest release](https://img.shields.io/github/release/YePpHa/maia-yt/all.svg)
-![Total downloads](https://img.shields.io/github/downloads/YePpHa/maia-yt/total.svg)
+[![Latest release](https://img.shields.io/github/release/YePpHa/maia-yt/all.svg)](https://github.com/YePpHa/maia-yt/releases/latest)
+![Latest total downloads](https://img.shields.io/github/downloads-pre/YePpHa/maia-yt/latest/total.svg)
 
 Currently codenamed maia-yt is a userscript (and browser extension) that
 enhances the user's experience on YouTube.
