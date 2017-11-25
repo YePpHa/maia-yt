@@ -1,5 +1,6 @@
-# maia-yt ![Latest release](https://img.shields.io/github/release/YePpHa/maia-yt/all.svg)
+# maia-yt
 
+![Latest release](https://img.shields.io/github/release/YePpHa/maia-yt/all.svg)
 [![Greenkeeper badge](https://badges.greenkeeper.io/YePpHa/maia-yt.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/YePpHa/maia-yt.svg?branch=master)](https://travis-ci.org/YePpHa/maia-yt)
 ![Total downloads](https://img.shields.io/github/downloads/YePpHa/maia-yt/total.svg)
