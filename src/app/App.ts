@@ -48,6 +48,7 @@ export class App extends Component {
   async loadStorage(): Promise<void> {
     this._storageLoaded = false;
     for (let i = 0; i < this._modules.length; i++) {
+      logger.debug("Loading storage for " + this._modules[i].getApi().getNamespace() + "...");
       await this._modules[i].getApi().updateCache();
     }
     this._storageLoaded = true;

@@ -6,42 +6,42 @@ export class Api extends ModuleApi {
   }
 
   setEnabled(enabled: boolean): void {
-    this._storage.set('enabled', enabled);
+    this.getStorage().set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this._storage.get('enabled', false);
+    return this.getStorage().get('enabled', false);
   }
 
   isVideoBlacklisted(videoId: string): boolean {
-    const blacklist: string[] = this._storage.get('videoBlacklist', []);
+    const blacklist: string[] = this.getStorage().get('videoBlacklist', []);
 
     return blacklist.indexOf(videoId) !== -1;
   }
 
   isVideoWhitelisted(videoId: string): boolean {
-    const whitelist: string[] = this._storage.get('videoWhitelist', []);
+    const whitelist: string[] = this.getStorage().get('videoWhitelist', []);
 
     return whitelist.indexOf(videoId) !== -1;
   }
   
   isChannelBlacklisted(channelId: string): boolean {
-    const blacklist: string[] = this._storage.get('channelBlacklist', []);
+    const blacklist: string[] = this.getStorage().get('channelBlacklist', []);
     
     return blacklist.indexOf(channelId) !== -1;
   }
   
   isChannelWhitelisted(channelId: string): boolean {
-    const whitelist: string[] = this._storage.get('channelWhitelist', []);
+    const whitelist: string[] = this.getStorage().get('channelWhitelist', []);
     
     return whitelist.indexOf(channelId) !== -1;
   }
 
   setSubscribedChannelsWhitelisted(whitelisted: boolean): void {
-    this._storage.set('subscribedChannelsWhitelisted', whitelisted);
+    this.getStorage().set('subscribedChannelsWhitelisted', whitelisted);
   }
 
   isSubscribedChannelsWhitelisted(): boolean {
-    return this._storage.get('subscribedChannelsWhitelisted', false);
+    return this.getStorage().get('subscribedChannelsWhitelisted', false);
   }
 }

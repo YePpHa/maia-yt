@@ -7,26 +7,26 @@ export class Api extends ModuleApi {
   }
 
   setEnabled(enabled: boolean): void {
-    this._storage.set('enabled', enabled);
+    this.getStorage().set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this._storage.get('enabled', false);
+    return this.getStorage().get('enabled', false);
   }
 
   setQuality(quality: PlaybackQuality): void {
-    this._storage.set('quality', quality);
+    this.getStorage().set('quality', quality);
   }
 
   getQuality(): PlaybackQuality {
-    return this._storage.get('quality', PlaybackQuality.AUTO);
+    return this.getStorage().get('quality', PlaybackQuality.AUTO);
   }
   
   setBetterQualityPreferred(preferred: boolean): void {
-    this._storage.set('bestQualityPreferred', preferred);
+    this.getStorage().set('bestQualityPreferred', preferred);
   }
 
   isBetterQualityPreferred(): boolean {
-    return this._storage.get('bestQualityPreferred', true);
+    return this.getStorage().get('bestQualityPreferred', true);
   }
 }

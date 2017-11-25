@@ -6,18 +6,18 @@ export class Api extends ModuleApi {
   }
 
   setEnabled(enabled: boolean): void {
-    this._storage.set('enabled', enabled);
+    this.getStorage().set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this._storage.get('enabled', false);
+    return this.getStorage().get('enabled', false);
   }
 
   setGlobalShortcutsEnabled(enabled: boolean): void {
-    this._storage.set('globalShortcutsEnabled', enabled);
+    this.getStorage().set('globalShortcutsEnabled', enabled);
   }
   
   isGlobalShortcutsEnabled(): boolean {
-    return this._storage.get('globalShortcutsEnabled', false);
+    return this.getStorage().get('globalShortcutsEnabled', false);
   }
 }
