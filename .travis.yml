@@ -20,7 +20,7 @@ install:
 script:
 - yarn test
 before_deploy:
-- yarn build:userscript
+- yarn build
 deploy:
   provider: releases
   prerelease: true
