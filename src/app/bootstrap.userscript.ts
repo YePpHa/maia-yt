@@ -15,7 +15,7 @@ const logger = new Logger("Bootstrap");
   resources: require("i18next-resource-store-loader!../i18n/index.js")
 });*/
 
-const injectModule = require('../../build/webpack.userscript.inject.config.js') as string;
+const injectModule = require('../../build/userscript.inject.webpack.config.js') as string;
 
 const run = async () => {
   let mechanism: Mechanism|undefined;
