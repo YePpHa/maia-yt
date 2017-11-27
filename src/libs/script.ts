@@ -1,3 +1,15 @@
+const injectScriptElement = (element: HTMLScriptElement) => {
+  if (document.body) {
+    document.body.appendChild(element);
+  } else if (document.head) {
+    document.head.appendChild(element);
+  } else if (document.documentElement) {
+    document.documentElement.appendChild(element);
+  } else {
+    throw new Error("Couldn't append script element to document.");
+  }
+};
+
 /**
  * Inject JavaScript into the DOM.
  * @param code the JavaScript to inject.
@@ -8,15 +20,7 @@ export function injectJS(code: string): HTMLScriptElement {
   el.setAttribute('type', 'text/javascript');
   el.appendChild(document.createTextNode(code));
 
-  if (document.body) {
-    document.body.appendChild(el);
-  } else if (document.head) {
-    document.head.appendChild(el);
-  } else if (document.documentElement) {
-    document.documentElement.appendChild(el);
-  } else {
-    throw new Error("Couldn't append script element to document.");
-  }
+  injectScriptElement(el);
 
   return el;
 }
@@ -44,15 +48,7 @@ export function injectJSFile(file: string): HTMLScriptElement {
   el.setAttribute('type', 'text/javascript');
   el.setAttribute('src', file);
 
-  if (document.body) {
-    document.body.appendChild(el);
-  } else if (document.head) {
-    document.head.appendChild(el);
-  } else if (document.documentElement) {
-    document.documentElement.appendChild(el);
-  } else {
-    throw new Error("Couldn't append script element to document.");
-  }
+  injectScriptElement(el);
 
   return el;
 }
