@@ -3,6 +3,7 @@ const WrapperPlugin = require('wrapper-webpack-plugin');
 const merge = require('webpack-merge');
 const package = require('../package.json');
 const common = require('./webpack.common.config.js');
+const { parseAuthor } = require('./utils');
 
 /**
  * Generate the user
@@ -30,25 +31,6 @@ const generateMetadataBlock = (metadata) => {
   return '// ==UserScript==\n'
     + block
     + '// ==/UserScript==\n\n';
-};
-
-/**
- * Parse the author into a string.
- * @param {{name: string, email: string, url: string}|string} author  the author
- * @return {string} the author.
- */
-const parseAuthor = (author) => {
-  if (typeof author === 'string') return author;
-
-  let a = author['name'];
-  if (author['email']) {
-    a += ' <' + author['email'] + '>';
-  }
-  if (author['url']) {
-    a += ' (' + author['url'] + ')';
-  }
-
-  return a;
 };
 
 const metadata = {

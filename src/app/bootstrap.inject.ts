@@ -63,7 +63,7 @@ const containsPlayerListeners = (obj: Object): boolean => {
   return false;
 };
 
-const getPlayerApi = (player: any):{
+const getPlayerApi = (player: any): {
   element: Element|undefined,
   api: {[key: string]: Function}|undefined,
   internalApi: {[key: string]: Function}|undefined
@@ -166,40 +166,53 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
     }
     return;
   }
-
-  await servicePort.call("settings#ensureLoaded");
   
   let elementId = playerConfig.attrs.id;
   let playerId = uuidv4();
+  
+  await servicePort.call("settings#ensureLoaded");
 
   // Send a beforecreate event to the core.
   let newplayerConfig = servicePort.callSync("player#beforecreate", playerId, elementId,
     playerConfig) as PlayerConfig;
   Object.assign(playerConfig, newplayerConfig);
 
+  // Apply auto-play patch
+  if (playerConfig.args.hasOwnProperty("autoplay")) {
+    if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
+      applyAutoPlayPatch();
+    }
+  }
+
   let playerApp = null;
   if (fn) {
-    if (playerConfig.args.hasOwnProperty("autoplay")) {
-      if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
-        applyAutoPlayPatch();
-      }
-    }
     playerApp = fn(playerConfig);
   }
   const playerData = getPlayerData(playerApp);
-  const playerInstance = getPlayerApi(playerApp);
+  let playerInstance = getPlayerApi(playerApp);
 
-  const setData = playerData["setData"];
-  playerData["setData"] = (data: PlayerData) => {
-    let newData: PlayerData|undefined = undefined;
-    newData = servicePort.callSync("player#data-update", playerId, data) as PlayerData;
-    setData.call(playerData, newData || data);
-  };
-  servicePort.addOnDisposeCallback(() => {
-    playerData["setData"] = setData;
-  });
+  if (playerData) {
+    const setData = playerData["setData"];
+    playerData["setData"] = (data: PlayerData) => {
+      let newData: PlayerData|undefined = undefined;
+      newData = servicePort.callSync("player#data-update", playerId, data) as PlayerData;
+      setData.call(playerData, newData || data);
+    };
+    servicePort.addOnDisposeCallback(() => {
+      playerData["setData"] = setData;
+    });
+  } else {
+    const el = document.getElementById(elementId);
+    if (el) {
+      playerInstance = {
+        element: el,
+        api: undefined,
+        internalApi: undefined
+      };
+    }
+  }
   
-  if (!playerInstance.element) return playerApp;
+  if (!playerInstance || !playerInstance.element) return playerApp;
 
   let player = playerFactory.createPlayer(playerInstance.element, playerConfig, playerId);
   players[elementId] = player;
@@ -230,6 +243,7 @@ if (win.ytplayer && win.ytplayer.config
   && win.ytplayer.config.loaded) {
   let playerConfig = win.ytplayer.config;
 
+  servicePort.call("logger#debug", "Player already initialized.");
   handlePlayerCreate(playerFactory, playerConfig);
 }
 

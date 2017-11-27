@@ -13,8 +13,17 @@
   "main": "webpack.config.js",
   "scripts": {
     "build": "npm run build:userscript",
-    "build:userscript": "cross-env NODE_ENV=production webpack --config build/webpack.userscript.config.js",
-    "dev:userscript": "webpack --config build/webpack.userscript.config.js",
+    "build:userscript": "cross-env NODE_ENV=production webpack --config build/userscript.webpack.config.js",
+    "build:webextension": "npm run build:webextension:manifest && npm run build:webextension:background && npm run build:webextension:content && npm run build:webextension:inject",
+    "build:webextension:manifest": "node ./build/webextension.manifest.js",
+    "build:webextension:background": "cross-env NODE_ENV=production webpack --config build/webextension.webpack.background.config.js",
+    "build:webextension:content": "cross-env NODE_ENV=production webpack --config build/webextension.webpack.config.js",
+    "build:webextension:inject": "cross-env NODE_ENV=production webpack --config build/webextension.webpack.inject.config.js",
+    "dev:userscript": "webpack --config build/userscript.webpack.config.js",
+    "dev:webextension": "npm run build:webextension:manifest && npm run dev:webextension:background && npm run dev:webextension:content && npm run dev:webextension:inject",
+    "dev:webextension:background": "webpack --config build/webextension.webpack.background.config.js",
+    "dev:webextension:content": "webpack --config build/webextension.webpack.config.js",
+    "dev:webextension:inject": "webpack --config build/webextension.webpack.inject.config.js",
     "test": "karma start"
   },
   "author": {
@@ -48,6 +57,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.4",
     "memory-fs": "^0.4.1",
+    "mkdirp": "^0.5.1",
     "ts-jsdoc": "^2.0.5",
     "ts-loader": "^3.0.0",
     "typescript": "^2.4.2",

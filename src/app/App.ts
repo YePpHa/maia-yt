@@ -122,6 +122,7 @@ export class App extends Component {
 
   private _handleNavigateFinish(e: BrowserEvent): void {
     const detail = e.detail as PageNavigationDetail;
+    if (!detail) return;
     let pageDetail: PageNavigationDetail = {
       fromHistory: detail.fromHistory,
       pageType: detail.pageType
@@ -219,6 +220,10 @@ export class App extends Component {
     if (this.isInDocument()) {
       port.enterDocument();
     }
+
+    port.registerService("logger#debug", (msg: string, ...args: any[]) => {
+      logger.debug(msg, ...args);
+    });
 
     port.registerService("settings#ensureLoaded", async () => {
       if (!this.isStorageLoaded()) {
