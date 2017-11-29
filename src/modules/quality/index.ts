@@ -1,4 +1,4 @@
-import { onPlayerData, onSettingsReactRegister } from "../IModule";
+import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady } from "../IModule";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
 import { Module } from "../Module";
 import { Player } from "../../app/player/Player";
@@ -10,7 +10,7 @@ import { Api } from "./api";
 import { PlaybackQuality } from "../../app/youtube/PlayerApi";
 const logger = new Logger("QualityModule");
 
-export class QualityModule extends Module implements onPlayerData, onSettingsReactRegister {
+export class QualityModule extends Module implements onPlayerCreated, onPlayerReady, onPlayerData, onSettingsReactRegister {
   private _api: Api;
 
   getApi(): Api {
@@ -18,21 +18,6 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
       this._api = new Api()
     }
     return this._api;
-  }
-
-  onPlayerData(player: Player, data: PlayerData): PlayerData {
-    const api = this.getApi();
-    if (!api.isEnabled()) return data;
-
-    const quality = api.getQuality();
-
-    data.vq = quality;
-
-    if (!player.isReady()) return data;
-
-    this.updatePlaybackQuality(player, quality, api.isBetterQualityPreferred());
-
-    return data;
   }
 
   onPlayerCreated(player: Player): void {
@@ -48,6 +33,30 @@ export class QualityModule extends Module implements onPlayerData, onSettingsRea
         unstarted = false;
         this.updatePlaybackQuality(player, api.getQuality(), api.isBetterQualityPreferred());
       })
+  }
+
+  onPlayerReady(player: Player): void {
+    const api = this.getApi();
+    if (!api.isEnabled()) return;
+
+    const quality = api.getQuality();
+
+    this.updatePlaybackQuality(player, quality, api.isBetterQualityPreferred());
+  }
+  
+  onPlayerData(player: Player, data: PlayerData): PlayerData {
+    const api = this.getApi();
+    if (!api.isEnabled()) return data;
+
+    const quality = api.getQuality();
+
+    data.vq = quality;
+
+    if (!player.isReady()) return data;
+
+    this.updatePlaybackQuality(player, quality, api.isBetterQualityPreferred());
+
+    return data;
   }
 
   private updatePlaybackQuality(player: Player, quality: PlaybackQuality, bestQualityPreferred: boolean): void {

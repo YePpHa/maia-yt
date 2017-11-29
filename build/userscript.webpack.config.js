@@ -35,6 +35,7 @@ const generateMetadataBlock = (metadata) => {
 
 const metadata = {
   'name': package['name'],
+  'namespace': 'https://github.com/YePpHa',
   'description': package['description'],
   'version': package['version'],
   'author': parseAuthor(package['author']),

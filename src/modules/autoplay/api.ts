@@ -38,20 +38,4 @@ export class Api extends ModuleApi {
   getChannelMode(): AutoPlayMode {
     return this.getStorage().get('channelMode', AutoPlayMode.PAUSE);
   }
-  
-  isAutoNavigationEnabled(): boolean {
-    return this.getStorage().get('autoNavigationEnabled', false);
-  }
-  
-  setAutoNavigationEnabled(enabled: boolean): void {
-    this.getStorage().set('autoNavigationEnabled', enabled);
-  }
-
-  setAutoNavigationState(state: AutoNavigationState): void {
-    this.getStorage().set('autonavState', state);
-  }
-
-  getAutoNavigationState(): AutoNavigationState {
-    return this.getStorage().get('autonavState', AutoNavigationState.DISABLED);
-  }
 }

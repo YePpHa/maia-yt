@@ -13,7 +13,7 @@ import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
 import { modules } from '../modules';
 import { ModuleConstructor, Module, setStorage as setModuleStorage } from "../modules/Module";
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../modules/IModule";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady } from "../modules/IModule";
 import { Storage } from '../libs/storage/Storage';
 import { BrowserEvent } from '../libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
@@ -166,6 +166,15 @@ export class App extends Component {
 
     return this._players[id];
   }
+
+  private _handleOnPlayerReady(player: Player): void {
+    this._modules.forEach(m => {
+      const instance = (m as any) as onPlayerReady;
+      if (typeof instance.onPlayerReady === 'function') {
+        instance.onPlayerReady(player);
+      }
+    });
+  }
   
   private _handleUpdatePlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
     player.setData(config.args);
@@ -199,15 +208,15 @@ export class App extends Component {
   }
 
   private _handlePlayerApiCall(player: Player, name: string, ...args: any[]) {
-    let data: onPlayerApiCallResponse|undefined = undefined;
-    this._modules.forEach(m => {
-      const instance = (m as any) as onPlayerApiCall;
+    for (let i = 0; i < this._modules.length; i++) {
+      const instance = (this._modules[i] as any) as onPlayerApiCall;
       if (typeof instance.onPlayerApiCall === 'function') {
-        data = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
+        let response = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
+        if (response) return response;
       }
-    });
+    }
 
-    return data;
+    return undefined;
   }
 
   /**
@@ -250,6 +259,8 @@ export class App extends Component {
 
       logger.debug("Player %s has been initialized.", id);
       player.ready();
+
+      return this._handleOnPlayerReady(this._players[id]);
     });
     port.registerService("player#update", (id: string, config: PlayerConfig): any => {
       if (!this._players.hasOwnProperty(id))

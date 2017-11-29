@@ -15,6 +15,10 @@ export interface onPlayerCreated {
   onPlayerCreated(player: Player): void;
 }
 
+export interface onPlayerReady {
+  onPlayerReady(player: Player): void;
+}
+
 export interface onPlayerData {
   onPlayerData(player: Player, data: PlayerData): PlayerData;
 }
