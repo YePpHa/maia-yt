@@ -121,44 +121,6 @@ const getPlayerData = function(player: any) {
   return null;
 };
 
-/**
- * Whether the auto-play patch has been applied.
- */
-let appliedAutoPlayPatch = false;
-
-/**
- * Fixes the autoplay setting. Currently YouTube doesn't use the autoplay if the
- * player is `detailpage`, which we need on /watch. This patch will fix it.
- */
-const applyAutoPlayPatch = () => {
-  if (appliedAutoPlayPatch) return;
-  appliedAutoPlayPatch = true;
-  let win = window as YTWindow;
-  for (let key in win._yt_player) {
-    if (win._yt_player.hasOwnProperty(key) && typeof win._yt_player[key] === "function") {
-      const fn = win._yt_player[key];
-      const match = fn.toString().match(/{this\.([a-zA-Z0-9$_]+)=this\.([a-zA-Z0-9$_]+);this\.([a-zA-Z0-9$_]+)=this\.([a-zA-Z0-9$_]+)}/);
-      if (match && match[1] === match[2] && match[3] === match[4]) {
-        win._yt_player[key] = function(...args: any[]) {
-          const constructor = this.constructor.toString();
-          const match = constructor.match(/this\.([a-zA-Z0-9$_]+)=\(this\.([a-zA-Z0-9$_]+)\=[^;]+\.autoplay/);
-          if (match && match[1] && match[2]) {
-            Object.defineProperty(this, match[1], {
-              "set": () => {},
-              "get": () => this[match[2]],
-              "enumerable": true,
-              "configurable": true
-            });
-          }
-
-          return fn.apply(this, args);
-        };
-        win._yt_player[key].prototype = fn.prototype;
-      }
-    }
-  }
-};
-
 const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): Promise<any> => {
   if (servicePort.isDisposed()) {
     if (fn) {
@@ -176,13 +138,6 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
   let newplayerConfig = servicePort.callSync("player#beforecreate", playerId, elementId,
     playerConfig) as PlayerConfig;
   Object.assign(playerConfig, newplayerConfig);
-
-  // Apply auto-play patch
-  if (playerConfig.args.hasOwnProperty("autoplay")) {
-    if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
-      applyAutoPlayPatch();
-    }
-  }
 
   let playerApp = null;
   if (fn) {

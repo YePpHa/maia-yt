@@ -152,6 +152,7 @@ export declare interface PlayerData {
   sourceid?: string;
   ssl?: string;
   storyboard_spec?: string;
+  suppress_autoplay_on_watch?: boolean;
   swf_player_response?: string;
   t?: string;
   tag_for_child_directed?: boolean;

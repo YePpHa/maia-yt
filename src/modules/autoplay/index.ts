@@ -32,8 +32,10 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   onPlayerData(player: Player, data: PlayerData): PlayerData {
     const api = this.getApi();
 
+    data.suppress_autoplay_on_watch = false;
     if (api.isEnabled() && player.isDetailPage()) {
       if (api.getMode() === AutoPlayMode.STOP) {
+        data.suppress_autoplay_on_watch = true;
         data.autoplay = "0";
       }
     } else if (api.isChannelEnabled() && player.isProfilePage()) {
