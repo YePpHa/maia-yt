@@ -2,7 +2,6 @@ import { ISettingsReact } from "../../settings/ISettings";
 import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
-import { AutoPlayMode } from "./index";
 import { Api } from "./api";
 import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 

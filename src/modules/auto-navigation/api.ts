@@ -1,4 +1,3 @@
-import { AutoPlayMode } from "./index";
 import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 import { ModuleApi } from "../ModuleApi";
 
