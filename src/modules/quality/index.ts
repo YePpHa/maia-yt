@@ -66,7 +66,6 @@ export class QualityModule extends Module implements onPlayerCreated, onPlayerRe
       logger.debug("No quality levels are available.");
       return;
     }
-    if (currentLevel === quality) return;
 
     if (availableLevels.indexOf(quality) !== -1) {
       if (player.isEmbedded()) {
