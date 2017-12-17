@@ -6,13 +6,8 @@ import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
-import { Api } from "./api";
+import { Api, AutoPlayMode } from "./api";
 const logger = new Logger("AutoPlayModule");
-
-export enum AutoPlayMode {
-  PAUSE = "pause",
-  STOP = "stop"
-}
 
 export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
   private _api: Api;

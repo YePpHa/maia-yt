@@ -1,6 +1,10 @@
-import { AutoPlayMode } from "./index";
 import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 import { ModuleApi } from "../ModuleApi";
+
+export enum AutoPlayMode {
+  PAUSE = "pause",
+  STOP = "stop"
+}
 
 export class Api extends ModuleApi {
   constructor() {
