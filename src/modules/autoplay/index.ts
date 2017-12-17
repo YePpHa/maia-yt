@@ -125,6 +125,10 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
     this._preventAutoPlay(player);
     
     if (enabled && detailPage) {
+      // Prevent the watch-specific code from calling `playVideo()`. If `loaded`
+      // is false it will call `loadVideoByPlayerVars` instead which is easier
+      // to handle as `playVideo()` can come from the user and
+      // `loadVideoByPlayerVars` wont.
       player.setLoaded(false);
     }
   }
