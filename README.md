@@ -2,6 +2,7 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/YePpHa/maia-yt.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/YePpHa/maia-yt.svg?branch=master)](https://travis-ci.org/YePpHa/maia-yt)
+[![Discord](https://img.shields.io/discord/391736952006901760.svg)](https://discord.gg/xuMpUnR)
 [![Latest release](https://img.shields.io/github/release/YePpHa/maia-yt/all.svg)](https://github.com/YePpHa/maia-yt/releases/latest)
 
 Currently codenamed maia-yt is a userscript (and browser extension) that
