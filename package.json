@@ -23,7 +23,7 @@
     "dev:userscript": "webpack --config build/userscript.webpack.config.js",
     "dev:webextension": "npm run build:webextension:manifest && npm run dev:webextension:background && npm run dev:webextension:content && npm run dev:webextension:inject",
     "dev:webextension:background": "webpack --config build/webextension.background.webpack.config.js",
-    "dev:webextension:content": "webpack --config build/webextension.webpack.content.config.js",
+    "dev:webextension:content": "webpack --config build/webextension.content.webpack.config.js",
     "dev:webextension:inject": "webpack --config build/webextension.inject.webpack.config.js",
     "test": "karma start"
   },
