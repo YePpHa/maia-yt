@@ -150,4 +150,24 @@ export class Player extends EventTarget implements IPlayer {
   getVideoData(): PlayerData {
     return this._callApi("getVideoData");
   }
+
+  setVolume(volume: number): void {
+    this._callApi("setVolume", volume);
+  }
+
+  getVolume(): number {
+    return this._callApi("getVolume");
+  }
+
+  isMuted(): boolean {
+    return this._callApi("isMuted");
+  }
+
+  mute(): void {
+    this._callApi("mute");
+  }
+
+  unmute(): void {
+    this._callApi("unmute");
+  }
 }
