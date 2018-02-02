@@ -7,6 +7,7 @@ import { EventType } from '../../app/youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api, AutoPlayMode } from "./api";
+import { FlagsParser } from "../../app/youtube/FlagsParser";
 const logger = new Logger("AutoPlayModule");
 
 export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
@@ -50,7 +51,14 @@ export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerD
   onPlayerData(player: Player, data: PlayerData): PlayerData {
     const api = this.getApi();
 
+    // Make the YouTube player respect the autoplay variable.
     data.suppress_autoplay_on_watch = false;
+
+    // Prevent the YouTube player from ignoring `suppress_autoplay_on_watch`.
+    const flagsParser = new FlagsParser(data.fflags);
+    flagsParser.setValue("html5_new_autoplay_redux", "false");
+    data.fflags = flagsParser.toString();
+
     if (api.isEnabled() && player.isDetailPage()) {
       if (api.getMode() === AutoPlayMode.STOP) {
         data.suppress_autoplay_on_watch = true;
