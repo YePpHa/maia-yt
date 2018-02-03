@@ -8,6 +8,10 @@ import { PlaybackQuality } from "../../app/youtube/PlayerApi";
 export class Settings implements ISettingsReact {
   constructor(private api: Api) {}
 
+  getTitle(): string {
+    return "Quality";
+  }
+
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {
       this.api.setEnabled(checked);

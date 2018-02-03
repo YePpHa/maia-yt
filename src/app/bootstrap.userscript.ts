@@ -45,7 +45,7 @@ const run = async () => {
   
     if (location.hostname === "www.youtube.com" && location.pathname === "/settings/maia") {
       let handler = new EventHandler();
-      handler.listen(document, "readystatechange", () => {
+      const checkReadyState = () => {
         switch (document.readyState) {
           case "interactive":
           case "complete":
@@ -55,7 +55,9 @@ const run = async () => {
             renderSettings(app.getModules());
             break;
         }
-      });
+      };
+      handler.listen(document, "readystatechange", checkReadyState);
+      checkReadyState();
     }
   } else {
     logger.error("No storage mechanism was available.");

@@ -1,0 +1,15 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+main {
+  padding-left: 16px;
+}

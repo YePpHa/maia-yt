@@ -2,12 +2,15 @@ import { ISettingsReact } from "../../settings/ISettings";
 import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
-import { AutoPlayMode } from "./index";
-import { Api } from "./api";
+import { Api, AutoPlayMode } from "./api";
 import { AutoNavigationState } from "../../app/youtube/PlayerApi";
 
 export class Settings implements ISettingsReact {
   constructor(private api: Api) {}
+
+  getTitle(): string {
+    return "Auto-play";
+  }
 
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {

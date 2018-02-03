@@ -23,7 +23,32 @@ const config = {
           transpileOnly: production
         }
       },
-      { test: /webpack\..+\.config\.js$/, loader: 'webpack-loader' }
+      { test: /webpack\..+\.config\.js$/, loader: 'webpack-loader' },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader/useable',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true
+            }
+          },
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader/useable',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: false
+            }
+          }
+        ]
+      }
     ]
   },
   plugins: []
