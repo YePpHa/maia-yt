@@ -179,34 +179,6 @@ const applyAutoPlayPatch = () => {
   }
 };
 
-/*const applyAutoPlayPatch = () => {
-  if (appliedAutoPlayPatch) return;
-  appliedAutoPlayPatch = true;
-
-  let value: any = undefined;
-  Object.defineProperty(Object.prototype, "experiments", {
-    get: function() {
-      const keys = Object.keys();
-
-      return value;
-    },
-    set: function(val: any) {
-      value = val;
-    }
-  })
-
-  for (let key in app) {
-    if (app.hasOwnProperty(key) && app[key] && typeof app[key].constructor === "function") {
-      let fn = app[key].constructor.toString();
-      let m = fn.match(/this\.([a-zA-Z0-9$_]{1,3})=[^;]+\.autoplay/);
-      if (m && m[1]) {
-        app[key][m[1]] = autoplay;
-        break;
-      }
-    }
-  }
-};*/
-
 const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): Promise<any> => {
   if (servicePort.isDisposed()) {
     if (fn) {
