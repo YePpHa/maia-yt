@@ -121,6 +121,92 @@ const getPlayerData = function(player: any) {
   return null;
 };
 
+/**
+ * Whether the auto-play patch has been applied.
+ */
+let appliedAutoPlayPatch = false;
+
+/**
+ * Fixes the autoplay setting. Currently YouTube doesn't use the autoplay if the
+ * player is `detailpage`, which we need on /watch. This patch will fix it.
+ */
+const applyAutoPlayPatch = () => {
+  if (appliedAutoPlayPatch) return;
+  appliedAutoPlayPatch = true;
+  let win = window as YTWindow;
+  for (let key in win._yt_player) {
+    if (win._yt_player.hasOwnProperty(key) && typeof win._yt_player[key] === "function") {
+      const fn = win._yt_player[key];
+      const match = fn.toString().match(/{this\.([a-zA-Z0-9$_]+)=this\.([a-zA-Z0-9$_]+);this\.([a-zA-Z0-9$_]+)=this\.([a-zA-Z0-9$_]+)}/);
+      if (match && match[1] === match[2] && match[3] === match[4]) {
+        win._yt_player[key] = function(...args: any[]) {
+          const constructor = this.constructor.toString();
+          const match = constructor.match(/this\.([a-zA-Z0-9$_]+)\=[^;]+\.autoplay/);
+
+          let autoplay = true;
+
+          if (match && match[1]) {
+            Object.defineProperty(this, match[1], {
+              "set": () => {},
+              "get": () => autoplay,
+              "enumerable": true,
+              "configurable": true
+            });
+          }
+
+          const returnValue = fn.apply(this, args);
+          for (let key in this) {
+            if (typeof this[key] === "function") {
+              const fn = this[key];
+              if (fn.toString().indexOf('video_id') !== -1) {
+                this[key] = function(...args: any[]) {
+                  if (args.length > 0) {
+                    const config = args[0];
+                    if (config && config.hasOwnProperty("autoplay")) {
+                      autoplay = config["autoplay"] !== "0";
+                    }
+                  }
+                  return fn.apply(this, args);
+                };
+              }
+            }
+          }
+          return returnValue;
+        };
+        win._yt_player[key].prototype = fn.prototype;
+      }
+    }
+  }
+};
+
+/*const applyAutoPlayPatch = () => {
+  if (appliedAutoPlayPatch) return;
+  appliedAutoPlayPatch = true;
+
+  let value: any = undefined;
+  Object.defineProperty(Object.prototype, "experiments", {
+    get: function() {
+      const keys = Object.keys();
+
+      return value;
+    },
+    set: function(val: any) {
+      value = val;
+    }
+  })
+
+  for (let key in app) {
+    if (app.hasOwnProperty(key) && app[key] && typeof app[key].constructor === "function") {
+      let fn = app[key].constructor.toString();
+      let m = fn.match(/this\.([a-zA-Z0-9$_]{1,3})=[^;]+\.autoplay/);
+      if (m && m[1]) {
+        app[key][m[1]] = autoplay;
+        break;
+      }
+    }
+  }
+};*/
+
 const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: PlayerConfig, fn?: Function): Promise<any> => {
   if (servicePort.isDisposed()) {
     if (fn) {
@@ -139,9 +225,18 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
     playerConfig) as PlayerConfig;
   Object.assign(playerConfig, newplayerConfig);
 
+   // Apply auto-play patch
+  if (playerConfig.args.hasOwnProperty("autoplay")) {
+    if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
+      applyAutoPlayPatch();
+    }
+  }
+
   let playerApp = null;
   if (fn) {
     playerApp = fn(playerConfig);
+
+
   }
   const playerData = getPlayerData(playerApp);
   let playerInstance = getPlayerApi(playerApp);
