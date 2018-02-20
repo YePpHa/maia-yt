@@ -1,4 +1,4 @@
-import { Component } from '../libs/Component';
+import { ElementComponent } from '../libs/ElementComponent';
 import { Channel } from '../libs/messaging/Channel';
 import { ServicePort } from '../libs/messaging/ServicePort';
 import { EventHandler } from '../libs/events/EventHandler';
@@ -11,9 +11,9 @@ import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent, CueRangeEvent, VideoDataChangeEvent } from './youtube/events';
 import { Event } from '../libs/events/Event';
 import { Logger } from '../libs/logging/Logger';
-import { modules } from '../modules';
-import { ModuleConstructor, Module, setStorage as setModuleStorage } from "../modules/Module";
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady } from "../modules/IModule";
+import { components } from '../components';
+import { ComponentConstructor, Component, setStorage as setComponentStorage } from "../components/Component";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady } from "../components/IComponent";
 import { Storage } from '../libs/storage/Storage';
 import { BrowserEvent } from '../libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
@@ -21,11 +21,11 @@ import { spf } from './youtube/spf';
 
 const logger = new Logger('App');
 
-export class App extends Component {
+export class App extends ElementComponent {
   private _channel: Channel = new Channel('background');
   private _ports: ServicePort[] = [];
   private _players: {[key: string]: Player} = {};
-  private _modules: Module[] = [];
+  private _components: Component[] = [];
 
   private _storageLoaded: boolean = false;
   private _storageLoadedListeners: Function[] = [];
@@ -33,11 +33,11 @@ export class App extends Component {
   constructor(storage: Storage) {
     super();
 
-    setModuleStorage(storage);
+    setComponentStorage(storage);
 
-    for (let i = 0; i < modules.length; i++) {
-      let m = new modules[i]();
-      this._modules.push(m);
+    for (let i = 0; i < components.length; i++) {
+      let m = new components[i]();
+      this._components.push(m);
     }
   }
 
@@ -47,9 +47,9 @@ export class App extends Component {
 
   async loadStorage(): Promise<void> {
     this._storageLoaded = false;
-    for (let i = 0; i < this._modules.length; i++) {
-      logger.debug("Loading storage for " + this._modules[i].getApi().getNamespace() + "...");
-      await this._modules[i].getApi().updateCache();
+    for (let i = 0; i < this._components.length; i++) {
+      logger.debug("Loading storage for " + this._components[i].getApi().getNamespace() + "...");
+      await this._components[i].getApi().updateCache();
     }
     this._storageLoaded = true;
 
@@ -59,8 +59,8 @@ export class App extends Component {
     }
   }
 
-  getModules(): Module[] {
-    return this._modules;
+  getComponents(): Component[] {
+    return this._components;
   }
 
   enterDocument() {
@@ -112,7 +112,7 @@ export class App extends Component {
 
     logger.debug("PageNavigationFinish - " + pageDetail.pageType + " - " + (pageDetail.fromHistory ? "true" : "false"));
 
-    this._modules.forEach(m => {
+    this._components.forEach(m => {
       const instance = (m as any) as onPageNavigationFinish;
       if (typeof instance.onPageNavigationFinish === 'function') {
         instance.onPageNavigationFinish(pageDetail);
@@ -130,7 +130,7 @@ export class App extends Component {
 
     logger.debug("PageNavigationFinish - " + pageDetail.pageType + " - " + (pageDetail.fromHistory ? "true" : "false"));
 
-    this._modules.forEach(m => {
+    this._components.forEach(m => {
       const instance = (m as any) as onPageNavigationFinish;
       if (typeof instance.onPageNavigationFinish === 'function') {
         instance.onPageNavigationFinish(pageDetail);
@@ -142,7 +142,7 @@ export class App extends Component {
     if (!this._players.hasOwnProperty(id)) {
       this._players[id] = new Player(id, elementId, port);
 
-      this._modules.forEach(m => {
+      this._components.forEach(m => {
         const instance = (m as any) as onPlayerBeforeCreated;
         if (typeof instance.onPlayerBeforeCreated === 'function') {
           instance.onPlayerBeforeCreated(this._players[id]);
@@ -157,7 +157,7 @@ export class App extends Component {
     if (!this._players.hasOwnProperty(id))
       throw new Error("Player with " + id + " has not been created.");
 
-    this._modules.forEach(m => {
+    this._components.forEach(m => {
       const instance = (m as any) as onPlayerCreated;
       if (typeof instance.onPlayerCreated === 'function') {
         instance.onPlayerCreated(this._players[id]);
@@ -168,7 +168,7 @@ export class App extends Component {
   }
 
   private _handleOnPlayerReady(player: Player): void {
-    this._modules.forEach(m => {
+    this._components.forEach(m => {
       const instance = (m as any) as onPlayerReady;
       if (typeof instance.onPlayerReady === 'function') {
         instance.onPlayerReady(player);
@@ -178,7 +178,7 @@ export class App extends Component {
   
   private _handleUpdatePlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
     player.setData(config.args);
-    this._modules.forEach(m => {
+    this._components.forEach(m => {
       const instanceConfig = (m as any) as onPlayerConfig;
       const instanceData = (m as any) as onPlayerData;
 
@@ -196,7 +196,7 @@ export class App extends Component {
   
   private _handleUpdatePlayerData(player: Player, data: PlayerData): PlayerData {
     player.setData(data);
-    this._modules.forEach(m => {
+    this._components.forEach(m => {
       const instance = (m as any) as onPlayerData;
       if (typeof instance.onPlayerData === 'function') {
         data = instance.onPlayerData(player, data);
@@ -208,8 +208,8 @@ export class App extends Component {
   }
 
   private _handlePlayerApiCall(player: Player, name: string, ...args: any[]) {
-    for (let i = 0; i < this._modules.length; i++) {
-      const instance = (this._modules[i] as any) as onPlayerApiCall;
+    for (let i = 0; i < this._components.length; i++) {
+      const instance = (this._components[i] as any) as onPlayerApiCall;
       if (typeof instance.onPlayerApiCall === 'function') {
         let response = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
         if (response) return response;
@@ -326,9 +326,9 @@ export class App extends Component {
 
     this._channel.dispose();
     this._ports.forEach(port => port.dispose());
-    this._modules.forEach(m => m.dispose());
+    this._components.forEach(m => m.dispose());
 
     this._ports = [];
-    this._modules = [];
+    this._components = [];
   }
 }

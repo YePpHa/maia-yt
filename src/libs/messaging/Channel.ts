@@ -1,5 +1,5 @@
 import { BrowserEvent } from '../events/BrowserEvent';
-import { Component } from '../Component';
+import { ElementComponent } from '../ElementComponent';
 import { ChannelPort } from './ChannelPort';
 import { PortState } from './PortState';
 import { PortEvent } from './events/PortEvent';
@@ -7,7 +7,7 @@ import { InternalEventType } from './events/EventType';
 import { createCustomEvent } from '../dom';
 import { ConnectedMessage, PayloadMessage, ConnectMessage } from './Message';
 
-export class Channel extends Component {
+export class Channel extends ElementComponent {
   private _name: string;
   private _ports: {[key: string]: ChannelPort} = {};
 

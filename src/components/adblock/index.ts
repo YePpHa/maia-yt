@@ -1,15 +1,15 @@
-import { onPlayerData, onSettingsReactRegister } from "../IModule";
+import { onPlayerData, onSettingsReactRegister } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
-import { Module } from "../Module";
+import { Component } from "../Component";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
-const logger = new Logger("AdblockModule");
+const logger = new Logger("AdblockComponent");
 
-export class AdblockModule extends Module implements onPlayerData, onSettingsReactRegister {
+export class AdblockComponent extends Component implements onPlayerData, onSettingsReactRegister {
   private _api: Api;
 
   getApi(): Api {

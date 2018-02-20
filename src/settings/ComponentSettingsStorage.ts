@@ -1,7 +1,7 @@
 import { ISettingsStorage } from "./ISettingsStorage";
 import { Storage } from '../libs/storage/Storage';
 
-export class ModuleSettings implements ISettingsStorage {
+export class ComponentSettings implements ISettingsStorage {
   private _name: string;
   private _cache: any;
   private _storage: Storage;
@@ -16,11 +16,11 @@ export class ModuleSettings implements ISettingsStorage {
   }
   
   private async _getSettings(): Promise<any> {
-    return await this._storage.get("ModuleSettings_" + this._name) || {};
+    return await this._storage.get("ComponentSettings_" + this._name) || {};
   }
   
   private async _updateSettings(): Promise<void> {
-    await this._storage.set("ModuleSettings_" + this._name, this._cache);
+    await this._storage.set("ComponentSettings_" + this._name, this._cache);
   }
 
   set(key: string, value: any): void {

@@ -1,7 +1,7 @@
 import { PlaybackQuality } from "../../app/youtube/PlayerApi";
-import { ModuleApi } from "../ModuleApi";
+import { ComponentApi } from "../ComponentApi";
 
-export class Api extends ModuleApi {
+export class Api extends ComponentApi {
   constructor() {
     super("Quality");
   }

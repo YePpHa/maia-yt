@@ -1,5 +1,5 @@
-import { Module } from "../Module";
-import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
+import { Component } from "../Component";
+import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { Player } from "../../app/player/Player";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
@@ -8,7 +8,7 @@ import { EventHandler } from "../../libs/events/EventHandler";
 import { Api } from "./api";
 import { getPath } from "../../libs/dom";
 
-const logger = new Logger("PlayerElementsFocusModule");
+const logger = new Logger("PlayerElementsFocusComponent");
 
 const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
 
@@ -16,7 +16,7 @@ const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
  * If you click on some of the elements on the YouTube player (volume, progress)
  * it will outline the clicked element and that element will then have focus.
  */
-export class PlayerElementsFocusModule extends Module implements onPlayerCreated, onSettingsReactRegister {
+export class PlayerElementsFocusComponent extends Component implements onPlayerCreated, onSettingsReactRegister {
   private _api: Api;
 
   getApi(): Api {

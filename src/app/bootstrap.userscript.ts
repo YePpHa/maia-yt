@@ -52,7 +52,7 @@ const run = async () => {
             handler.dispose();
             document.body.innerHTML = "";
             document.head.innerHTML = "";
-            renderSettings(app.getModules());
+            renderSettings(app.getComponents());
             break;
         }
       });

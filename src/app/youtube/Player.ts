@@ -1,5 +1,5 @@
 import { ServicePort } from '../../libs/messaging/ServicePort';
-import { Component } from '../../libs/Component';
+import { ElementComponent } from '../../libs/ElementComponent';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
@@ -26,7 +26,7 @@ declare interface VideoDataChangeDetail {
   type: string;
 }
 
-export class Player extends Component {
+export class Player extends ElementComponent {
   private _id: string;
   private _element: Element;
   private _config: PlayerConfig;

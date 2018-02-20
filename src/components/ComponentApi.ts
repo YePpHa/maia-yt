@@ -1,7 +1,7 @@
 import { ISettingsStorage } from "../settings/ISettingsStorage";
-import { getSettingsStorage } from "./Module";
+import { getSettingsStorage } from "./Component";
 
-export class ModuleApi {
+export class ComponentApi {
   private _namespace: string;
   private _storage: ISettingsStorage;
   
