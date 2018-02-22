@@ -4,7 +4,7 @@ import { Disposable } from '../Disposable';
 import { Listenable, addImplementation } from './Listenable';
 import { ListenerMap } from './ListenerMap';
 import { Event, EventLike } from './Event';
-import * as _ from 'lodash';
+import assignIn = require('lodash.assignin');
 
 const MAX_ANCESTORS = 1000;
 
@@ -112,7 +112,7 @@ export class EventTarget extends Disposable implements Listenable {
     if (typeof eventLike === 'string') {
       event = new Event(eventLike, target);
     } else if (!(eventLike instanceof Event)) {
-      event = _.extend(new Event((eventLike as { type: string }).type, target), eventLike);
+      event = assignIn(new Event((eventLike as { type: string }).type, target), eventLike);
     } else {
       event = eventLike;
       event.target = eventLike.target || target;

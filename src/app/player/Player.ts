@@ -3,7 +3,7 @@ import { EventTarget } from '../../libs/events/EventTarget';
 import { ServicePort } from "../../libs/messaging/ServicePort";
 import { PlayerData, PlayerType } from '../youtube/PlayerConfig';
 import { PlaybackQuality, AutoNavigationState } from '../youtube/PlayerApi';
-import * as _ from 'lodash';
+import merge = require('lodash.merge');
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
@@ -44,7 +44,7 @@ export class Player extends EventTarget implements IPlayer {
   }
 
   setData(data: PlayerData): void {
-    _.merge(this._data, data);
+    merge(this._data, data);
   }
 
   getData(): PlayerData {
