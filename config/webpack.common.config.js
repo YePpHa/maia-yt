@@ -14,16 +14,18 @@ const config = {
     extensions: ['.ts', '.tsx', '.js']
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        loader: 'ts-loader',
-        options: {
-          transpileOnly: production
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: production
+          }
         }
       },
-      { test: /webpack\..+\.config\.js$/, loader: 'webpack-loader' }
+      { test: /webpack\..+\.config\.js$/, use: 'webpack-loader' }
     ]
   },
   plugins: []
