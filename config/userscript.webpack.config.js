@@ -3,7 +3,7 @@ const WrapperPlugin = require('wrapper-webpack-plugin');
 const merge = require('webpack-merge');
 const package = require('../package.json');
 const common = require('./webpack.common.config.js');
-const { parseAuthor } = require('./utils');
+const { parseAuthor } = require('../build/utils');
 
 /**
  * Generate the user
