@@ -1,13 +1,13 @@
 import { InternalEventType } from './events/EventType';
 import { createCustomEvent } from '../dom';
-import { Component } from '../Component';
+import { ElementComponent } from '../ElementComponent';
 import { PortState } from './PortState';
 import { MessageEvent } from './events/MessageEvent';
 import { BrowserEvent } from '../events/BrowserEvent';
 import { ConnectedMessage, PayloadMessage, ConnectMessage } from './Message';
 import { v4 as uuidv4 } from 'uuid';
 
-export class ChannelPort extends Component {
+export class ChannelPort extends ElementComponent {
   private _id: string = uuidv4();
   private _remoteId: string;
   private _state: PortState = PortState.UNINITIALIZED;

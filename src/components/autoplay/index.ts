@@ -1,6 +1,6 @@
-import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
+import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
-import { Module } from "../Module";
+import { Component } from "../Component";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
@@ -8,9 +8,9 @@ import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api, AutoPlayMode } from "./api";
 import { FlagsParser } from "../../app/youtube/FlagsParser";
-const logger = new Logger("AutoPlayModule");
+const logger = new Logger("AutoPlayComponent");
 
-export class AutoPlayModule extends Module implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
+export class AutoPlayComponent extends Component implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
   private _api: Api;
 
   // Ready variable to prevent loadVideoByPlayerVars from being called due to

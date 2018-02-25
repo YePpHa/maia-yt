@@ -1,6 +1,6 @@
-import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
+import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { PlayerData } from "../../app/youtube/PlayerConfig";
-import { Module } from "../Module";
+import { Component } from "../Component";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
@@ -8,9 +8,9 @@ import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
 import { AutoNavigationState } from "../../app/youtube/PlayerApi";
-const logger = new Logger("AutoNavigationModule");
+const logger = new Logger("AutoNavigationComponent");
 
-export class AutoNavigationModule extends Module implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
+export class AutoNavigationComponent extends Component implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
   private _autoNavigationCalls: {[key: string]: number} = {};
   private _api: Api;
 

@@ -2,10 +2,10 @@ import { Disposable } from "../libs/Disposable";
 import { EventHandler } from "../libs/events/EventHandler";
 import { ISettingsStorage } from "../settings/ISettingsStorage";
 import { Storage } from "../libs/storage/Storage";
-import { ModuleSettings } from "../settings/ModuleSettingsStorage";
-import { ModuleApi } from "./ModuleApi";
+import { ComponentSettings } from "../settings/ComponentSettingsStorage";
+import { ComponentApi } from "./ComponentApi";
 
-let storage: Storage;
+let storage: Storage|undefined = undefined;
 
 export function setStorage(s: Storage): void {
   storage = s;
@@ -14,10 +14,10 @@ export function setStorage(s: Storage): void {
 export function getSettingsStorage(name: string): ISettingsStorage {
   if (!storage) throw new Error("Storage has not been initialized.");
 
-  return new ModuleSettings(name, storage);
+  return new ComponentSettings(name, storage);
 }
 
-export abstract class Module extends Disposable {
+export abstract class Component extends Disposable {
   private _handler: EventHandler;
 
   protected disposeInternal() {
@@ -33,9 +33,9 @@ export abstract class Module extends Disposable {
     return this._handler;
   }
 
-  abstract getApi(): ModuleApi;
+  abstract getApi(): ComponentApi;
 }
 
-export interface ModuleConstructor {
-  new (): Module
+export interface ComponentConstructor {
+  new (): Component
 }

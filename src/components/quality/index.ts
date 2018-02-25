@@ -1,6 +1,6 @@
-import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady } from "../IModule";
+import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
-import { Module } from "../Module";
+import { Component } from "../Component";
 import { Player } from "../../app/player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../app/youtube/EventType';
@@ -8,9 +8,9 @@ import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
 import { PlaybackQuality } from "../../app/youtube/PlayerApi";
-const logger = new Logger("QualityModule");
+const logger = new Logger("QualityComponent");
 
-export class QualityModule extends Module implements onPlayerCreated, onPlayerReady, onPlayerData, onSettingsReactRegister {
+export class QualityComponent extends Component implements onPlayerCreated, onPlayerReady, onPlayerData, onSettingsReactRegister {
   private _api: Api;
 
   getApi(): Api {

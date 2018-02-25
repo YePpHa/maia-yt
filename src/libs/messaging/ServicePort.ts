@@ -1,6 +1,6 @@
 import { ChannelPort } from './ChannelPort';
 import { MessageEvent } from './events/MessageEvent';
-import { Component } from '../Component';
+import { ElementComponent } from '../ElementComponent';
 import { ServiceError } from './ServiceError';
 import { ServiceInstance } from './ServiceInstance';
 import { EventType } from './events/EventType';
@@ -35,7 +35,7 @@ export enum ServiceType {
   DISPOSE = 'dispose'
 };
 
-export class ServicePort extends Component {
+export class ServicePort extends ElementComponent {
   /**
    * The channel port.
    */
