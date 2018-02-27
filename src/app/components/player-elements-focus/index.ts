@@ -1,12 +1,13 @@
 import { Component } from "../Component";
 import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
-import { Player } from "../../app/player/Player";
+import { Player } from "../../player/Player";
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { Api } from "./api";
 import { getPath } from "../../libs/dom";
+import { injectable } from "inversify";
 
 const logger = new Logger("PlayerElementsFocusComponent");
 
@@ -16,6 +17,7 @@ const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
  * If you click on some of the elements on the YouTube player (volume, progress)
  * it will outline the clicked element and that element will then have focus.
  */
+@injectable()
 export class PlayerElementsFocusComponent extends Component implements onPlayerCreated, onSettingsReactRegister {
   private _api: Api;
 

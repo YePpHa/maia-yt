@@ -1,5 +1,8 @@
 import { ISettingsStorage } from "../settings/ISettingsStorage";
-import { getSettingsStorage } from "./Component";
+import { ComponentSettings } from "../settings/ComponentSettingsStorage";
+import { Storage } from "../libs/storage/Storage";
+import container from "../inversify.config";
+import { ApiStorageToken } from "./ApiStorage";
 
 export class ComponentApi {
   private _namespace: string;
@@ -7,7 +10,7 @@ export class ComponentApi {
   
   constructor(namespace: string) {
     this._namespace = namespace;
-    this._storage = getSettingsStorage(namespace);
+    this._storage = new ComponentSettings(namespace, container.get<Storage>(ApiStorageToken));
   }
 
   getStorage(): ISettingsStorage {

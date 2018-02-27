@@ -1,26 +1,29 @@
-import { ElementComponent } from '../libs/ElementComponent';
-import { Channel } from '../libs/messaging/Channel';
-import { ServicePort } from '../libs/messaging/ServicePort';
-import { EventHandler } from '../libs/events/EventHandler';
-import { EventType } from '../libs/messaging/events/EventType';
-import { PortEvent } from '../libs/messaging/events/PortEvent';
+import { ElementComponent } from './libs/ElementComponent';
+import { Channel } from './libs/messaging/Channel';
+import { ServicePort } from './libs/messaging/ServicePort';
+import { EventHandler } from './libs/events/EventHandler';
+import { EventType } from './libs/messaging/events/EventType';
+import { PortEvent } from './libs/messaging/events/PortEvent';
 import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
 import { EventType as YouTubeEventType } from './youtube/EventType';
 import { IPlayer } from './player/IPlayer';
 import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent, CueRangeEvent, VideoDataChangeEvent } from './youtube/events';
-import { Event } from '../libs/events/Event';
-import { Logger } from '../libs/logging/Logger';
-import { components } from '../components';
-import { ComponentConstructor, Component, setStorage as setComponentStorage } from "../components/Component";
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady } from "../components/IComponent";
-import { Storage } from '../libs/storage/Storage';
-import { BrowserEvent } from '../libs/events/BrowserEvent';
+import { Event } from './libs/events/Event';
+import { Logger } from './libs/logging/Logger';
+import { components } from './components';
+import { ComponentConstructor, Component } from "./components/Component";
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady } from "./components/IComponent";
+import { Storage } from './libs/storage/Storage';
+import { BrowserEvent } from './libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
 import { spf } from './youtube/spf';
+import container from './inversify.config';
+import { injectable, inject } from "inversify";
 
 const logger = new Logger('App');
 
+@injectable()
 export class App extends ElementComponent {
   private _channel: Channel = new Channel('background');
   private _ports: ServicePort[] = [];
@@ -30,14 +33,13 @@ export class App extends ElementComponent {
   private _storageLoaded: boolean = false;
   private _storageLoadedListeners: Function[] = [];
 
-  constructor(storage: Storage) {
+  constructor() {
     super();
 
-    setComponentStorage(storage);
-
     for (let i = 0; i < components.length; i++) {
-      let m = new components[i]();
-      this._components.push(m);
+      const component = container.get<Component>(components[i]);
+      
+      this._components.push(component);
     }
   }
 

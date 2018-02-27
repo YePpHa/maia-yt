@@ -3,7 +3,7 @@ import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
 import { Api } from "./api";
-import { PlaybackQuality } from "../../app/youtube/PlayerApi";
+import { PlaybackQuality } from "../../youtube/PlayerApi";
 
 export class Settings implements ISettingsReact {
   constructor(private api: Api) {}

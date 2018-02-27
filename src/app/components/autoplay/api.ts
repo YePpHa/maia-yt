@@ -1,4 +1,4 @@
-import { AutoNavigationState } from "../../app/youtube/PlayerApi";
+import { AutoNavigationState } from "../../youtube/PlayerApi";
 import { ComponentApi } from "../ComponentApi";
 
 export enum AutoPlayMode {

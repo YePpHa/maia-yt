@@ -1,6 +1,6 @@
-import { wrapFunction } from '../libs/property/observer';
-import { ChannelPort } from '../libs/messaging/ChannelPort';
-import { ServicePort } from '../libs/messaging/ServicePort';
+import { wrapFunction } from './libs/property/observer';
+import { ChannelPort } from './libs/messaging/ChannelPort';
+import { ServicePort } from './libs/messaging/ServicePort';
 import { PlayerFactory } from './youtube/PlayerFactory';
 import { Player } from './youtube/Player';
 import { PlayerConfig, PlayerData, PlayerType } from './youtube/PlayerConfig';

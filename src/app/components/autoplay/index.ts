@@ -1,15 +1,17 @@
 import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
-import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
+import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
 import { Component } from "../Component";
-import { Player } from "../../app/player/Player";
+import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
-import { EventType } from '../../app/youtube/EventType';
+import { EventType } from '../../youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api, AutoPlayMode } from "./api";
-import { FlagsParser } from "../../app/youtube/FlagsParser";
+import { FlagsParser } from "../../youtube/FlagsParser";
+import { injectable } from "inversify";
 const logger = new Logger("AutoPlayComponent");
 
+@injectable()
 export class AutoPlayComponent extends Component implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
   private _api: Api;
 
@@ -101,7 +103,7 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
           value: player.cueVideoByPlayerVars(data)
         };
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       }
     }
   }

@@ -1,4 +1,4 @@
-import { PlaybackQuality } from "../../app/youtube/PlayerApi";
+import { PlaybackQuality } from "../../youtube/PlayerApi";
 import { ComponentApi } from "../ComponentApi";
 
 export class Api extends ComponentApi {

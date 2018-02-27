@@ -1,6 +1,6 @@
 import { IPlayer } from './IPlayer';
-import { EventTarget } from '../../libs/events/EventTarget';
-import { ServicePort } from "../../libs/messaging/ServicePort";
+import { EventTarget } from '../libs/events/EventTarget';
+import { ServicePort } from "../libs/messaging/ServicePort";
 import { PlayerData, PlayerType } from '../youtube/PlayerConfig';
 import { PlaybackQuality, AutoNavigationState } from '../youtube/PlayerApi';
 import merge = require('lodash.merge');

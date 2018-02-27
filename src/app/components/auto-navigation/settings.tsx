@@ -3,7 +3,7 @@ import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
 import { Api } from "./api";
-import { AutoNavigationState } from "../../app/youtube/PlayerApi";
+import { AutoNavigationState } from "../../youtube/PlayerApi";
 
 export class Settings implements ISettingsReact {
   constructor(private api: Api) {}

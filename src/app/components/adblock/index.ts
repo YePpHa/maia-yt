@@ -1,14 +1,16 @@
 import { onPlayerData, onSettingsReactRegister } from "../IComponent";
-import { PlayerConfig, PlayerData } from "../../app/youtube/PlayerConfig";
+import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
 import { Component } from "../Component";
-import { Player } from "../../app/player/Player";
+import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
-import { EventType } from '../../app/youtube/EventType';
+import { EventType } from '../../youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
+import { injectable } from "inversify";
 const logger = new Logger("AdblockComponent");
 
+@injectable()
 export class AdblockComponent extends Component implements onPlayerData, onSettingsReactRegister {
   private _api: Api;
 

@@ -1,9 +1,9 @@
-import { ServicePort } from '../../libs/messaging/ServicePort';
-import { ElementComponent } from '../../libs/ElementComponent';
+import { ServicePort } from '../libs/messaging/ServicePort';
+import { ElementComponent } from '../libs/ElementComponent';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
-import { Event } from '../../libs/events/Event';
+import { Event } from '../libs/events/Event';
 import { PlayerData, PlayerConfig } from "./PlayerConfig";
 
 declare interface PlayerApiElement extends Element {

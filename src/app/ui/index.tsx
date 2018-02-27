@@ -1,6 +1,6 @@
 import { h, render as pRender } from 'preact';
-import { Component } from '../../components/Component';
-import { onSettingsReactRegister } from '../../components/IComponent';
+import { Component } from '../components/Component';
+import { onSettingsReactRegister } from '../components/IComponent';
 
 export function render(components: Component[]) {
   let componentCards: JSX.Element[] = [];

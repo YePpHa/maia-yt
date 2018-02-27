@@ -1,10 +1,10 @@
-import { Event } from '../../libs/events/Event';
-import { Disposable } from '../../libs/Disposable';
-import { ListenerMap } from '../../libs/events/ListenerMap';
-import { Listenable, addImplementation } from '../../libs/events/Listenable';
-import { ListenableKey } from '../../libs/events/ListenableKey';
+import { Event } from '../libs/events/Event';
+import { Disposable } from '../libs/Disposable';
+import { ListenerMap } from '../libs/events/ListenerMap';
+import { Listenable, addImplementation } from '../libs/events/Listenable';
+import { ListenableKey } from '../libs/events/ListenableKey';
 import { PlayerApi } from './PlayerApi';
-import { getObjectByName } from '../../libs/property';
+import { getObjectByName } from '../libs/property';
 
 export class PlayerEvent extends Event {
   /**

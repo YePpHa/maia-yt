@@ -1,4 +1,4 @@
-import { Event } from '../../libs/events/Event';
+import { Event } from '../libs/events/Event';
 import { EventType } from './EventType';
 import { PlaybackQuality } from './PlayerApi';
 

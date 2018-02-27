@@ -1,14 +1,17 @@
-import { injectJS } from '../libs/script';
+import "reflect-metadata";
+import { injectJS } from './libs/script';
 import { App } from './App';
 //import * as i18n from 'i18next';
-import { Storage } from '../libs/storage/Storage';
-import { GreaseMonkeyMechanism } from '../libs/storage/mechanism/GreaseMonkeyMechanism';
-import { LocalStorageMechanism } from '../libs/storage/mechanism/LocalStorageMechanism';
-import { EventHandler } from '../libs/events/EventHandler';
-import { render as renderSettings } from './settings';
-import { Mechanism } from '../libs/storage/mechanism/Mechanism';
-import { Logger } from '../libs/logging/Logger';
-import { GreaseMonkey4Mechanism } from '../libs/storage/mechanism/GreaseMonkey4Mechanism';
+import { Storage } from './libs/storage/Storage';
+import { GreaseMonkeyMechanism } from './libs/storage/mechanism/GreaseMonkeyMechanism';
+import { LocalStorageMechanism } from './libs/storage/mechanism/LocalStorageMechanism';
+import { EventHandler } from './libs/events/EventHandler';
+import { render as renderSettings } from './ui';
+import { Mechanism } from './libs/storage/mechanism/Mechanism';
+import { Logger } from './libs/logging/Logger';
+import { GreaseMonkey4Mechanism } from './libs/storage/mechanism/GreaseMonkey4Mechanism';
+import container from './inversify.config';
+import { ApiStorageToken } from "./components/ApiStorage";
 const logger = new Logger("Bootstrap");
 
 /*i18n.init({
@@ -35,9 +38,9 @@ const run = async () => {
   }
   
   if (mechanism) {
-    const storage = new Storage(mechanism);
-  
-    const app = new App(storage);
+    container.bind<Storage>(ApiStorageToken).toConstantValue(new Storage(mechanism));
+
+    const app = container.get<App>(App);
     app.loadStorage();
     app.enterDocument();
   

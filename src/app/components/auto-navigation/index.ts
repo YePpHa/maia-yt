@@ -1,15 +1,17 @@
 import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
-import { PlayerData } from "../../app/youtube/PlayerConfig";
+import { PlayerData } from "../../youtube/PlayerConfig";
 import { Component } from "../Component";
-import { Player } from "../../app/player/Player";
+import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
-import { EventType } from '../../app/youtube/EventType';
+import { EventType } from '../../youtube/EventType';
 import { ISettingsReact } from "../../settings/ISettings";
 import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
-import { AutoNavigationState } from "../../app/youtube/PlayerApi";
+import { AutoNavigationState } from "../../youtube/PlayerApi";
+import { injectable } from "inversify";
 const logger = new Logger("AutoNavigationComponent");
 
+@injectable()
 export class AutoNavigationComponent extends Component implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
   private _autoNavigationCalls: {[key: string]: number} = {};
   private _api: Api;

@@ -4,18 +4,7 @@ import { ISettingsStorage } from "../settings/ISettingsStorage";
 import { Storage } from "../libs/storage/Storage";
 import { ComponentSettings } from "../settings/ComponentSettingsStorage";
 import { ComponentApi } from "./ComponentApi";
-
-let storage: Storage|undefined = undefined;
-
-export function setStorage(s: Storage): void {
-  storage = s;
-}
-
-export function getSettingsStorage(name: string): ISettingsStorage {
-  if (!storage) throw new Error("Storage has not been initialized.");
-
-  return new ComponentSettings(name, storage);
-}
+import container from "../inversify.config";
 
 export abstract class Component extends Disposable {
   private _handler: EventHandler;
