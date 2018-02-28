@@ -16,38 +16,38 @@ export class Logger implements ILogger {
     }
 
     switch (level) {
-      case LoggerLevel.EMERGENCY:
-      case LoggerLevel.ALERT:
-      case LoggerLevel.CRITICAL:
-      case LoggerLevel.ERROR:
+      case LoggerLevel.Emergency:
+      case LoggerLevel.Alert:
+      case LoggerLevel.Critical:
+      case LoggerLevel.Error:
         console.error(msg);
         break;
-      case LoggerLevel.WARNING:
+      case LoggerLevel.Warning:
         console.warn(msg);
         break;
-      case LoggerLevel.NOTICE:
-      case LoggerLevel.INFO:
+      case LoggerLevel.Notice:
+      case LoggerLevel.Info:
         console.log(msg);
         break;
-      case LoggerLevel.DEBUG:
+      case LoggerLevel.Debug:
         console.debug(msg);
         break;
     }
   }
   
   error(message: string, ...args: any[]): void {
-    this.log(LoggerLevel.ERROR, message, ...args);
+    this.log(LoggerLevel.Error, message, ...args);
   }
     
   warning(message: string, ...args: any[]): void {
-    this.log(LoggerLevel.WARNING, message, ...args);
+    this.log(LoggerLevel.Warning, message, ...args);
   }
 
   info(message: string, ...args: any[]): void {
-    this.log(LoggerLevel.INFO, message, ...args);
+    this.log(LoggerLevel.Info, message, ...args);
   }
 
   debug(message: string, ...args: any[]): void {
-    this.log(LoggerLevel.DEBUG, message, ...args);
+    this.log(LoggerLevel.Debug, message, ...args);
   }
 }

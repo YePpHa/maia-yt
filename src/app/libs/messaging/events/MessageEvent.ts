@@ -6,6 +6,6 @@ export class MessageEvent extends Event {
     public payload: Object,
     target?: Object
   ) {
-    super(EventType.MESSAGE, target);
+    super(EventType.Message, target);
   }
 }

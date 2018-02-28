@@ -19,7 +19,7 @@ export class Api extends ComponentApi {
   }
 
   getQuality(): PlaybackQuality {
-    return this.getStorage().get('quality', PlaybackQuality.AUTO);
+    return this.getStorage().get('quality', PlaybackQuality.Auto);
   }
   
   setBetterQualityPreferred(preferred: boolean): void {

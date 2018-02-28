@@ -7,6 +7,6 @@ export class PortEvent extends Event {
     public port: ChannelPort,
     target?: Object
   ) {
-    super(EventType.CONNECT, target);
+    super(EventType.Connect, target);
   }
 }

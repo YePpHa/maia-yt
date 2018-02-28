@@ -26,14 +26,14 @@ export declare interface PlayerConfig {
 }
 
 export enum PlayerType {
-  AD_UNIT ="adunit",
-  DETAIL_PAGE = "detailpage",
-  EDIT_PAGE = "editpage",
-  EMBEDDED = "embedded",
-  LEANBACK = "leanback",
-  PREVIEW_PAGE = "previewpage",
-  PROFILE_PAGE = "profilepage",
-  UNPLUGGED = "unplugged"
+  AdUnit = "adunit",
+  DetailPage = "detailpage",
+  EditPage = "editpage",
+  Embedded = "embedded",
+  Leanback = "leanback",
+  PreviewPage = "previewpage",
+  ProfilePage = "profilepage",
+  Unplugged = "unplugged"
 }
 
 export declare interface PlayerData {

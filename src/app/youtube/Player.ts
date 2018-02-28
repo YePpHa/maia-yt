@@ -89,7 +89,7 @@ export class Player extends ElementComponent {
         this._removeEventListener(args[0], args[1]);
         break;
       case "destroy":
-        this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.DESTROY);
+        this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.Destroy);
         break;
       case "loadVideoByPlayerVars":
       case "cueVideoByPlayerVars":
@@ -227,7 +227,7 @@ export class Player extends ElementComponent {
   }
   
   private _handleOnReady(e: PlayerEvent) {
-    this._fireEvent(e, EventType.READY);
+    this._fireEvent(e, EventType.Ready);
   }
 
   private _handleStateChange(e: PlayerEvent) {
@@ -236,22 +236,22 @@ export class Player extends ElementComponent {
     let type: EventType;
     switch (state) {
       case -1:
-        type = EventType.UNSTARTED;
+        type = EventType.Unstarted;
         break;
       case 0:
-        type = EventType.ENDED;
+        type = EventType.Ended;
         break;
       case 1:
-        type = EventType.PLAYED;
+        type = EventType.Played;
         break;
       case 2:
-        type = EventType.PAUSED;
+        type = EventType.Paused;
         break;
       case 3:
-        type = EventType.BUFFERING;
+        type = EventType.Buffering;
         break;
       case 5:
-        type = EventType.CUED;
+        type = EventType.Cued;
         break;
       default:
         return;
@@ -262,31 +262,31 @@ export class Player extends ElementComponent {
   
   private _handleVolumeChange(e: PlayerEvent) {
     let detail = e.detail as VolumeChangeDetail;
-    this._fireEvent(e, EventType.VOLUME_CHANGE, detail.volume, detail.muted);
+    this._fireEvent(e, EventType.VolumeChange, detail.volume, detail.muted);
   }
     
   private _handleFullscreenChange(e: PlayerEvent) {
     let detail = e.detail as FullscreenChangeDetail;
-    this._fireEvent(e, EventType.FULLSCREEN_CHANGE, detail.fullscreen);
+    this._fireEvent(e, EventType.FullscreenChange, detail.fullscreen);
   }
 
   private _handlePlaybackQualityChange(e: PlayerEvent) {
     let quality = e.detail as PlaybackQuality;
-    this._fireEvent(e, EventType.QUALITY_CHANGE, quality);
+    this._fireEvent(e, EventType.QualityChange, quality);
   }
 
   private _handlePlaybackRateChange(e: PlayerEvent) {
     let rate = e.detail as number;
-    this._fireEvent(e, EventType.RATE_CHANGE, rate);
+    this._fireEvent(e, EventType.RateChange, rate);
   }
 
   private _handleApiChange(e: PlayerEvent) {
-    this._fireEvent(e, EventType.API_CHANGE);
+    this._fireEvent(e, EventType.ApiChange);
   }
 
   private _handleError(e: PlayerEvent) {
     let errorCode = e.detail as number;
-    this._fireEvent(e, EventType.ERROR, errorCode);
+    this._fireEvent(e, EventType.Error, errorCode);
   }
   
   private _handleDetailedError(e: PlayerEvent) {
@@ -294,7 +294,7 @@ export class Player extends ElementComponent {
   }
 
   private _handleSizeClicked(e: PlayerEvent) {
-    this._fireEvent(e, EventType.SIZE_CHANGE, e.detail as boolean);
+    this._fireEvent(e, EventType.SizeChange, e.detail as boolean);
   }
   
   private _handleAdStateChange(e: PlayerEvent) {
@@ -303,22 +303,22 @@ export class Player extends ElementComponent {
     let type: EventType;
     switch (state) {
       case -1:
-        type = EventType.AD_UNSTARTED;
+        type = EventType.AdUnstarted;
         break;
       case 0:
-        type = EventType.AD_ENDED;
+        type = EventType.AdEnded;
         break;
       case 1:
-        type = EventType.AD_PLAYED;
+        type = EventType.AdPlayed;
         break;
       case 2:
-        type = EventType.AD_PAUSED;
+        type = EventType.AdPaused;
         break;
       case 3:
-        type = EventType.AD_BUFFERING;
+        type = EventType.AdBuffering;
         break;
       case 5:
-        type = EventType.AD_CUED;
+        type = EventType.AdCued;
         break;
       default:
         return;
@@ -328,7 +328,7 @@ export class Player extends ElementComponent {
   }
 
   private _handleSharePanelOpened(e: PlayerEvent) {
-    this._fireEvent(e, EventType.SHARE_PANEL_OPENED);
+    this._fireEvent(e, EventType.SharePanelOpened);
   }
 
   private _handlePlaybackAudioChange(e: PlayerEvent) {
@@ -337,19 +337,19 @@ export class Player extends ElementComponent {
 
   private _handleVideoDataChange(e: PlayerEvent) {
     const data = e.detail as VideoDataChangeDetail;
-    this._fireEvent(e, EventType.VIDEO_DATA_CHANGE, data.type, data.playertype);
+    this._fireEvent(e, EventType.VideoDataChange, data.type, data.playertype);
   }
   
   private _handlePlaylistUpdate(e: PlayerEvent) {
-    this._fireEvent(e, EventType.PLAYLIST_UPDATE);
+    this._fireEvent(e, EventType.PlaylistUpdate);
   }
   
   private _handleCueRangeEnter(e: PlayerEvent) {
-    this._fireEvent(e, EventType.CUE_RANGE_ENTER, e.detail);
+    this._fireEvent(e, EventType.CueRangeEnter, e.detail);
   }
 
   private _handleCueRangeExit(e: PlayerEvent) {
-    this._fireEvent(e, EventType.CUE_RANGE_EXIT, e.detail);
+    this._fireEvent(e, EventType.CueRangeExit, e.detail);
   }
 
   private _handleCueRangeMarkersUpdated(e: PlayerEvent) {
@@ -365,11 +365,11 @@ export class Player extends ElementComponent {
   }
 
   private _handleConnectionIssue(e: PlayerEvent) {
-    this._fireEvent(e, EventType.CONNECTION_ISSUE);
+    this._fireEvent(e, EventType.ConnectionIssue);
   }
 
   private _handleShareClicked(e: PlayerEvent) {
-    this._fireEvent(e, EventType.SHARE_CLICKED);
+    this._fireEvent(e, EventType.ShareClicked);
   }
 
   private _handleWatchLaterVideoAdded(e: PlayerEvent) {
@@ -386,15 +386,15 @@ export class Player extends ElementComponent {
 
   private _handleLoadProgress(e: PlayerEvent) {
     const progress = e.detail as number;
-    this._fireEvent(e, EventType.LOAD_PROGRESS, progress);
+    this._fireEvent(e, EventType.LoadProgress, progress);
   }
 
   private _handleVideoProgress(e: PlayerEvent) {
     const progress = e.detail as number;
-    this._fireEvent(e, EventType.VIDEO_PROGRESS, progress);
+    this._fireEvent(e, EventType.VideoProgress, progress);
   }
 
   private _handleReloadRequired(e: PlayerEvent) {
-    this._fireEvent(e, EventType.RELOAD_REQUIRED);
+    this._fireEvent(e, EventType.ReloadRequired);
   }
 }

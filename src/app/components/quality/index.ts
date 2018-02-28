@@ -1,4 +1,4 @@
-import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady } from "../IComponent";
+import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady, onPlayerDispose, onPlayerBeforeCreated } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
 import { Component } from "../Component";
 import { Player } from "../../player/Player";
@@ -9,71 +9,47 @@ import { Settings as SettingsReact } from './settings';
 import { Api } from "./api";
 import { PlaybackQuality } from "../../youtube/PlayerApi";
 import { injectable } from "inversify";
+import { EventHandler } from "../../libs/events/EventHandler";
+import { Disposable } from "../../libs/Disposable";
 const logger = new Logger("QualityComponent");
 
-@injectable()
-export class QualityComponent extends Component implements onPlayerCreated, onPlayerReady, onPlayerData, onSettingsReactRegister {
+class PlayerQuality extends Disposable {
+  private _player: Player;
+  private _handler?: EventHandler;
+
   private _api: Api;
 
-  getApi(): Api {
-    if (!this._api) {
-      this._api = new Api()
+  private _unstarted: boolean = false;
+
+  constructor(api: Api, player: Player) {
+    super();
+
+    this._api = api;
+    this._player = player;
+  }
+
+  protected disposeInternal() {
+    super.disposeInternal();
+
+    if (this._handler) {
+      this._handler.dispose();
+      this._handler = undefined;
     }
-    return this._api;
   }
 
-  onPlayerCreated(player: Player): void {
-    const api = this.getApi();
-    let unstarted = false;
-    this.getHandler()
-      .listen(player, EventType.UNSTARTED, () => {
-        unstarted = true;
-        this.updatePlaybackQuality(player, api.getQuality(), api.isBetterQualityPreferred());
-      })
-      .listen(player, EventType.API_CHANGE, () => {
-        if (!unstarted) return;
-        unstarted = false;
-        this.updatePlaybackQuality(player, api.getQuality(), api.isBetterQualityPreferred());
-      })
-  }
-
-  onPlayerReady(player: Player): void {
-    const api = this.getApi();
-    if (!api.isEnabled()) return;
-
-    const quality = api.getQuality();
-
-    this.updatePlaybackQuality(player, quality, api.isBetterQualityPreferred());
-  }
-  
-  onPlayerData(player: Player, data: PlayerData): PlayerData {
-    const api = this.getApi();
-    if (!api.isEnabled()) return data;
-
-    const quality = api.getQuality();
-
-    data.vq = quality;
-
-    if (!player.isReady()) return data;
-
-    this.updatePlaybackQuality(player, quality, api.isBetterQualityPreferred());
-
-    return data;
-  }
-
-  private updatePlaybackQuality(player: Player, quality: PlaybackQuality, bestQualityPreferred: boolean): void {
-    let availableLevels = player.getAvailableQualityLevels();
-    let currentLevel = player.getPlaybackQuality();
+  private _updatePlaybackQuality(quality: PlaybackQuality, bestQualityPreferred: boolean): void {
+    let availableLevels = this._player.getAvailableQualityLevels();
+    let currentLevel = this._player.getPlaybackQuality();
     if (availableLevels.length === 0) {
       logger.debug("No quality levels are available.");
       return;
     }
 
     if (availableLevels.indexOf(quality) !== -1) {
-      if (player.isEmbedded()) {
-        player.setPlaybackQuality(quality);
+      if (this._player.isEmbedded()) {
+        this._player.setPlaybackQuality(quality);
       } else {
-        player.setPlaybackQualityRange(quality, quality);
+        this._player.setPlaybackQualityRange(quality, quality);
       }
       logger.debug("Settings quality (%s) through API", quality);
 
@@ -120,15 +96,107 @@ export class QualityComponent extends Component implements onPlayerCreated, onPl
     }
 
     if (nextQuality) {
-      if (player.isEmbedded()) {
-        player.setPlaybackQuality(nextQuality);
+      if (this._player.isEmbedded()) {
+        this._player.setPlaybackQuality(nextQuality);
       } else {
-        player.setPlaybackQualityRange(nextQuality, nextQuality);
+        this._player.setPlaybackQualityRange(nextQuality, nextQuality);
       }
       logger.debug("Changing quality to %s instead of %s due to it not being available.", nextQuality, quality);
     } else {
       logger.debug("Couldn't find a quality close to %s.", quality);
     }
+  }
+
+  getHandler(): EventHandler {
+    if (!this._handler) {
+      this._handler = new EventHandler(this);
+    }
+    return this._handler;
+  }
+
+  onCreated() {
+    this.getHandler()
+      .listen(this._player, EventType.Unstarted, () => {
+        this._unstarted = true;
+        this._updatePlaybackQuality(this._api.getQuality(), this._api.isBetterQualityPreferred());
+      })
+      .listen(this._player, EventType.ApiChange, () => {
+        if (!this._unstarted) return;
+        this._unstarted = false;
+        this._updatePlaybackQuality(this._api.getQuality(), this._api.isBetterQualityPreferred());
+      })
+  }
+
+  onReady() {
+    if (!this._api.isEnabled()) return;
+
+    const quality = this._api.getQuality();
+
+    this._updatePlaybackQuality(quality, this._api.isBetterQualityPreferred());
+  }
+
+  onData(data: PlayerData): PlayerData {
+    if (!this._api.isEnabled()) return data;
+
+    const quality = this._api.getQuality();
+
+    data.vq = quality;
+
+    if (!this._player.isReady()) return data;
+
+    this._updatePlaybackQuality(quality, this._api.isBetterQualityPreferred());
+
+    return data;
+  }
+}
+
+@injectable()
+export class QualityComponent extends Component implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose, onSettingsReactRegister {
+  private _api: Api;
+  private _players: {[key: string]: PlayerQuality} = {};
+
+  getApi(): Api {
+    if (!this._api) {
+      this._api = new Api()
+    }
+    return this._api;
+  }
+
+  onPlayerDispose(player: Player): void {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    this._players[id].dispose();
+    
+    delete this._players[id];
+  }
+
+  onPlayerBeforeCreated(player: Player): void {
+    const id = player.getId();
+    if (this._players.hasOwnProperty(id))
+      throw new Error("Player already created in component");
+    this._players[id] = new PlayerQuality(this.getApi(), player);
+  }
+
+  onPlayerCreated(player: Player): void {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    this._players[id].onCreated();
+  }
+
+  onPlayerReady(player: Player): void {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    this._players[id].onReady();
+  }
+  
+  onPlayerData(player: Player, data: PlayerData): PlayerData {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    return this._players[id].onData(data);
   }
 
   onSettingsReactRegister(): ISettingsReact {

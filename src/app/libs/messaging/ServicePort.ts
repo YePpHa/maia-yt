@@ -29,10 +29,10 @@ declare interface ServicePayloadError extends ServicePayload {
 }
 
 export enum ServiceType {
-  CALL = 'call',
-  CALL_RESPONSE = 'call-response',
-  CALL_RESPONSE_ERROR = 'call-response-error',
-  DISPOSE = 'dispose'
+  Call = 'call',
+  CallResponse = 'call-response',
+  CallResponseError = 'call-response-error',
+  Dispose = 'dispose'
 };
 
 export class ServicePort extends ElementComponent {
@@ -64,7 +64,7 @@ export class ServicePort extends ElementComponent {
       if (!this._receivedDispose) {
         this._receivedDispose = true;
         let detail: ServiceRequest = {
-          type: ServiceType.DISPOSE
+          type: ServiceType.Dispose
         };
         this._port.send(detail);
       }
@@ -93,7 +93,7 @@ export class ServicePort extends ElementComponent {
     super.enterDocument();
 
     this.getHandler()
-      .listen(this.getPort(), EventType.MESSAGE, this._handleMessage, false);
+      .listen(this.getPort(), EventType.Message, this._handleMessage, false);
   }
 
   /**
@@ -122,7 +122,7 @@ export class ServicePort extends ElementComponent {
   call(name: string, ...args: any[]): Promise<any>|any {
     let id = ++this._servicesResponseId + '';
     let request = {} as ServicePayloadCall;
-    request.type = ServiceType.CALL;
+    request.type = ServiceType.Call;
     request.id = id;
 
     request.name = name;
@@ -161,7 +161,7 @@ export class ServicePort extends ElementComponent {
   callSync(name: string, ...args: any[]): any {
     let id = ++this._servicesResponseId + '';
     let request = {} as ServicePayloadCall;
-    request.type = ServiceType.CALL;
+    request.type = ServiceType.Call;
     request.id = id;
 
     request.name = name;
@@ -200,7 +200,7 @@ export class ServicePort extends ElementComponent {
   callAsync(name: string, ...args: any[]): Promise<any> {
     let id = ++this._servicesResponseId + '';
     let request = {} as ServicePayloadCall;
-    request.type = ServiceType.CALL;
+    request.type = ServiceType.Call;
     request.id = id;
 
     request.name = name;
@@ -235,16 +235,16 @@ export class ServicePort extends ElementComponent {
     let type = detail.type;
 
     switch (type) {
-      case ServiceType.CALL:
+      case ServiceType.Call:
         this._handleCallMessage(detail as ServicePayloadCall);
         break;
-      case ServiceType.CALL_RESPONSE:
+      case ServiceType.CallResponse:
         this._handleCallResponseMessage(detail as ServicePayloadResponse);
         break;
-      case ServiceType.CALL_RESPONSE_ERROR:
+      case ServiceType.CallResponseError:
         this._handleCallResponseErrorMessage(detail as ServicePayloadError);
         break;
-      case ServiceType.DISPOSE:
+      case ServiceType.Dispose:
         this._receivedDispose = true;
         this.dispose();
       default:
@@ -274,14 +274,14 @@ export class ServicePort extends ElementComponent {
           .then((returnValue) => {
             let response = {} as ServicePayloadResponse;
             response.id = id;
-            response.type = ServiceType.CALL_RESPONSE;
+            response.type = ServiceType.CallResponse;
             response.returnValue = returnValue;
             this._port.send(response);
           }, (err: Error) => {
             console.error(err);
             let response = {} as ServicePayloadError;
             response.id = id;
-            response.type = ServiceType.CALL_RESPONSE_ERROR;
+            response.type = ServiceType.CallResponseError;
             response.name = err.name;
             response.message = err.message;
             response.stack = err.stack;
@@ -290,14 +290,14 @@ export class ServicePort extends ElementComponent {
         } else {
           let response = {} as ServicePayloadResponse;
           response.id = id;
-          response.type = ServiceType.CALL_RESPONSE;
+          response.type = ServiceType.CallResponse;
           response.returnValue = returnValue;
           this._port.send(response);
         }
       } catch (err) {
         let response = {} as ServicePayloadError;
         response.id = id;
-        response.type = ServiceType.CALL_RESPONSE_ERROR;
+        response.type = ServiceType.CallResponseError;
         response.name = err.name;
         response.message = err.message;
         response.stack = err.stack;
@@ -306,7 +306,7 @@ export class ServicePort extends ElementComponent {
     } else {
       let response = {} as ServicePayloadError;
       response.id = id;
-      response.type = ServiceType.CALL_RESPONSE_ERROR;
+      response.type = ServiceType.CallResponseError;
       response.name = "Error";
       response.message = "Service with name (" + name + ") not found.";
       this._port.send(response);

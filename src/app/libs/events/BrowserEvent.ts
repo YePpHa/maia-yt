@@ -15,7 +15,7 @@ export class BrowserEvent extends MyEvent {
   clientY: number = 0;
   screenX: number = 0;
   screenY: number = 0;
-  button: MouseButton = MouseButton.LEFT;
+  button: MouseButton = MouseButton.Left;
   key: string = '';
   keyCode: number = 0;
   charCode: number = 0;

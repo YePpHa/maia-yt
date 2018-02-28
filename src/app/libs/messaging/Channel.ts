@@ -33,8 +33,8 @@ export class Channel extends ElementComponent {
     super.enterDocument();
 
     this.getHandler()
-      .listen(document.documentElement, InternalEventType.CONNECT_REQUEST, this._handleConnectRequest, false)
-      .listen(document.documentElement, InternalEventType.CONNECTED, this._handleConnected, false);
+      .listen(document.documentElement, InternalEventType.ConnectRequest, this._handleConnectRequest, false)
+      .listen(document.documentElement, InternalEventType.Connected, this._handleConnected, false);
   }
 
   /**
@@ -73,7 +73,7 @@ export class Channel extends ElementComponent {
     }
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        InternalEventType.CONNECT_RESPONSE,
+        InternalEventType.ConnectResponse,
         JSON.stringify(response)
       )
     );
@@ -98,7 +98,7 @@ export class Channel extends ElementComponent {
     if (port.getRemoteId() !== payload.remoteId) return;
     delete this._ports[id];
 
-    port.setState(PortState.CONNECTED);
+    port.setState(PortState.Connected);
 
     this.dispatchEvent(new PortEvent(port, this));
   }

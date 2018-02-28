@@ -1,11 +1,11 @@
 export enum EventType {
-  MESSAGE = 'message',
-  CONNECT = 'connect'
+  Message = 'message',
+  Connect = 'connect'
 }
 
 export enum InternalEventType {
-  CONNECT_REQUEST = '__maiaChannelConnectRequest',
-  CONNECT_RESPONSE = '__maiaChannelConnectResponse',
-  CONNECTED = '__maiaChannelConnected',
-  MESSAGE = '__maiaPortMessage'
+  ConnectRequest = '__maiaChannelConnectRequest',
+  ConnectResponse = '__maiaChannelConnectResponse',
+  Connected = '__maiaChannelConnected',
+  Message = '__maiaPortMessage'
 }

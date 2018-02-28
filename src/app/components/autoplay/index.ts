@@ -1,4 +1,4 @@
-import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
+import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse, onPlayerDispose } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
 import { Component } from "../Component";
 import { Player } from "../../player/Player";
@@ -12,7 +12,7 @@ import { injectable } from "inversify";
 const logger = new Logger("AutoPlayComponent");
 
 @injectable()
-export class AutoPlayComponent extends Component implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall {
+export class AutoPlayComponent extends Component implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerDispose {
   private _api: Api;
 
   // Ready variable to prevent loadVideoByPlayerVars from being called due to
@@ -36,17 +36,25 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
     if (detailPage) {
       if (enabled) {
         const mode: AutoPlayMode = api.getMode();
-        if (mode === AutoPlayMode.PAUSE) {
+        if (mode === AutoPlayMode.Pause) {
           player.pause();
         }
       }
     } else if (player.isProfilePage()) {
       if (api.isChannelEnabled()) {
         const mode: AutoPlayMode = api.getChannelMode();
-        if (mode === AutoPlayMode.PAUSE) {
+        if (mode === AutoPlayMode.Pause) {
           player.pause();
         }
       }
+    }
+  }
+
+  onPlayerDispose(player: Player) {
+    const id = player.getId();
+
+    if (this._ready.hasOwnProperty(id)) {
+      delete this._ready[id];
     }
   }
 
@@ -54,11 +62,11 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
     const api = this.getApi();
     
     if (api.isEnabled() && player.isDetailPage()) {
-      if (api.getMode() === AutoPlayMode.STOP) {
+      if (api.getMode() === AutoPlayMode.Stop) {
         data.autoplay = "0";
       }
     } else if (api.isChannelEnabled() && player.isProfilePage()) {
-      if (api.getChannelMode() === AutoPlayMode.STOP) {
+      if (api.getChannelMode() === AutoPlayMode.Stop) {
         data.autoplay = "0";
       }
     }
@@ -90,8 +98,8 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
       // Cue video data if the prevent auto-play mode is STOP
       const api = this.getApi();
 
-      const detailPage = api.isEnabled() && player.isDetailPage() && api.getMode() === AutoPlayMode.STOP;
-      const profilePage = api.isChannelEnabled() && player.isProfilePage() && api.getChannelMode() === AutoPlayMode.STOP;
+      const detailPage = api.isEnabled() && player.isDetailPage() && api.getMode() === AutoPlayMode.Stop;
+      const profilePage = api.isChannelEnabled() && player.isProfilePage() && api.getChannelMode() === AutoPlayMode.Stop;
 
       if (!detailPage && !profilePage)
         return;

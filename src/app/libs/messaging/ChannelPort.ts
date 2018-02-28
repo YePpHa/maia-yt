@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class ChannelPort extends ElementComponent {
   private _id: string = uuidv4();
   private _remoteId: string;
-  private _state: PortState = PortState.UNINITIALIZED;
+  private _state: PortState = PortState.Uninitialized;
 
   /**
    * Enter the channel into the document.
@@ -19,7 +19,7 @@ export class ChannelPort extends ElementComponent {
     super.enterDocument();
 
     this.getHandler()
-      .listen(document.documentElement, InternalEventType.MESSAGE, this._handleMessage, false);
+      .listen(document.documentElement, InternalEventType.Message, this._handleMessage, false);
   }
 
   /**
@@ -60,10 +60,10 @@ export class ChannelPort extends ElementComponent {
     let remotePortId = payload.remoteId;
     this.setRemoteId(remotePortId);
 
-    this.setState(PortState.CONNECTED);
+    this.setState(PortState.Connected);
 
     this.getHandler()
-      .unlisten(document.documentElement, InternalEventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
+      .unlisten(document.documentElement, InternalEventType.ConnectResponse, this._handleConnectResponse, false);
 
     let responseMessage: ConnectedMessage = {
       'id': remotePortId,
@@ -71,7 +71,7 @@ export class ChannelPort extends ElementComponent {
     };
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        InternalEventType.CONNECTED,
+        InternalEventType.Connected,
         JSON.stringify(responseMessage)
       )
     );
@@ -119,7 +119,7 @@ export class ChannelPort extends ElementComponent {
    * @param payload the payload to send.
    */
   send(payload: Object): void {
-    if (this.getState() !== PortState.CONNECTED)
+    if (this.getState() !== PortState.Connected)
       throw new Error("Port hasn't been connected.");
 
     let detail: PayloadMessage = {
@@ -130,7 +130,7 @@ export class ChannelPort extends ElementComponent {
 
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        InternalEventType.MESSAGE,
+        InternalEventType.Message,
         JSON.stringify(detail)
       )
     );
@@ -141,15 +141,15 @@ export class ChannelPort extends ElementComponent {
    * @param channel the channel name.
    */
   connect(channel: string) {
-    if (this.getState() !== PortState.UNINITIALIZED)
-      if (this.getState() === PortState.AWAITING_RESPONSE)
+    if (this.getState() !== PortState.Uninitialized)
+      if (this.getState() === PortState.AwaitingResponse)
         throw new Error("The port is being connected.");
-      else if (this.getState() === PortState.CONNECTED)
+      else if (this.getState() === PortState.Connected)
         throw new Error("The port has already been connected.");
 
     this.enterDocument();
     this.getHandler()
-      .listen(document.documentElement, InternalEventType.CONNECT_RESPONSE, this._handleConnectResponse, false);
+      .listen(document.documentElement, InternalEventType.ConnectResponse, this._handleConnectResponse, false);
 
     let detail: ConnectMessage = {
       id: this.getId(),
@@ -158,7 +158,7 @@ export class ChannelPort extends ElementComponent {
 
     document.documentElement.dispatchEvent(
       createCustomEvent(
-        InternalEventType.CONNECT_REQUEST,
+        InternalEventType.ConnectRequest,
         JSON.stringify(detail)
       )
     );

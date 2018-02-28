@@ -19,6 +19,6 @@ export class Api extends ComponentApi {
   }
 
   getState(): AutoNavigationState {
-    return this.getStorage().get('state', AutoNavigationState.DISABLED);
+    return this.getStorage().get('state', AutoNavigationState.Disabled);
   }
 }

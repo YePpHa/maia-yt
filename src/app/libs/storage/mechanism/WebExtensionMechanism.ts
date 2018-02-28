@@ -28,7 +28,7 @@ export class WebExtensionMechanism implements Mechanism {
     const values = await browser.storage.local.get(key);
     const value = values[key];
     if (typeof value !== "string" && value !== null) {
-      throw ErrorCode.INVALID_VALUE;
+      throw ErrorCode.InvalidValue;
     }
     return value;
   }

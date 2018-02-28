@@ -31,7 +31,7 @@ export class AutoNavigationComponent extends Component implements onPlayerCreate
         this._autoNavigationCalls[id]++;
         const toggle = document.querySelector("#toggle");
         if (toggle) {
-          if (api.getState() === AutoNavigationState.ENABLED) {
+          if (api.getState() === AutoNavigationState.Enabled) {
             toggle.setAttribute("checked", "");
             toggle.setAttribute("active", "");
           } else {
@@ -50,7 +50,7 @@ export class AutoNavigationComponent extends Component implements onPlayerCreate
     const id: string = player.getId();
 
     if (api.isEnabled() && player.isDetailPage()) {
-      logger.debug("Setting auto navigation state to " + (api.getState() === AutoNavigationState.ENABLED ? "enabled" : "disabled") + ".");
+      logger.debug("Setting auto navigation state to " + (api.getState() === AutoNavigationState.Enabled ? "enabled" : "disabled") + ".");
       player.setAutoNavigationState(api.getState());
     }
     this._autoNavigationCalls[id] = 0;

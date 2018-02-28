@@ -28,7 +28,7 @@ export class Storage {
     try {
       return JSON.parse(json);
     } catch (e) {
-      throw ErrorCode.INVALID_VALUE;
+      throw ErrorCode.InvalidValue;
     }
   }
 

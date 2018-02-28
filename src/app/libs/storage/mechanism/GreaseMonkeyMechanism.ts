@@ -26,7 +26,7 @@ export class GreaseMonkeyMechanism implements Mechanism {
   get(key: string): string {
     let value: string = GM_getValue(key);
     if (typeof value !== "string" && value !== null) {
-      throw ErrorCode.INVALID_VALUE;
+      throw ErrorCode.InvalidValue;
     }
     return value;
   }

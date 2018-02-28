@@ -1,7 +1,7 @@
 export enum EventType {
-  CLICK = 'click',
-  KEYUP = 'keyup',
-  KEYDOWN = 'keydown',
-  KEYPRESS = 'keypress',
-  MESSAGE = 'message'
+  Click = 'click',
+  KeyUp = 'keyup',
+  KeyDown = 'keydown',
+  KeyPress = 'keypress',
+  Message = 'message'
 }

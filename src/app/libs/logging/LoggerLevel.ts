@@ -1,10 +1,10 @@
 export enum LoggerLevel {
-  EMERGENCY,
-  ALERT,
-  CRITICAL,
-  ERROR,
-  WARNING,
-  NOTICE,
-  INFO,
-  DEBUG
+  Emergency,
+  Alert,
+  Critical,
+  Error,
+  Warning,
+  Notice,
+  Info,
+  Debug
 }

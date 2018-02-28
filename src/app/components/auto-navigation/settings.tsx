@@ -36,8 +36,8 @@ export class Settings implements ISettingsReact {
             disabled={false}
             onChange={onStateChange}
             value={state}>
-            <option value={AutoNavigationState.DISABLED.toString()}>Disabled</option>
-            <option value={AutoNavigationState.ENABLED.toString()}>Enabled</option>
+            <option value={AutoNavigationState.Disabled.toString()}>Disabled</option>
+            <option value={AutoNavigationState.Enabled.toString()}>Enabled</option>
           </Select>
         </div>
       </div>

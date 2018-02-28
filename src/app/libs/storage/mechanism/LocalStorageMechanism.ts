@@ -36,9 +36,9 @@ export class LocalStorageMechanism implements Mechanism {
       this._storage.setItem(key, value);
     } catch (e) {
       if (this._storage.length === 0) {
-        throw ErrorCode.STORAGE_DISABLED;
+        throw ErrorCode.StorageDisabled;
       } else {
-        throw ErrorCode.QUOTA_EXCEEDED;
+        throw ErrorCode.QuotaExceeded;
       }
     }
   }
@@ -47,7 +47,7 @@ export class LocalStorageMechanism implements Mechanism {
   get(key: string): string {
     let value: string|null = this._storage.getItem(key);
     if (typeof value !== "string" && value !== null) {
-      throw ErrorCode.INVALID_VALUE;
+      throw ErrorCode.InvalidValue;
     }
     return value as string;
   }

@@ -7,6 +7,10 @@ export interface onPlayerConfig {
   onPlayerConfig(player: Player, config: PlayerConfig): PlayerConfig;
 }
 
+export interface onPlayerDispose {
+  onPlayerDispose(player: Player): void;
+}
+
 export interface onPlayerBeforeCreated {
   onPlayerBeforeCreated(player: Player): void;
 }

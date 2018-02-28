@@ -7,12 +7,15 @@ import { ComponentApi } from "./ComponentApi";
 import container from "../inversify.config";
 
 export abstract class Component extends Disposable {
-  private _handler: EventHandler;
+  private _handler?: EventHandler;
 
   protected disposeInternal() {
     super.disposeInternal();
 
-    this._handler.dispose();
+    if (this._handler) {
+      this._handler.dispose();
+      this._handler = undefined;
+    }
   }
 
   getHandler(): EventHandler {

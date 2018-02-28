@@ -26,7 +26,7 @@ export class GreaseMonkey4Mechanism implements Mechanism {
   async get(key: string): Promise<string> {
     let value: string = await GM.getValue(key);
     if (typeof value !== "string" && value !== null) {
-      throw ErrorCode.INVALID_VALUE;
+      throw ErrorCode.InvalidValue;
     }
     return value;
   }

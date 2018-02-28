@@ -3,7 +3,6 @@ import { EventTarget } from '../libs/events/EventTarget';
 import { ServicePort } from "../libs/messaging/ServicePort";
 import { PlayerData, PlayerType } from '../youtube/PlayerConfig';
 import { PlaybackQuality, AutoNavigationState } from '../youtube/PlayerApi';
-import merge = require('lodash.merge');
 
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
@@ -44,7 +43,7 @@ export class Player extends EventTarget implements IPlayer {
   }
 
   setData(data: PlayerData): void {
-    merge(this._data, data);
+    this._data = Object.assign(this._data, data);
   }
 
   getData(): PlayerData {
@@ -52,15 +51,15 @@ export class Player extends EventTarget implements IPlayer {
   }
 
   isDetailPage(): boolean {
-    return this._data.el === PlayerType.DETAIL_PAGE || !this._data.el;
+    return this._data.el === PlayerType.DetailPage || !this._data.el;
   }
 
   isProfilePage(): boolean {
-    return this._data.el === PlayerType.PROFILE_PAGE;
+    return this._data.el === PlayerType.ProfilePage;
   }
 
   isEmbedded(): boolean {
-    return this._data.el === PlayerType.EMBEDDED;
+    return this._data.el === PlayerType.Embedded;
   }
 
   setAutoNavigationState(state: AutoNavigationState): void {

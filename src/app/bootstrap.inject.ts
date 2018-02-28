@@ -199,7 +199,7 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
 
    // Apply auto-play patch
   if (playerConfig.args.hasOwnProperty("autoplay")) {
-    if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
+    if (playerConfig.args.el === PlayerType.DetailPage || !playerConfig.args.el) {
       applyAutoPlayPatch();
     }
   }

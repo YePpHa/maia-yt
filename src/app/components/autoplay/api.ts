@@ -2,8 +2,8 @@ import { AutoNavigationState } from "../../youtube/PlayerApi";
 import { ComponentApi } from "../ComponentApi";
 
 export enum AutoPlayMode {
-  PAUSE = "pause",
-  STOP = "stop"
+  Pause = "pause",
+  Stop = "stop"
 }
 
 export class Api extends ComponentApi {
@@ -24,7 +24,7 @@ export class Api extends ComponentApi {
   }
 
   getMode(): AutoPlayMode {
-    return this.getStorage().get('mode', AutoPlayMode.PAUSE);
+    return this.getStorage().get('mode', AutoPlayMode.Pause);
   }
   
   setChannelEnabled(enabled: boolean): void {
@@ -40,6 +40,6 @@ export class Api extends ComponentApi {
   }
 
   getChannelMode(): AutoPlayMode {
-    return this.getStorage().get('channelMode', AutoPlayMode.PAUSE);
+    return this.getStorage().get('channelMode', AutoPlayMode.Pause);
   }
 }
