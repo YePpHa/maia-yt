@@ -84,10 +84,10 @@ export class Player extends ElementComponent {
     switch (name) {
       case "addEventListener":
         this._addEventListener(args[0], args[1]);
-        break;
+        return;
       case "removeEventListener":
         this._removeEventListener(args[0], args[1]);
-        break;
+        return;
       case "destroy":
         this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.DESTROY);
         break;
