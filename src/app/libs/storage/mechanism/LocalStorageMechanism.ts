@@ -4,7 +4,7 @@ import { ErrorCode } from '../ErrorCode';
 const STORAGE_AVAILABLE_KEY_ = '__sak';
 
 export class LocalStorageMechanism implements Mechanism {
-  private _storage: Storage;
+  private _storage?: Storage;
 
   constructor() {
     try {
@@ -32,6 +32,7 @@ export class LocalStorageMechanism implements Mechanism {
 
   /** @override */
   set(key: string, value: string) {
+    if (!this._storage) throw new Error("localStorage is not available");
     try {
       this._storage.setItem(key, value);
     } catch (e) {
@@ -45,6 +46,8 @@ export class LocalStorageMechanism implements Mechanism {
 
   /** @override */
   get(key: string): string {
+    if (!this._storage) throw new Error("localStorage is not available");
+
     let value: string|null = this._storage.getItem(key);
     if (typeof value !== "string" && value !== null) {
       throw ErrorCode.InvalidValue;
@@ -54,6 +57,8 @@ export class LocalStorageMechanism implements Mechanism {
 
   /** @override */
   remove(key: string): void {
+    if (!this._storage) throw new Error("localStorage is not available");
+    
     this._storage.removeItem(key);
   }
 }

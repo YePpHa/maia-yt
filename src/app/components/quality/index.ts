@@ -152,7 +152,7 @@ class PlayerQuality extends Disposable {
 
 @injectable()
 export class QualityComponent extends Component implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose, onSettingsReactRegister {
-  private _api: Api;
+  private _api?: Api;
   private _players: {[key: string]: PlayerQuality} = {};
 
   getApi(): Api {

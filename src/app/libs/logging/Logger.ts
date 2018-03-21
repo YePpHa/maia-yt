@@ -9,7 +9,9 @@ export class Logger implements ILogger {
     this._name = name;
   }
 
-  log(level: LoggerLevel, message: string, ...args: any[]): void {
+  log(level: LoggerLevel, message: any, ...args: any[]): void {
+    message = message + '';
+
     let msg: string = sprintf(message, ...args);
     if (this._name) {
       msg = "[" + this._name + "] " + msg;
@@ -35,19 +37,19 @@ export class Logger implements ILogger {
     }
   }
   
-  error(message: string, ...args: any[]): void {
+  error(message: any, ...args: any[]): void {
     this.log(LoggerLevel.Error, message, ...args);
   }
     
-  warning(message: string, ...args: any[]): void {
+  warning(message: any, ...args: any[]): void {
     this.log(LoggerLevel.Warning, message, ...args);
   }
 
-  info(message: string, ...args: any[]): void {
+  info(message: any, ...args: any[]): void {
     this.log(LoggerLevel.Info, message, ...args);
   }
 
-  debug(message: string, ...args: any[]): void {
+  debug(message: any, ...args: any[]): void {
     this.log(LoggerLevel.Debug, message, ...args);
   }
 }

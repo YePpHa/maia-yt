@@ -15,8 +15,8 @@ export class Settings implements ISettingsReact {
     const onBetterQualityChange = (checked: boolean) => {
       this.api.setBetterQualityPreferred(checked);
     };
-    const onQualityChange = (quality: PlaybackQuality) => {
-      this.api.setQuality(quality);
+    const onQualityChange = (quality: string) => {
+      this.api.setQuality(quality as PlaybackQuality);
     };
     const enabled: boolean = this.api.isEnabled();
     const betterQuality: boolean = this.api.isBetterQualityPreferred();

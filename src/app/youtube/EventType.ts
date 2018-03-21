@@ -31,5 +31,7 @@ export enum EventType {
   ShareClicked = 'share-clicked',
   ConnectionIssue = 'connection-issue',
   VideoDataChange = 'video-data-change',
-  PlaylistUpdate = 'playlist-update'
+  PlaylistUpdate = 'playlist-update',
+  PlayVideo = 'play-video',
+  AutonavCoundownStarted = 'autonav-coundown-started'
 };

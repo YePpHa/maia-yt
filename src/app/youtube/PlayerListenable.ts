@@ -6,13 +6,13 @@ import { ListenableKey } from '../libs/events/ListenableKey';
 import { PlayerApi } from './PlayerApi';
 import { getObjectByName } from '../libs/property';
 
-export class PlayerEvent extends Event {
+export class PlayerEvent<T> extends Event {
   /**
    * @param detail the player event detail.
    * @param type the event type.
    * @param target optional target.
    */
-  constructor(public detail: any, type: string, target?: Object) {
+  constructor(public detail: T, type: string, target?: Object) {
     super(type, target);
   }
 }

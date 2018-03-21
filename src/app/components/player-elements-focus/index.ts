@@ -19,7 +19,7 @@ const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
  */
 @injectable()
 export class PlayerElementsFocusComponent extends Component implements onPlayerCreated, onSettingsReactRegister {
-  private _api: Api;
+  private _api?: Api;
 
   getApi(): Api {
     if (!this._api) {
@@ -33,7 +33,8 @@ export class PlayerElementsFocusComponent extends Component implements onPlayerC
     const playerElement = player.getElement();
     if (playerElement && (playerElement === e.target || playerElement.contains(e.target as Node)))
       return;
-    const path = getPath(e.target as Node).map((node: Element) => node.tagName);
+    const path = getPath(e.target as Node)
+      .map(node => (node as Element).tagName);
     if (path.findIndex(tagName => BLACKLISTED_TAGNAMES.indexOf(tagName) !== -1) !== -1) return;
 
     const api = this.getApi();

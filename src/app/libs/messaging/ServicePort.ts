@@ -329,7 +329,9 @@ export class ServicePort extends ElementComponent {
       delete this._serviceInstances[id];
 
       // Reject the promise.
-      instance.promiseResolve(returnValue);
+      if (instance.promiseResolve) {
+        instance.promiseResolve(returnValue);
+      }
     } else {
       instance.returnValue = returnValue;
     }
@@ -355,7 +357,9 @@ export class ServicePort extends ElementComponent {
       delete this._serviceInstances[id];
 
       // Reject the promise.
-      instance.promiseReject(err);
+      if (instance.promiseReject) {
+        instance.promiseReject(err);
+      }
     } else {
       instance.returnError = err;
     }

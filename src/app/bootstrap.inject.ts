@@ -48,8 +48,8 @@ const handlePlayerUpdate = (playerConfig: PlayerConfig): PlayerConfig => {
   let elementId = playerConfig.attrs.id;
   if (players[elementId]) {
     let playerId = players[elementId].getId();
-    playerConfig = servicePort.callSync("player#update", playerId,
-      playerConfig) as PlayerConfig || playerConfig;
+    playerConfig = (servicePort.callSync("player#update", playerId,
+      playerConfig) as PlayerConfig) || playerConfig;
   }
 
   return playerConfig;

@@ -11,13 +11,13 @@ export class ServiceInstance {
    * If the instance is async a promise resolve will be set that can be called
    * when a response has been received.
    */
-  public promiseResolve: Function;
+  public promiseResolve?: Function;
 
   /**
    * If the instance is async a promise reject will be set that can be called
    * when a response has been received.
    */
-  public promiseReject: Function;
+  public promiseReject?: Function;
 
   /**
    * The return value if async is false.
@@ -27,7 +27,7 @@ export class ServiceInstance {
   /**
    * The error if async is false.
    */
-  public returnError: ServiceError;
+  public returnError?: ServiceError;
 
   /**
    * Whether a response has been received.

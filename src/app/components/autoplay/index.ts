@@ -13,7 +13,7 @@ const logger = new Logger("AutoPlayComponent");
 
 @injectable()
 export class AutoPlayComponent extends Component implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerDispose {
-  private _api: Api;
+  private _api?: Api;
 
   // Ready variable to prevent loadVideoByPlayerVars from being called due to
   // the ytplayer.config.loaded being false.

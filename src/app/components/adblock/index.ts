@@ -12,7 +12,7 @@ const logger = new Logger("AdblockComponent");
 
 @injectable()
 export class AdblockComponent extends Component implements onPlayerData, onSettingsReactRegister {
-  private _api: Api;
+  private _api?: Api;
 
   getApi(): Api {
     if (!this._api) {

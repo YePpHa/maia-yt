@@ -51,7 +51,7 @@ export class Checkbox extends Component<IProps, IState> {
     return (
       <label>
         <input
-          ref={(input: HTMLInputElement) => { this._input = input }}
+          ref={(input: Element|undefined) => { this._input = input as HTMLInputElement; }}
           type="checkbox"
           checked={checkedInternal}
           disabled={disabledInternal}

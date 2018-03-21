@@ -14,7 +14,7 @@ const logger = new Logger("AutoNavigationComponent");
 @injectable()
 export class AutoNavigationComponent extends Component implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
   private _autoNavigationCalls: {[key: string]: number} = {};
-  private _api: Api;
+  private _api?: Api;
 
   getApi(): Api {
     if (!this._api) {

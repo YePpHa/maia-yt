@@ -32,9 +32,9 @@ export class BrowserEvent extends MyEvent {
   constructor(event?: Event, currentTarget?: EventTarget) {
     super(event ? event.type : '');
 
-    if (event) {
-      this.init(event, currentTarget);
-    }
+    this._event = event || new Event(this.type);
+
+    this.init(this._event, currentTarget);
   }
 
   init(event: Event, currentTarget?: EventTarget) {

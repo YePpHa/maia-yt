@@ -36,9 +36,9 @@ export class App extends ElementComponent {
   constructor() {
     super();
 
-    for (let i = 0; i < components.length; i++) {
+    /*for (let i = 0; i < components.length; i++) {
       this._components.push(container.get<Component>(components[i]));
-    }
+    }*/
   }
 
   isStorageLoaded(): boolean {

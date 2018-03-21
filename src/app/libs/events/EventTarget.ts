@@ -9,7 +9,7 @@ const MAX_ANCESTORS = 1000;
 
 export class EventTarget extends Disposable implements Listenable {
   private _eventTargetListeners: ListenerMap = new ListenerMap(this);
-  private _parentEventTarget: EventTarget;
+  private _parentEventTarget?: EventTarget;
   private _actualEventTarget: EventTarget = this;
 
   constructor() {
@@ -22,11 +22,11 @@ export class EventTarget extends Disposable implements Listenable {
     this.removeAllListeners();
   }
 
-  setParentEventTarget(parent: EventTarget) {
+  setParentEventTarget(parent?: EventTarget) {
     this._parentEventTarget = parent;
   }
 
-  getParentEventTarget(): EventTarget {
+  getParentEventTarget(): EventTarget|undefined {
     return this._parentEventTarget;
   }
   
