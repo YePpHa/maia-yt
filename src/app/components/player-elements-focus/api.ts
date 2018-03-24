@@ -1,23 +1,28 @@
-import { ComponentApi } from "../ComponentApi";
+import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
+import { SettingsStorage } from "../../settings-storage/SettingsStorage";
+import { injectable } from "inversify";
 
-export class Api extends ComponentApi {
-  constructor() {
-    super("PlayerElementsFocus");
+@injectable()
+export class PlayerElementsFocusApi {
+  private _storage: SettingsStorage;
+
+  constructor(storageFactory: SettingsStorageFactory) {
+    this._storage = storageFactory.createStorage("PlayerElementsFocus");
   }
 
   setEnabled(enabled: boolean): void {
-    this.getStorage().set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
+    return this._storage.get('enabled', false);
   }
 
   setGlobalShortcutsEnabled(enabled: boolean): void {
-    this.getStorage().set('globalShortcutsEnabled', enabled);
+    this._storage.set('globalShortcutsEnabled', enabled);
   }
   
   isGlobalShortcutsEnabled(): boolean {
-    return this.getStorage().get('globalShortcutsEnabled', false);
+    return this._storage.get('globalShortcutsEnabled', false);
   }
 }

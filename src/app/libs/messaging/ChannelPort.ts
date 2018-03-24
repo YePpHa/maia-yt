@@ -1,15 +1,15 @@
 import { InternalEventType } from './events/EventType';
 import { createCustomEvent } from '../dom';
-import { ElementComponent } from '../ElementComponent';
+import { Component } from '../Component';
 import { PortState } from './PortState';
 import { MessageEvent } from './events/MessageEvent';
 import { BrowserEvent } from '../events/BrowserEvent';
 import { ConnectedMessage, PayloadMessage, ConnectMessage } from './Message';
 import { v4 as uuidv4 } from 'uuid';
 
-export class ChannelPort extends ElementComponent {
+export class ChannelPort extends Component {
   private _id: string = uuidv4();
-  private _remoteId: string;
+  private _remoteId?: string;
   private _state: PortState = PortState.Uninitialized;
 
   /**
@@ -87,7 +87,7 @@ export class ChannelPort extends ElementComponent {
   /**
    * Returns the remote ID.
    */
-  getRemoteId(): string {
+  getRemoteId(): string|undefined {
     return this._remoteId;
   }
 
@@ -95,7 +95,7 @@ export class ChannelPort extends ElementComponent {
    * Set the remote ID.
    * @param remoteId the remote ID.
    */
-  setRemoteId(remoteId: string): void {
+  setRemoteId(remoteId: string|undefined): void {
     this._remoteId = remoteId;
   }
 
@@ -121,9 +121,12 @@ export class ChannelPort extends ElementComponent {
   send(payload: Object): void {
     if (this.getState() !== PortState.Connected)
       throw new Error("Port hasn't been connected.");
+    const remoteId = this.getRemoteId();
+    if (remoteId === undefined)
+      throw new Error("Remote ID is not set");
 
     let detail: PayloadMessage = {
-      id: this.getRemoteId(),
+      id: remoteId,
       remoteId: this.getId(),
       payload: payload
     };

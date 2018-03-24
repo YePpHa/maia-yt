@@ -1,11 +1,11 @@
-import { ElementComponent } from '../libs/ElementComponent';
+import { Component } from '../libs/Component';
 import { ServicePort } from '../libs/messaging/ServicePort';
 import { Player } from './Player';
 import { v4 as uuidv4 } from 'uuid';
 import { EventType } from './EventType';
 import { PlayerConfig } from './PlayerConfig';
 
-export class PlayerFactory extends ElementComponent {
+export class PlayerFactory extends Component {
   private _port: ServicePort;
   private _players: {[key: string]: Player} = {};
 

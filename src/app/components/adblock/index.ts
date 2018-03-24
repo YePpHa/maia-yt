@@ -1,28 +1,24 @@
 import { onPlayerData, onSettingsReactRegister } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
-import { Component } from "../Component";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings/ISettings";
-import { Settings as SettingsReact } from './settings';
-import { Api } from "./api";
+import { ISettingsReact } from "../../settings-storage/ISettings";
+import { AdblockSettings as SettingsReact } from './settings';
+import { AdblockApi } from "./api";
 import { injectable } from "inversify";
 const logger = new Logger("AdblockComponent");
 
 @injectable()
-export class AdblockComponent extends Component implements onPlayerData, onSettingsReactRegister {
-  private _api?: Api;
+export class AdblockComponent implements onPlayerData, onSettingsReactRegister {
+  private _api: AdblockApi;
 
-  getApi(): Api {
-    if (!this._api) {
-      this._api = new Api()
-    }
-    return this._api;
+  constructor(api: AdblockApi) {
+    this._api = api;
   }
 
   onPlayerData(player: Player, data: PlayerData): PlayerData {
-    const api = this.getApi();
+    const api = this._api;
     if (!api.isEnabled()) return data;
 
     const subscribed: boolean = player.getData().subscribed === "1";
@@ -76,6 +72,6 @@ export class AdblockComponent extends Component implements onPlayerData, onSetti
   }
 
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getApi());
+    return new SettingsReact(this._api);
   }
 }

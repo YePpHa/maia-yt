@@ -1,32 +1,28 @@
 import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { PlayerData } from "../../youtube/PlayerConfig";
-import { Component } from "../Component";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings/ISettings";
-import { Settings as SettingsReact } from './settings';
-import { Api } from "./api";
+import { ISettingsReact } from "../../settings-storage/ISettings";
+import { AutoNavigationSettings as SettingsReact } from './settings';
+import { AutoNavigationApi } from "./api";
 import { AutoNavigationState } from "../../youtube/PlayerApi";
 import { injectable } from "inversify";
 const logger = new Logger("AutoNavigationComponent");
 
 @injectable()
-export class AutoNavigationComponent extends Component implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
+export class AutoNavigationComponent implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
   private _autoNavigationCalls: {[key: string]: number} = {};
-  private _api?: Api;
+  private _api: AutoNavigationApi;
 
-  getApi(): Api {
-    if (!this._api) {
-      this._api = new Api()
-    }
-    return this._api;
+  constructor(api: AutoNavigationApi) {
+    this._api = api;
   }
 
   onPlayerApiCall(player: Player, name: string, data: PlayerData): onPlayerApiCallResponse|undefined|void {
     const id = player.getId();
     if (name === "setAutonavState") {
-      const api = this.getApi();
+      const api = this._api;
       if (api.isEnabled() && this._autoNavigationCalls[id] < 2) {
         this._autoNavigationCalls[id]++;
         const toggle = document.querySelector("#toggle");
@@ -45,7 +41,7 @@ export class AutoNavigationComponent extends Component implements onPlayerCreate
   }
   
   onPlayerCreated(player: Player): void {
-    const api = this.getApi();
+    const api = this._api;
 
     const id: string = player.getId();
 
@@ -57,6 +53,6 @@ export class AutoNavigationComponent extends Component implements onPlayerCreate
   }
 
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getApi());
+    return new SettingsReact(this._api);
   }
 }

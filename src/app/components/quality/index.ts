@@ -1,27 +1,77 @@
 import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady, onPlayerDispose, onPlayerBeforeCreated } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
-import { Component } from "../Component";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings/ISettings";
-import { Settings as SettingsReact } from './settings';
-import { Api } from "./api";
+import { ISettingsReact } from "../../settings-storage/ISettings";
+import { QualitySettings as SettingsReact } from './settings';
+import { QualityApi } from "./api";
 import { PlaybackQuality } from "../../youtube/PlayerApi";
 import { injectable } from "inversify";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { Disposable } from "../../libs/Disposable";
 const logger = new Logger("QualityComponent");
 
+@injectable()
+export class QualityComponent implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose, onSettingsReactRegister {
+  private _api: QualityApi;
+  private _players: {[key: string]: PlayerQuality} = {};
+
+  constructor(api: QualityApi) {
+    this._api = api;
+  }
+
+  onPlayerBeforeCreated(player: Player): void {
+    const id = player.getId();
+    if (this._players.hasOwnProperty(id))
+      throw new Error("Player already created in component");
+    this._players[id] = new PlayerQuality(this._api, player);
+  }
+
+  onPlayerCreated(player: Player): void {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    this._players[id].onCreated();
+  }
+
+  onPlayerDispose(player: Player): void {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    this._players[id].dispose();
+    
+    delete this._players[id];
+  }
+
+  onPlayerReady(player: Player): void {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    this._players[id].onReady();
+  }
+  
+  onPlayerData(player: Player, data: PlayerData): PlayerData {
+    const id = player.getId();
+    if (!this._players.hasOwnProperty(id))
+      throw new Error("Player not found in component");
+    return this._players[id].onData(data);
+  }
+
+  onSettingsReactRegister(): ISettingsReact {
+    return new SettingsReact(this._api);
+  }
+}
+
 class PlayerQuality extends Disposable {
   private _player: Player;
   private _handler?: EventHandler;
 
-  private _api: Api;
+  private _api: QualityApi;
 
   private _unstarted: boolean = false;
 
-  constructor(api: Api, player: Player) {
+  constructor(api: QualityApi, player: Player) {
     super();
 
     this._api = api;
@@ -147,59 +197,5 @@ class PlayerQuality extends Disposable {
     this._updatePlaybackQuality(quality, this._api.isBetterQualityPreferred());
 
     return data;
-  }
-}
-
-@injectable()
-export class QualityComponent extends Component implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose, onSettingsReactRegister {
-  private _api?: Api;
-  private _players: {[key: string]: PlayerQuality} = {};
-
-  getApi(): Api {
-    if (!this._api) {
-      this._api = new Api()
-    }
-    return this._api;
-  }
-
-  onPlayerDispose(player: Player): void {
-    const id = player.getId();
-    if (!this._players.hasOwnProperty(id))
-      throw new Error("Player not found in component");
-    this._players[id].dispose();
-    
-    delete this._players[id];
-  }
-
-  onPlayerBeforeCreated(player: Player): void {
-    const id = player.getId();
-    if (this._players.hasOwnProperty(id))
-      throw new Error("Player already created in component");
-    this._players[id] = new PlayerQuality(this.getApi(), player);
-  }
-
-  onPlayerCreated(player: Player): void {
-    const id = player.getId();
-    if (!this._players.hasOwnProperty(id))
-      throw new Error("Player not found in component");
-    this._players[id].onCreated();
-  }
-
-  onPlayerReady(player: Player): void {
-    const id = player.getId();
-    if (!this._players.hasOwnProperty(id))
-      throw new Error("Player not found in component");
-    this._players[id].onReady();
-  }
-  
-  onPlayerData(player: Player, data: PlayerData): PlayerData {
-    const id = player.getId();
-    if (!this._players.hasOwnProperty(id))
-      throw new Error("Player not found in component");
-    return this._players[id].onData(data);
-  }
-
-  onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getApi());
   }
 }

@@ -1,32 +1,37 @@
 import { PlaybackQuality } from "../../youtube/PlayerApi";
-import { ComponentApi } from "../ComponentApi";
+import { SettingsStorage } from "../../settings-storage/SettingsStorage";
+import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
+import { injectable } from "inversify";
 
-export class Api extends ComponentApi {
-  constructor() {
-    super("Quality");
+@injectable()
+export class QualityApi {
+  private _storage: SettingsStorage;
+
+  constructor(storageFactory: SettingsStorageFactory) {
+    this._storage = storageFactory.createStorage("Quality");
   }
 
   setEnabled(enabled: boolean): void {
-    this.getStorage().set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
+    return this._storage.get('enabled', false);
   }
 
   setQuality(quality: PlaybackQuality): void {
-    this.getStorage().set('quality', quality);
+    this._storage.set('quality', quality);
   }
 
   getQuality(): PlaybackQuality {
-    return this.getStorage().get('quality', PlaybackQuality.Auto);
+    return this._storage.get('quality', PlaybackQuality.Auto);
   }
   
   setBetterQualityPreferred(preferred: boolean): void {
-    this.getStorage().set('bestQualityPreferred', preferred);
+    this._storage.set('bestQualityPreferred', preferred);
   }
 
   isBetterQualityPreferred(): boolean {
-    return this.getStorage().get('bestQualityPreferred', true);
+    return this._storage.get('bestQualityPreferred', true);
   }
 }

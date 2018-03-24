@@ -5,13 +5,12 @@ import { App } from './App';
 import { Storage } from './libs/storage/Storage';
 import { LocalStorageMechanism } from './libs/storage/mechanism/LocalStorageMechanism';
 import { EventHandler } from './libs/events/EventHandler';
-import { render as renderSettings } from './ui';
 import { Mechanism } from './libs/storage/mechanism/Mechanism';
 import { Logger } from './libs/logging/Logger';
 import { WebExtensionMechanism } from './libs/storage/mechanism/WebExtensionMechanism';
 import * as browser from 'webextension-polyfill';
-import container from "./inversify.config";
-import { ApiStorageToken } from "./components/ApiStorage";
+import container from "../config/inversify.config";
+import { Settings } from "./settings";
 const logger = new Logger("Bootstrap");
 
 /*i18n.init({
@@ -32,9 +31,9 @@ const run = async () => {
   }
   
   if (mechanism) {
-    container.bind<Storage>(ApiStorageToken).toConstantValue(new Storage(mechanism));
+    container.bind<Storage>(Storage).toConstantValue(new Storage(mechanism));
 
-    const app = container.get<App>(App);
+    const app = new App(container);
     app.loadStorage();
     app.enterDocument();
   
@@ -49,7 +48,8 @@ const run = async () => {
             handler.dispose();
             document.body.innerHTML = "";
             document.head.innerHTML = "";
-            renderSettings(app.getComponents());
+            const settings = container.get<Settings>(Settings);
+            settings.render();
             break;
         }
       });

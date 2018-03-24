@@ -1,45 +1,50 @@
 import { AutoNavigationState } from "../../youtube/PlayerApi";
-import { ComponentApi } from "../ComponentApi";
+import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
+import { SettingsStorage } from "../../settings-storage/SettingsStorage";
+import { injectable } from "inversify";
 
 export enum AutoPlayMode {
   Pause = "pause",
   Stop = "stop"
 }
 
-export class Api extends ComponentApi {
-  constructor() {
-    super("AutoPlay");
+@injectable()
+export class AutoPlayApi {
+  private _storage: SettingsStorage;
+
+  constructor(storageFactory: SettingsStorageFactory) {
+    this._storage = storageFactory.createStorage("AutoPlay");
   }
 
   setEnabled(enabled: boolean): void {
-    this.getStorage().set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
+    return this._storage.get('enabled', false);
   }
   
   setMode(mode: AutoPlayMode): void {
-    this.getStorage().set('mode', mode);
+    this._storage.set('mode', mode);
   }
 
   getMode(): AutoPlayMode {
-    return this.getStorage().get('mode', AutoPlayMode.Pause);
+    return this._storage.get('mode', AutoPlayMode.Pause);
   }
   
   setChannelEnabled(enabled: boolean): void {
-    this.getStorage().set('channelEnabled', enabled);
+    this._storage.set('channelEnabled', enabled);
   }
   
   isChannelEnabled(): boolean {
-    return this.getStorage().get('channelEnabled', false);
+    return this._storage.get('channelEnabled', false);
   }
 
   setChannelMode(mode: AutoPlayMode): void {
-    this.getStorage().set('channelMode', mode);
+    this._storage.set('channelMode', mode);
   }
 
   getChannelMode(): AutoPlayMode {
-    return this.getStorage().get('channelMode', AutoPlayMode.Pause);
+    return this._storage.get('channelMode', AutoPlayMode.Pause);
   }
 }

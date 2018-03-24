@@ -1,7 +1,7 @@
 import { PlayerConfig, PlayerData } from "../youtube/PlayerConfig";
 import { Player } from "../player/Player";
 import { PageNavigationDetail } from "../youtube/PageNavigationDetail";
-import { ISettingsReact } from "../settings/ISettings";
+import { ISettingsReact } from "../settings-storage/ISettings";
 
 export interface onPlayerConfig {
   onPlayerConfig(player: Player, config: PlayerConfig): PlayerConfig;

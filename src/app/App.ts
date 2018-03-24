@@ -1,4 +1,4 @@
-import { ElementComponent } from './libs/ElementComponent';
+import { Component } from './libs/Component';
 import { Channel } from './libs/messaging/Channel';
 import { ServicePort } from './libs/messaging/ServicePort';
 import { EventHandler } from './libs/events/EventHandler';
@@ -11,34 +11,36 @@ import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent, CueRangeEvent, VideoDataChangeEvent } from './youtube/events';
 import { Event } from './libs/events/Event';
 import { Logger } from './libs/logging/Logger';
-import { components } from './components';
-import { ComponentConstructor, Component } from "./components/Component";
 import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady, onPlayerDispose } from "./components/IComponent";
 import { Storage } from './libs/storage/Storage';
 import { BrowserEvent } from './libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
 import { spf } from './youtube/spf';
-import container from './inversify.config';
-import { injectable, inject } from "inversify";
+import container from '../config/inversify.config';
+import { ComponentProvider } from '../config/components.provider';
+import { ApiProvider } from '../config/apis.provider';
+import { SettingsStorage } from './settings-storage/SettingsStorage';
+import { Container } from 'inversify';
 
 const logger = new Logger('App');
 
-@injectable()
-export class App extends ElementComponent {
+export class App extends Component {
   private _channel: Channel = new Channel('background');
   private _ports: ServicePort[] = [];
   private _players: {[key: string]: Player} = {};
-  private _components: Component[] = [];
+  private _components: any[] = [];
 
   private _storageLoaded: boolean = false;
   private _storageLoadedListeners: Function[] = [];
+  private _settingsStorages: SettingsStorage[];
 
-  constructor() {
+  constructor(
+    container: Container
+  ) {
     super();
 
-    for (let i = 0; i < components.length; i++) {
-      this._components.push(container.get<Component>(components[i]));
-    }
+    this._components = container.getAll(ComponentProvider);
+    this._settingsStorages = container.getAll(SettingsStorage);
   }
 
   isStorageLoaded(): boolean {
@@ -47,20 +49,18 @@ export class App extends ElementComponent {
 
   async loadStorage(): Promise<void> {
     this._storageLoaded = false;
-    for (let i = 0; i < this._components.length; i++) {
-      logger.debug("Loading storage for " + this._components[i].getApi().getNamespace() + "...");
-      await this._components[i].getApi().updateCache();
+
+    for (let i = 0; i < this._settingsStorages.length; i++) {
+      logger.debug("Loading storage for " + this._settingsStorages[i].getName() + "...");
+      await this._settingsStorages[i].updateCache();
     }
+    
     this._storageLoaded = true;
 
     let fn;
     while (fn = this._storageLoadedListeners.shift()) {
       await fn();
     }
-  }
-
-  getComponents(): Component[] {
-    return this._components;
   }
 
   enterDocument() {

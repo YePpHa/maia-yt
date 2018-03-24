@@ -1,11 +1,10 @@
-import { Component } from "../Component";
 import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { Player } from "../../player/Player";
-import { ISettingsReact } from "../../settings/ISettings";
-import { Settings as SettingsReact } from './settings';
+import { ISettingsReact } from "../../settings-storage/ISettings";
+import { PlayerElementsFocusSettings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
-import { Api } from "./api";
+import { PlayerElementsFocusApi } from "./api";
 import { getPath } from "../../libs/dom";
 import { injectable } from "inversify";
 
@@ -18,14 +17,11 @@ const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
  * it will outline the clicked element and that element will then have focus.
  */
 @injectable()
-export class PlayerElementsFocusComponent extends Component implements onPlayerCreated, onSettingsReactRegister {
-  private _api?: Api;
-
-  getApi(): Api {
-    if (!this._api) {
-      this._api = new Api()
-    }
-    return this._api;
+export class PlayerElementsFocusComponent implements onPlayerCreated, onSettingsReactRegister {
+  private _api: PlayerElementsFocusApi;
+  
+  constructor(api: PlayerElementsFocusApi) {
+    this._api = api;
   }
 
   private _handleKeyDown(player: Player, e: KeyboardEvent) {
@@ -37,7 +33,7 @@ export class PlayerElementsFocusComponent extends Component implements onPlayerC
       .map(node => (node as Element).tagName);
     if (path.findIndex(tagName => BLACKLISTED_TAGNAMES.indexOf(tagName) !== -1) !== -1) return;
 
-    const api = this.getApi();
+    const api = this._api;
     if (!api.isGlobalShortcutsEnabled()) return;
 
     if (player.triggerKeyDown(e.keyCode, e.bubbles)) {
@@ -46,7 +42,7 @@ export class PlayerElementsFocusComponent extends Component implements onPlayerC
   }
 
   onPlayerCreated(player: Player): void {
-    const api = this.getApi();
+    const api = this._api;
     if (!api.isEnabled()) return;
 
     const element = player.getElement();
@@ -84,6 +80,6 @@ export class PlayerElementsFocusComponent extends Component implements onPlayerC
   }
   
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getApi());
+    return new SettingsReact(this._api);
   }
 }

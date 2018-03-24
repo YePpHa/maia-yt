@@ -1,5 +1,5 @@
 import { ServicePort } from '../libs/messaging/ServicePort';
-import { ElementComponent } from '../libs/ElementComponent';
+import { Component } from '../libs/Component';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
@@ -33,7 +33,7 @@ declare interface PlayVideoDetail {
   watchEndpoint: string|null;
 }
 
-export class Player extends ElementComponent {
+export class Player extends Component {
   private _id: string;
   private _element: Element;
   private _config: PlayerConfig;

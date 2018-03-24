@@ -1,12 +1,14 @@
-import { ISettingsReact } from "../../settings/ISettings";
+import { ISettingsReact } from "../../settings-storage/ISettings";
 import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
-import { Api } from "./api";
+import { QualityApi } from "./api";
 import { PlaybackQuality } from "../../youtube/PlayerApi";
+import { injectable } from "inversify";
 
-export class Settings implements ISettingsReact {
-  constructor(private api: Api) {}
+@injectable()
+export class QualitySettings implements ISettingsReact {
+  constructor(private api: QualityApi) {}
 
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {

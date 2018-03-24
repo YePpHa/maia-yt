@@ -1,7 +1,7 @@
 import { ISettingsStorage } from "./ISettingsStorage";
 import { Storage } from '../libs/storage/Storage';
 
-export class ComponentSettings implements ISettingsStorage {
+export class SettingsStorage implements ISettingsStorage {
   private _name: string;
   private _cache: any;
   private _storage: Storage;
@@ -9,6 +9,10 @@ export class ComponentSettings implements ISettingsStorage {
   constructor(name: string, storage: Storage) {
     this._name = name;
     this._storage = storage;
+  }
+
+  getName(): string {
+    return this._name;
   }
 
   async updateCache(): Promise<void> {

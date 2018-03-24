@@ -1,33 +1,29 @@
 import { onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse, onPlayerDispose } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
-import { Component } from "../Component";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings/ISettings";
-import { Settings as SettingsReact } from './settings';
-import { Api, AutoPlayMode } from "./api";
+import { ISettingsReact } from "../../settings-storage/ISettings";
+import { AutoPlaySettings as SettingsReact } from './settings';
+import { AutoPlayApi, AutoPlayMode } from "./api";
 import { FlagsParser } from "../../youtube/FlagsParser";
 import { injectable } from "inversify";
 const logger = new Logger("AutoPlayComponent");
 
 @injectable()
-export class AutoPlayComponent extends Component implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerDispose {
-  private _api?: Api;
+export class AutoPlayComponent implements onPlayerCreated, onPlayerData, onSettingsReactRegister, onPlayerApiCall, onPlayerDispose {
+  private _api: AutoPlayApi;
 
   // Ready variable to prevent loadVideoByPlayerVars from being called due to
   // the ytplayer.config.loaded being false.
   private _ready: {[key: string]: boolean} = {};
 
-  getApi(): Api {
-    if (!this._api) {
-      this._api = new Api()
-    }
-    return this._api;
+  constructor(api: AutoPlayApi) {
+    this._api = api;
   }
 
   private _preventAutoPlay(player: Player): void {
-    const api = this.getApi();
+    const api = this._api;
     const enabled: boolean = api.isEnabled();
     const detailPage: boolean = player.isDetailPage();
 
@@ -59,7 +55,7 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
   }
 
   onPlayerData(player: Player, data: PlayerData): PlayerData {
-    const api = this.getApi();
+    const api = this._api;
     
     if (api.isEnabled() && player.isDetailPage()) {
       if (api.getMode() === AutoPlayMode.Stop) {
@@ -96,7 +92,7 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
       return { value: undefined };
     } else if (name === "loadVideoByPlayerVars") {
       // Cue video data if the prevent auto-play mode is STOP
-      const api = this.getApi();
+      const api = this._api;
 
       const detailPage = api.isEnabled() && player.isDetailPage() && api.getMode() === AutoPlayMode.Stop;
       const profilePage = api.isChannelEnabled() && player.isProfilePage() && api.getChannelMode() === AutoPlayMode.Stop;
@@ -117,7 +113,7 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
   }
   
   onPlayerCreated(player: Player): void {
-    const api = this.getApi();
+    const api = this._api;
     const enabled: boolean = api.isEnabled();
     const detailPage: boolean = player.isDetailPage();
 
@@ -138,6 +134,6 @@ export class AutoPlayComponent extends Component implements onPlayerCreated, onP
   }
 
   onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this.getApi());
+    return new SettingsReact(this._api);
   }
 }

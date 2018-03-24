@@ -1,24 +1,29 @@
 import { AutoNavigationState } from "../../youtube/PlayerApi";
-import { ComponentApi } from "../ComponentApi";
+import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
+import { SettingsStorage } from "../../settings-storage/SettingsStorage";
+import { injectable } from "inversify";
 
-export class Api extends ComponentApi {
-  constructor() {
-    super("AutoNavigation");
+@injectable()
+export class AutoNavigationApi {
+  private _storage: SettingsStorage;
+
+  constructor(storageFactory: SettingsStorageFactory) {
+    this._storage = storageFactory.createStorage("AutoNavigation");
   }
 
   isEnabled(): boolean {
-    return this.getStorage().get('enabled', false);
+    return this._storage.get('enabled', false);
   }
   
   setEnabled(enabled: boolean): void {
-    this.getStorage().set('enabled', enabled);
+    this._storage.set('enabled', enabled);
   }
 
   setState(state: AutoNavigationState): void {
-    this.getStorage().set('state', state);
+    this._storage.set('state', state);
   }
 
   getState(): AutoNavigationState {
-    return this.getStorage().get('state', AutoNavigationState.Disabled);
+    return this._storage.get('state', AutoNavigationState.Disabled);
   }
 }

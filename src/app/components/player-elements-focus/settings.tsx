@@ -1,10 +1,12 @@
-import { ISettingsReact } from "../../settings/ISettings";
+import { ISettingsReact } from "../../settings-storage/ISettings";
 import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
-import { Api } from "./api";
+import { PlayerElementsFocusApi } from "./api";
+import { injectable } from "inversify";
 
-export class Settings implements ISettingsReact {
-  constructor(private api: Api) {}
+@injectable()
+export class PlayerElementsFocusSettings implements ISettingsReact {
+  constructor(private api: PlayerElementsFocusApi) {}
 
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {

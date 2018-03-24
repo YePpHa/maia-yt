@@ -1,7 +1,7 @@
 import { EventTarget } from './events/EventTarget';
 import { EventHandler } from './events/EventHandler';
 
-export class ElementComponent extends EventTarget {
+export class Component extends EventTarget {
   private _handler?: EventHandler;
   private _inDocument: boolean = false;
 

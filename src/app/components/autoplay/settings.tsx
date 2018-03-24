@@ -1,12 +1,14 @@
-import { ISettingsReact } from "../../settings/ISettings";
+import { ISettingsReact } from "../../settings-storage/ISettings";
 import { h } from 'preact';
 import { Checkbox } from '../../ui/checkbox';
 import { Select } from '../../ui/select';
-import { Api, AutoPlayMode } from "./api";
+import { AutoPlayApi, AutoPlayMode } from "./api";
 import { AutoNavigationState } from "../../youtube/PlayerApi";
+import { injectable } from "inversify";
 
-export class Settings implements ISettingsReact {
-  constructor(private api: Api) {}
+@injectable()
+export class AutoPlaySettings implements ISettingsReact {
+  constructor(private api: AutoPlayApi) {}
 
   getElement(): JSX.Element {
     const onEnableChange = (checked: boolean) => {
