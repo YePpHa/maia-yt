@@ -1,9 +1,9 @@
-import { ServicePort } from '../../libs/messaging/ServicePort';
-import { ElementComponent } from '../../libs/ElementComponent';
+import { ServicePort } from '../libs/messaging/ServicePort';
+import { Component } from '../libs/Component';
 import { PlayerApi, PlayerState, PlaybackQuality } from './PlayerApi';
 import { PlayerListenable, PlayerEvent } from './PlayerListenable';
 import { EventType } from './EventType';
-import { Event } from '../../libs/events/Event';
+import { Event } from '../libs/events/Event';
 import { PlayerData, PlayerConfig } from "./PlayerConfig";
 
 declare interface PlayerApiElement extends Element {
@@ -26,18 +26,25 @@ declare interface VideoDataChangeDetail {
   type: string;
 }
 
-export class Player extends ElementComponent {
+declare interface PlayVideoDetail {
+  listId: string|null;
+  sessionData: {[key: string]: string|boolean|number};
+  videoId: string;
+  watchEndpoint: string|null;
+}
+
+export class Player extends Component {
   private _id: string;
   private _element: Element;
   private _config: PlayerConfig;
   private _port: ServicePort;
 
-  private _api: PlayerApi;
+  private _api?: PlayerApi;
 
   private _youtubeEvents: {[key: string]: Function} = {};
   private _preventDefaultEvents: {[key: string]: boolean} = {};
 
-  private _playerListenable: PlayerListenable;
+  private _playerListenable?: PlayerListenable;
 
   constructor(id: string, element: Element, playerConfig: PlayerConfig, port: ServicePort) {
     super();
@@ -89,7 +96,7 @@ export class Player extends ElementComponent {
         this._removeEventListener(args[0], args[1]);
         return;
       case "destroy":
-        this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.DESTROY);
+        this._fireEvent(new PlayerEvent(null, "destroy", this), EventType.Destroy);
         break;
       case "loadVideoByPlayerVars":
       case "cueVideoByPlayerVars":
@@ -169,9 +176,25 @@ export class Player extends ElementComponent {
       .listen(player, "onLoadProgress", this._handleLoadProgress, false)
       .listen(player, "onVideoProgress", this._handleVideoProgress, false)
       .listen(player, "onReloadRequired", this._handleReloadRequired, false)
-      .listen(player, "onPlayVideo", console.log.bind(console, "onPlayVideo"), false)
+      .listen(player, "onPlayVideo", this._handlePlayVideo, false)
+      .listen(player, "onAutonavCoundownStarted", this._handleAutonavCoundownStarted, false)
       .listen(player, "onPlaylistNext", console.log.bind(console, "onPlaylistNext"), false)
-      .listen(player, "onPlaylistPrevious", console.log.bind(console, "onPlaylistPrevious"), false);
+      .listen(player, "onPlaylistPrevious", console.log.bind(console, "onPlaylistPrevious"), false)
+      .listen(player, "onAdAnnounce", console.log.bind(console, "onAdAnnounce"), false)
+      .listen(player, "onLogClientVeCreated", console.log.bind(console, "onLogClientVeCreated"), false)
+      .listen(player, "onLogServerVeCreated", console.log.bind(console, "onLogServerVeCreated"), false)
+      .listen(player, "onLogVeClicked", console.log.bind(console, "onLogVeClicked"), false)
+      .listen(player, "onLogVesShown", console.log.bind(console, "onLogVesShown"), false)
+      .listen(player, "onPlaShelfInfoCardsReady", console.log.bind(console, "onPlaShelfInfoCardsReady"), false)
+      .listen(player, "onScreenChanged", console.log.bind(console, "onScreenChanged"), false)
+      .listen(player, "onFeedbackStartRequest", console.log.bind(console, "onFeedbackStartRequest"), false)
+      .listen(player, "onFeedbackArticleRequest", console.log.bind(console, "onFeedbackArticleRequest"), false)
+      .listen(player, "onYpcContentRequest", console.log.bind(console, "onYpcContentRequest"), false)
+      .listen(player, "onAutonavChangeRequest", console.log.bind(console, "onAutonavChangeRequest"), false)
+      .listen(player, "onAutonavPauseRequest", console.log.bind(console, "onAutonavPauseRequest"), false)
+      .listen(player, "SUBSCRIBE", console.log.bind(console, "SUBSCRIBE"), false)
+      .listen(player, "UNSUBSCRIBE", console.log.bind(console, "UNSUBSCRIBE"), false)
+      .listen(player, "onYtShowToast", console.log.bind(console, "onYtShowToast"), false);
   }
 
   exitDocument() {
@@ -218,7 +241,7 @@ export class Player extends ElementComponent {
     });
   }
 
-  private _fireEvent(e: PlayerEvent, type: EventType, ...args: any[]) {
+  private _fireEvent(e: Event, type: EventType, ...args: any[]) {
     const preventDefault = this._port.callSync("player#event", this.getId(), type, ...args) as boolean;
 
     if (preventDefault) {
@@ -226,32 +249,32 @@ export class Player extends ElementComponent {
     }
   }
   
-  private _handleOnReady(e: PlayerEvent) {
-    this._fireEvent(e, EventType.READY);
+  private _handleOnReady(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.Ready);
   }
 
-  private _handleStateChange(e: PlayerEvent) {
-    let state = e.detail as PlayerState;
+  private _handleStateChange(e: PlayerEvent<PlayerState>) {
+    let state = e.detail;
 
     let type: EventType;
     switch (state) {
       case -1:
-        type = EventType.UNSTARTED;
+        type = EventType.Unstarted;
         break;
       case 0:
-        type = EventType.ENDED;
+        type = EventType.Ended;
         break;
       case 1:
-        type = EventType.PLAYED;
+        type = EventType.Played;
         break;
       case 2:
-        type = EventType.PAUSED;
+        type = EventType.Paused;
         break;
       case 3:
-        type = EventType.BUFFERING;
+        type = EventType.Buffering;
         break;
       case 5:
-        type = EventType.CUED;
+        type = EventType.Cued;
         break;
       default:
         return;
@@ -260,65 +283,65 @@ export class Player extends ElementComponent {
     this._fireEvent(e, type);
   }
   
-  private _handleVolumeChange(e: PlayerEvent) {
-    let detail = e.detail as VolumeChangeDetail;
-    this._fireEvent(e, EventType.VOLUME_CHANGE, detail.volume, detail.muted);
+  private _handleVolumeChange(e: PlayerEvent<VolumeChangeDetail>) {
+    let detail = e.detail;
+    this._fireEvent(e, EventType.VolumeChange, detail.volume, detail.muted);
   }
     
-  private _handleFullscreenChange(e: PlayerEvent) {
-    let detail = e.detail as FullscreenChangeDetail;
-    this._fireEvent(e, EventType.FULLSCREEN_CHANGE, detail.fullscreen);
+  private _handleFullscreenChange(e: PlayerEvent<FullscreenChangeDetail>) {
+    let detail = e.detail;
+    this._fireEvent(e, EventType.FullscreenChange, detail.fullscreen);
   }
 
-  private _handlePlaybackQualityChange(e: PlayerEvent) {
-    let quality = e.detail as PlaybackQuality;
-    this._fireEvent(e, EventType.QUALITY_CHANGE, quality);
+  private _handlePlaybackQualityChange(e: PlayerEvent<PlaybackQuality>) {
+    let quality = e.detail;
+    this._fireEvent(e, EventType.QualityChange, quality);
   }
 
-  private _handlePlaybackRateChange(e: PlayerEvent) {
-    let rate = e.detail as number;
-    this._fireEvent(e, EventType.RATE_CHANGE, rate);
+  private _handlePlaybackRateChange(e: PlayerEvent<number>) {
+    let rate = e.detail;
+    this._fireEvent(e, EventType.RateChange, rate);
   }
 
-  private _handleApiChange(e: PlayerEvent) {
-    this._fireEvent(e, EventType.API_CHANGE);
+  private _handleApiChange(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.ApiChange);
   }
 
-  private _handleError(e: PlayerEvent) {
-    let errorCode = e.detail as number;
-    this._fireEvent(e, EventType.ERROR, errorCode);
+  private _handleError(e: PlayerEvent<number>) {
+    let errorCode = e.detail;
+    this._fireEvent(e, EventType.Error, errorCode);
   }
   
-  private _handleDetailedError(e: PlayerEvent) {
+  private _handleDetailedError(e: PlayerEvent<any>) {
     console.log("DetailedError", e.detail);
   }
 
-  private _handleSizeClicked(e: PlayerEvent) {
-    this._fireEvent(e, EventType.SIZE_CHANGE, e.detail as boolean);
+  private _handleSizeClicked(e: PlayerEvent<boolean>) {
+    this._fireEvent(e, EventType.SizeChange, e.detail);
   }
   
-  private _handleAdStateChange(e: PlayerEvent) {
-    let state = e.detail as PlayerState;
+  private _handleAdStateChange(e: PlayerEvent<PlayerState>) {
+    let state = e.detail;
     
     let type: EventType;
     switch (state) {
       case -1:
-        type = EventType.AD_UNSTARTED;
+        type = EventType.AdUnstarted;
         break;
       case 0:
-        type = EventType.AD_ENDED;
+        type = EventType.AdEnded;
         break;
       case 1:
-        type = EventType.AD_PLAYED;
+        type = EventType.AdPlayed;
         break;
       case 2:
-        type = EventType.AD_PAUSED;
+        type = EventType.AdPaused;
         break;
       case 3:
-        type = EventType.AD_BUFFERING;
+        type = EventType.AdBuffering;
         break;
       case 5:
-        type = EventType.AD_CUED;
+        type = EventType.AdCued;
         break;
       default:
         return;
@@ -327,74 +350,80 @@ export class Player extends ElementComponent {
     this._fireEvent(e, type);
   }
 
-  private _handleSharePanelOpened(e: PlayerEvent) {
-    this._fireEvent(e, EventType.SHARE_PANEL_OPENED);
+  private _handleSharePanelOpened(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.SharePanelOpened);
   }
 
-  private _handlePlaybackAudioChange(e: PlayerEvent) {
+  private _handlePlaybackAudioChange(e: PlayerEvent<any>) {
     console.log("PlaybackAudioChange", e.detail);
   }
 
-  private _handleVideoDataChange(e: PlayerEvent) {
-    const data = e.detail as VideoDataChangeDetail;
-    this._fireEvent(e, EventType.VIDEO_DATA_CHANGE, data.type, data.playertype);
+  private _handleVideoDataChange(e: PlayerEvent<VideoDataChangeDetail>) {
+    const data = e.detail;
+    this._fireEvent(e, EventType.VideoDataChange, data.type, data.playertype);
   }
   
-  private _handlePlaylistUpdate(e: PlayerEvent) {
-    this._fireEvent(e, EventType.PLAYLIST_UPDATE);
+  private _handlePlaylistUpdate(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.PlaylistUpdate);
   }
   
-  private _handleCueRangeEnter(e: PlayerEvent) {
-    this._fireEvent(e, EventType.CUE_RANGE_ENTER, e.detail);
+  private _handleCueRangeEnter(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.CueRangeEnter, e.detail);
   }
 
-  private _handleCueRangeExit(e: PlayerEvent) {
-    this._fireEvent(e, EventType.CUE_RANGE_EXIT, e.detail);
+  private _handleCueRangeExit(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.CueRangeExit, e.detail);
   }
 
-  private _handleCueRangeMarkersUpdated(e: PlayerEvent) {
+  private _handleCueRangeMarkersUpdated(e: PlayerEvent<any>) {
     console.log("CueRangeMarkersUpdated", e.detail);
   }
 
-  private _handleCueRangesAdded(e: PlayerEvent) {
+  private _handleCueRangesAdded(e: PlayerEvent<any>) {
     console.log("CueRangesAdded", e.detail);
   }
 
-  private _handleCueRangesRemoved(e: PlayerEvent) {
+  private _handleCueRangesRemoved(e: PlayerEvent<any>) {
     console.log("CueRangesRemoved", e.detail);
   }
 
-  private _handleConnectionIssue(e: PlayerEvent) {
-    this._fireEvent(e, EventType.CONNECTION_ISSUE);
+  private _handleConnectionIssue(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.ConnectionIssue);
   }
 
-  private _handleShareClicked(e: PlayerEvent) {
-    this._fireEvent(e, EventType.SHARE_CLICKED);
+  private _handleShareClicked(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.ShareClicked);
   }
 
-  private _handleWatchLaterVideoAdded(e: PlayerEvent) {
+  private _handleWatchLaterVideoAdded(e: PlayerEvent<any>) {
     console.log("WatchLaterVideoAdded", e.detail);
   }
 
-  private _handleWatchLaterVideoRemoved(e: PlayerEvent) {
+  private _handleWatchLaterVideoRemoved(e: PlayerEvent<any>) {
     console.log("WatchLaterVideoRemoved", e.detail);
   }
 
-  private _handleWatchLaterError(e: PlayerEvent) {
+  private _handleWatchLaterError(e: PlayerEvent<any>) {
     console.log("WatchLaterError", e.detail);
   }
 
-  private _handleLoadProgress(e: PlayerEvent) {
-    const progress = e.detail as number;
-    this._fireEvent(e, EventType.LOAD_PROGRESS, progress);
+  private _handleLoadProgress(e: PlayerEvent<number>) {
+    this._fireEvent(e, EventType.LoadProgress, e.detail);
   }
 
-  private _handleVideoProgress(e: PlayerEvent) {
-    const progress = e.detail as number;
-    this._fireEvent(e, EventType.VIDEO_PROGRESS, progress);
+  private _handleVideoProgress(e: PlayerEvent<number>) {
+    this._fireEvent(e, EventType.VideoProgress, e.detail);
   }
 
-  private _handleReloadRequired(e: PlayerEvent) {
-    this._fireEvent(e, EventType.RELOAD_REQUIRED);
+  private _handleReloadRequired(e: PlayerEvent<any>) {
+    this._fireEvent(e, EventType.ReloadRequired);
+  }
+
+  private _handlePlayVideo(e: PlayerEvent<PlayVideoDetail>) {
+    this._fireEvent(e, EventType.PlayVideo, e.detail);
+  }
+
+  private _handleAutonavCoundownStarted(e: PlayerEvent<number>) {
+    this._fireEvent(e, EventType.AutonavCoundownStarted, e.detail);
   }
 }

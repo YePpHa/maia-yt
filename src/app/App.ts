@@ -1,44 +1,46 @@
-import { ElementComponent } from '../libs/ElementComponent';
-import { Channel } from '../libs/messaging/Channel';
-import { ServicePort } from '../libs/messaging/ServicePort';
-import { EventHandler } from '../libs/events/EventHandler';
-import { EventType } from '../libs/messaging/events/EventType';
-import { PortEvent } from '../libs/messaging/events/PortEvent';
+import { Component } from './libs/Component';
+import { Channel } from './libs/messaging/Channel';
+import { ServicePort } from './libs/messaging/ServicePort';
+import { EventHandler } from './libs/events/EventHandler';
+import { EventType } from './libs/messaging/events/EventType';
+import { PortEvent } from './libs/messaging/events/PortEvent';
 import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
 import { EventType as YouTubeEventType } from './youtube/EventType';
 import { IPlayer } from './player/IPlayer';
 import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent, CueRangeEvent, VideoDataChangeEvent } from './youtube/events';
-import { Event } from '../libs/events/Event';
-import { Logger } from '../libs/logging/Logger';
-import { components } from '../components';
-import { ComponentConstructor, Component, setStorage as setComponentStorage } from "../components/Component";
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady } from "../components/IComponent";
-import { Storage } from '../libs/storage/Storage';
-import { BrowserEvent } from '../libs/events/BrowserEvent';
+import { Event } from './libs/events/Event';
+import { Logger } from './libs/logging/Logger';
+import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady, onPlayerDispose } from "./components/IComponent";
+import { Storage } from './libs/storage/Storage';
+import { BrowserEvent } from './libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
 import { spf } from './youtube/spf';
+import container from '../config/inversify.config';
+import { ComponentProvider } from '../config/components.provider';
+import { ApiProvider } from '../config/apis.provider';
+import { SettingsStorage } from './settings-storage/SettingsStorage';
+import { Container } from 'inversify';
 
 const logger = new Logger('App');
 
-export class App extends ElementComponent {
+export class App extends Component {
   private _channel: Channel = new Channel('background');
   private _ports: ServicePort[] = [];
   private _players: {[key: string]: Player} = {};
-  private _components: Component[] = [];
+  private _components: any[] = [];
 
   private _storageLoaded: boolean = false;
   private _storageLoadedListeners: Function[] = [];
+  private _settingsStorages: SettingsStorage[];
 
-  constructor(storage: Storage) {
+  constructor(
+    container: Container
+  ) {
     super();
 
-    setComponentStorage(storage);
-
-    for (let i = 0; i < components.length; i++) {
-      let m = new components[i]();
-      this._components.push(m);
-    }
+    this._components = container.getAll(ComponentProvider);
+    this._settingsStorages = container.getAll(SettingsStorage);
   }
 
   isStorageLoaded(): boolean {
@@ -47,10 +49,12 @@ export class App extends ElementComponent {
 
   async loadStorage(): Promise<void> {
     this._storageLoaded = false;
-    for (let i = 0; i < this._components.length; i++) {
-      logger.debug("Loading storage for " + this._components[i].getApi().getNamespace() + "...");
-      await this._components[i].getApi().updateCache();
+
+    for (let i = 0; i < this._settingsStorages.length; i++) {
+      logger.debug("Loading storage for " + this._settingsStorages[i].getName() + "...");
+      await this._settingsStorages[i].updateCache();
     }
+    
     this._storageLoaded = true;
 
     let fn;
@@ -59,16 +63,12 @@ export class App extends ElementComponent {
     }
   }
 
-  getComponents(): Component[] {
-    return this._components;
-  }
-
   enterDocument() {
     super.enterDocument();
     this._channel.enterDocument();
 
     this.getHandler()
-      .listen(this._channel, EventType.CONNECT, this._handleChannelConnect, false)
+      .listen(this._channel, EventType.Connect, this._handleChannelConnect, false)
       .listen(document.documentElement, "yt-navigate-finish", this._handleNavigateFinish, false)
       .listen(window, "spfdone", this._handleSPFDone, false);
   }
@@ -115,7 +115,11 @@ export class App extends ElementComponent {
     this._components.forEach(m => {
       const instance = (m as any) as onPageNavigationFinish;
       if (typeof instance.onPageNavigationFinish === 'function') {
-        instance.onPageNavigationFinish(pageDetail);
+        try {
+          instance.onPageNavigationFinish(pageDetail);
+        } catch (e) {
+          logger.error(e);
+        }
       }
     });
   }
@@ -133,7 +137,11 @@ export class App extends ElementComponent {
     this._components.forEach(m => {
       const instance = (m as any) as onPageNavigationFinish;
       if (typeof instance.onPageNavigationFinish === 'function') {
-        instance.onPageNavigationFinish(pageDetail);
+        try {
+          instance.onPageNavigationFinish(pageDetail);
+        } catch (e) {
+          logger.error(e);
+        }
       }
     });
   }
@@ -145,7 +153,11 @@ export class App extends ElementComponent {
       this._components.forEach(m => {
         const instance = (m as any) as onPlayerBeforeCreated;
         if (typeof instance.onPlayerBeforeCreated === 'function') {
-          instance.onPlayerBeforeCreated(this._players[id]);
+          try {
+            instance.onPlayerBeforeCreated(this._players[id]);
+          } catch (e) {
+            logger.error(e);
+          }
         }
       });
     }
@@ -160,7 +172,11 @@ export class App extends ElementComponent {
     this._components.forEach(m => {
       const instance = (m as any) as onPlayerCreated;
       if (typeof instance.onPlayerCreated === 'function') {
-        instance.onPlayerCreated(this._players[id]);
+        try {
+          instance.onPlayerCreated(this._players[id]);
+        } catch (e) {
+          logger.error(e);
+        }
       }
     });
 
@@ -171,7 +187,11 @@ export class App extends ElementComponent {
     this._components.forEach(m => {
       const instance = (m as any) as onPlayerReady;
       if (typeof instance.onPlayerReady === 'function') {
-        instance.onPlayerReady(player);
+        try {
+          instance.onPlayerReady(player);
+        } catch (e) {
+          logger.error(e);
+        }
       }
     });
   }
@@ -183,10 +203,18 @@ export class App extends ElementComponent {
       const instanceData = (m as any) as onPlayerData;
 
       if (typeof instanceConfig.onPlayerConfig === 'function') {
-        config = instanceConfig.onPlayerConfig(player, config);
+        try {
+          config = instanceConfig.onPlayerConfig(player, config);
+        } catch (e) {
+          logger.error(e);
+        }
       }
       if (typeof instanceData.onPlayerData === 'function') {
-        config.args = instanceData.onPlayerData(player, config.args);
+        try {
+          config.args = instanceData.onPlayerData(player, config.args);
+        } catch (e) {
+          logger.error(e);
+        }
       }
       player.setData(config.args);
     });
@@ -199,24 +227,45 @@ export class App extends ElementComponent {
     this._components.forEach(m => {
       const instance = (m as any) as onPlayerData;
       if (typeof instance.onPlayerData === 'function') {
-        data = instance.onPlayerData(player, data);
-        player.setData(data);
+        try {
+          data = instance.onPlayerData(player, data);
+          player.setData(data);
+        } catch (e) {
+          logger.error(e);
+        }
       }
     });
 
     return data;
   }
 
-  private _handlePlayerApiCall(player: Player, name: string, ...args: any[]) {
+  private _handlePlayerApiCall(player: Player, name: string, ...args: any[]): onPlayerApiCallResponse|undefined {
     for (let i = 0; i < this._components.length; i++) {
       const instance = (this._components[i] as any) as onPlayerApiCall;
       if (typeof instance.onPlayerApiCall === 'function') {
-        let response = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
-        if (response) return response;
+        try {
+          let response = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
+          if (response) return response;
+        } catch (e) {
+          logger.error(e);
+        }
       }
     }
 
     return undefined;
+  }
+
+  private _handlePlayerDispose(player: Player): void {
+    for (let i = 0; i < this._components.length; i++) {
+      const instance = (this._components[i] as any) as onPlayerDispose;
+      if (typeof instance.onPlayerDispose === 'function') {
+        try {
+          instance.onPlayerDispose(player);
+        } catch (e) {
+          logger.error(e);
+        }
+      }
+    }
   }
 
   /**
@@ -292,23 +341,23 @@ export class App extends ElementComponent {
 
       let evt: Event;
       switch (type) {
-        case YouTubeEventType.QUALITY_CHANGE:
+        case YouTubeEventType.QualityChange:
           evt = new QualityChangeEvent(args[0], player);
           break;
-        case YouTubeEventType.RATE_CHANGE:
+        case YouTubeEventType.RateChange:
           evt = new RateChangeEvent(args[0], player);
           break;
-        case YouTubeEventType.SIZE_CHANGE:
+        case YouTubeEventType.SizeChange:
           evt = new SizeChangeEvent(args[0], player);
           break;
-        case YouTubeEventType.VOLUME_CHANGE:
+        case YouTubeEventType.VolumeChange:
           evt = new VolumeChangeEvent(args[0], args[1], player);
           break;
-        case YouTubeEventType.CUE_RANGE_ENTER:
-        case YouTubeEventType.CUE_RANGE_EXIT:
+        case YouTubeEventType.CueRangeEnter:
+        case YouTubeEventType.CueRangeExit:
           evt = new CueRangeEvent(args[0], type, player);
           break;
-        case YouTubeEventType.VIDEO_DATA_CHANGE:
+        case YouTubeEventType.VideoDataChange:
           evt = new VideoDataChangeEvent(args[0], args[1], player);
           break;
         default:
@@ -316,6 +365,10 @@ export class App extends ElementComponent {
       }
 
       player.dispatchEvent(evt);
+
+      if (type === "destroy") {
+        this._handlePlayerDispose(player);
+      }
 
       return evt.defaultPrevented;
     });

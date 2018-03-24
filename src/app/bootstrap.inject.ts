@@ -1,6 +1,6 @@
-import { wrapFunction } from '../libs/property/observer';
-import { ChannelPort } from '../libs/messaging/ChannelPort';
-import { ServicePort } from '../libs/messaging/ServicePort';
+import { wrapFunction } from './libs/property/observer';
+import { ChannelPort } from './libs/messaging/ChannelPort';
+import { ServicePort } from './libs/messaging/ServicePort';
 import { PlayerFactory } from './youtube/PlayerFactory';
 import { Player } from './youtube/Player';
 import { PlayerConfig, PlayerData, PlayerType } from './youtube/PlayerConfig';
@@ -48,8 +48,8 @@ const handlePlayerUpdate = (playerConfig: PlayerConfig): PlayerConfig => {
   let elementId = playerConfig.attrs.id;
   if (players[elementId]) {
     let playerId = players[elementId].getId();
-    playerConfig = servicePort.callSync("player#update", playerId,
-      playerConfig) as PlayerConfig || playerConfig;
+    playerConfig = (servicePort.callSync("player#update", playerId,
+      playerConfig) as PlayerConfig) || playerConfig;
   }
 
   return playerConfig;
@@ -190,6 +190,7 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
   let elementId = playerConfig.attrs.id;
   let playerId = uuidv4();
   
+  // Wait for any blockers e.g. loading of settings.
   await servicePort.call("settings#ensureLoaded");
 
   // Send a beforecreate event to the core.
@@ -199,7 +200,7 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
 
    // Apply auto-play patch
   if (playerConfig.args.hasOwnProperty("autoplay")) {
-    if (playerConfig.args.el === PlayerType.DETAIL_PAGE || !playerConfig.args.el) {
+    if (playerConfig.args.el === PlayerType.DetailPage || !playerConfig.args.el) {
       applyAutoPlayPatch();
     }
   }

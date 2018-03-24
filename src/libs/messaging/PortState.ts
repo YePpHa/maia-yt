@@ -1,5 +1,0 @@
-export enum PortState {
-  UNINITIALIZED,
-  AWAITING_RESPONSE,
-  CONNECTED
-}

@@ -1,45 +1,45 @@
 import { PlayerData } from './PlayerConfig';
 
 export enum PlayerState {
-  UNSTARTED = -1,
-  ENDED = 0,
-  PLAYING = 1,
-  PAUSED = 2,
-  BUFFERING = 3,
-  CUED = 5
+  Unstarted = -1,
+  Ended = 0,
+  Playing = 1,
+  Paused = 2,
+  Buffering = 3,
+  Cued = 5
 }
 
 export enum AutoNavigationState {
-  DISABLED = 1,
-  ENABLED = 2
+  Disabled = 1,
+  Enabled = 2
 }
 
 export enum PlaybackQuality {
-  AUTO = 'auto',
-  TINY = 'tiny',
-  SMALL = 'small',
-  MEDIUM = 'medium',
-  LARGE = 'large',
+  Auto = 'auto',
+  Tiny = 'tiny',
+  Small = 'small',
+  Medium = 'medium',
+  Large = 'large',
   HD720 = 'hd720',
   HD1080 = 'hd1080',
   HD1440 = 'hd1440',
   HD2160 = 'hd2160',
-  HIGHRES = 'highres'
+  Highres = 'highres'
 }
 
 export module PlaybackQuality {
   export function getValues(): PlaybackQuality[] {
     return [
-      PlaybackQuality.AUTO,
-      PlaybackQuality.TINY,
-      PlaybackQuality.SMALL,
-      PlaybackQuality.MEDIUM,
-      PlaybackQuality.LARGE,
+      PlaybackQuality.Auto,
+      PlaybackQuality.Tiny,
+      PlaybackQuality.Small,
+      PlaybackQuality.Medium,
+      PlaybackQuality.Large,
       PlaybackQuality.HD720,
       PlaybackQuality.HD1080,
       PlaybackQuality.HD1440,
       PlaybackQuality.HD2160,
-      PlaybackQuality.HIGHRES
+      PlaybackQuality.Highres
     ];
   }
 }

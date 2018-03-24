@@ -1,25 +1,31 @@
-import { h, render as pRender } from 'preact';
-import { Component } from '../../components/Component';
-import { onSettingsReactRegister } from '../../components/IComponent';
+import { render, h } from "preact";
+import { injectable, multiInject } from "inversify";
+import { SettingsProvider } from "../../config/settings.provider";
+import { ISettingsReact } from "../settings-storage/ISettings";
 
-export function render(components: Component[]) {
-  let componentCards: JSX.Element[] = [];
-  components.forEach(m => {
-    const instance = (m as any) as onSettingsReactRegister;
-    if (typeof instance.onSettingsReactRegister === 'function') {
-      let settings = instance.onSettingsReactRegister();
-      componentCards.push(settings.getElement());
-    }
-  });
+@injectable()
+export class Settings {
+  private _settings: ISettingsReact[] = [];
 
-  const element = (
-    <div>
-      <h1>Maia Settings</h1>
+  constructor(@multiInject(SettingsProvider) settings: ISettingsReact[]) {
+    this._settings = settings;
+  }
+
+  render() {
+    let componentCards: JSX.Element[] = [];
+    this._settings.forEach(setting => {
+      componentCards.push(setting.getElement());
+    });
+
+    const element = (
       <div>
-        {componentCards}
+        <h1>Maia Settings</h1>
+        <div>
+          {componentCards}
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  pRender(element, document.body);
+    render(element, document.body);
+  }
 }
