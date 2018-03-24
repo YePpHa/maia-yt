@@ -190,6 +190,7 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
   let elementId = playerConfig.attrs.id;
   let playerId = uuidv4();
   
+  // Wait for any blockers e.g. loading of settings.
   await servicePort.call("settings#ensureLoaded");
 
   // Send a beforecreate event to the core.
