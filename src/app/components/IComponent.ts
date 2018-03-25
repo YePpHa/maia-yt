@@ -31,10 +31,6 @@ export interface onPageNavigationFinish {
   onPageNavigationFinish(detail: PageNavigationDetail): void;
 }
 
-export interface onSettingsReactRegister {
-  onSettingsReactRegister(): ISettingsReact;
-}
-
 export interface onPlayerApiCall {
   onPlayerApiCall(player: Player, name: string, ...args: any[]): onPlayerApiCallResponse|undefined|void;
 }

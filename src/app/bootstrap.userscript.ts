@@ -44,8 +44,10 @@ const run = async () => {
     app.enterDocument();
   
     injectJS(injectModule);
+
+    const settingsBasePath = "/settings/maia";
   
-    if (location.hostname === "www.youtube.com" && location.pathname === "/settings/maia") {
+    if (location.hostname === "www.youtube.com" && location.pathname.substring(0, settingsBasePath.length) === settingsBasePath) {
       let handler = new EventHandler();
       handler.listen(document, "readystatechange", () => {
         switch (document.readyState) {
@@ -55,7 +57,7 @@ const run = async () => {
             document.body.innerHTML = "";
             document.head.innerHTML = "";
             const settings = container.get<Settings>(Settings);
-            settings.render();
+            settings.render(settingsBasePath);
             break;
         }
       });

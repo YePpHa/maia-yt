@@ -1,7 +1,6 @@
-import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
+import { onPlayerCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { Player } from "../../player/Player";
 import { ISettingsReact } from "../../settings-storage/ISettings";
-import { PlayerElementsFocusSettings as SettingsReact } from './settings';
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { PlayerElementsFocusApi } from "./api";
@@ -17,7 +16,7 @@ const BLACKLISTED_TAGNAMES: string[] = ["INPUT", "SELECT", "TEXTAREA", "EMBED"];
  * it will outline the clicked element and that element will then have focus.
  */
 @injectable()
-export class PlayerElementsFocusComponent implements onPlayerCreated, onSettingsReactRegister {
+export class PlayerElementsFocusComponent implements onPlayerCreated {
   private _api: PlayerElementsFocusApi;
   
   constructor(api: PlayerElementsFocusApi) {
@@ -77,9 +76,5 @@ export class PlayerElementsFocusComponent implements onPlayerCreated, onSettings
 
     // Make sure to dispose of the handler when the player is disposed.
     player.addOnDisposeCallback(() => handler.dispose());
-  }
-  
-  onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this._api);
   }
 }

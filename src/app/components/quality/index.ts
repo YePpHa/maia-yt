@@ -1,10 +1,9 @@
-import { onPlayerData, onSettingsReactRegister, onPlayerCreated, onPlayerReady, onPlayerDispose, onPlayerBeforeCreated } from "../IComponent";
+import { onPlayerData, onPlayerCreated, onPlayerReady, onPlayerDispose, onPlayerBeforeCreated } from "../IComponent";
 import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
 import { ISettingsReact } from "../../settings-storage/ISettings";
-import { QualitySettings as SettingsReact } from './settings';
 import { QualityApi } from "./api";
 import { PlaybackQuality } from "../../youtube/PlayerApi";
 import { injectable } from "inversify";
@@ -13,7 +12,7 @@ import { Disposable } from "../../libs/Disposable";
 const logger = new Logger("QualityComponent");
 
 @injectable()
-export class QualityComponent implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose, onSettingsReactRegister {
+export class QualityComponent implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose {
   private _api: QualityApi;
   private _players: {[key: string]: PlayerQuality} = {};
 
@@ -56,10 +55,6 @@ export class QualityComponent implements onPlayerBeforeCreated, onPlayerCreated,
     if (!this._players.hasOwnProperty(id))
       throw new Error("Player not found in component");
     return this._players[id].onData(data);
-  }
-
-  onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this._api);
   }
 }
 

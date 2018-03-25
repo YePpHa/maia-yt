@@ -1,17 +1,16 @@
-import { onPlayerCreated, onSettingsReactRegister, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
+import { onPlayerCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
 import { PlayerData } from "../../youtube/PlayerConfig";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
 import { ISettingsReact } from "../../settings-storage/ISettings";
-import { AutoNavigationSettings as SettingsReact } from './settings';
 import { AutoNavigationApi } from "./api";
 import { AutoNavigationState } from "../../youtube/PlayerApi";
 import { injectable } from "inversify";
 const logger = new Logger("AutoNavigationComponent");
 
 @injectable()
-export class AutoNavigationComponent implements onPlayerCreated, onSettingsReactRegister, onPlayerApiCall {
+export class AutoNavigationComponent implements onPlayerCreated, onPlayerApiCall {
   private _autoNavigationCalls: {[key: string]: number} = {};
   private _api: AutoNavigationApi;
 
@@ -50,9 +49,5 @@ export class AutoNavigationComponent implements onPlayerCreated, onSettingsReact
       player.setAutoNavigationState(api.getState());
     }
     this._autoNavigationCalls[id] = 0;
-  }
-
-  onSettingsReactRegister(): ISettingsReact {
-    return new SettingsReact(this._api);
   }
 }

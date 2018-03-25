@@ -1,0 +1,25 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.main {
+  padding-left: 16px;
+  flex: 1 1 100%;
+}
+
+.select-container {
+  margin: 0 0 11px 11px;
+}
+
+.select {
+  min-width: 280px;
+}

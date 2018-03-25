@@ -21,11 +21,36 @@ const config = {
         use: {
           loader: 'ts-loader',
           options: {
-            transpileOnly: production
+            transpileOnly: false
           }
         }
       },
-      { test: /webpack\..+\.config\.js$/, use: 'webpack-loader' }
+      { test: /webpack\..+\.config\.js$/, use: 'webpack-loader' },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader/useable',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true
+            }
+          },
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader/useable',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: false
+            }
+          }
+        ]
+      }
     ]
   },
   plugins: []
