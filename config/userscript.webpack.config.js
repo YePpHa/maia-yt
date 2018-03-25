@@ -63,7 +63,7 @@ const config = merge(common, {
   },
   plugins: [
     new WrapperPlugin({
-      test: /\.js$/,
+      test: /\.user\.js$/,
       header: generateMetadataBlock(metadata)
     })
   ]
