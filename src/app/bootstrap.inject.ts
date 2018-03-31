@@ -208,8 +208,6 @@ const handlePlayerCreate = async (playerFactory: PlayerFactory, playerConfig: Pl
   let playerApp = null;
   if (fn) {
     playerApp = fn(playerConfig);
-
-
   }
   const playerData = getPlayerData(playerApp);
   let playerInstance = getPlayerApi(playerApp);
@@ -279,9 +277,7 @@ servicePort.addOnDisposeCallback(
     async (fn: Function, self, args) => {
       await win.yt.player!.Application!.create!("player-api", win.ytplayer.config);
       win.ytplayer.config!.loaded = true;
-    },
-    undefined,
-    true
+    }
   )
 );
 
@@ -295,9 +291,7 @@ servicePort.addOnDisposeCallback(
         playerConfig,
         fn.bind(self, args[0])
       );
-    },
-    undefined,
-    true
+    }
   )
 );
 

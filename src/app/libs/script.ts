@@ -1,5 +1,18 @@
-const injectScriptElement = (element: HTMLScriptElement) => {
-  if (document.body) {
+const injectScriptElement = (element: HTMLScriptElement, onload?: Function) => {
+  if (onload) {
+    element.onload = () => onload();
+    (element as any).onreadystatechange = () => {
+      switch ((element as any).readyState) {
+        case "loaded":
+        case "complete":
+        onload();
+      }
+    };
+  }
+
+  if (document.currentScript && document.currentScript.parentNode) {
+    document.currentScript.parentNode.insertBefore(element, document.currentScript);
+  } else if (document.body) {
     document.body.appendChild(element);
   } else if (document.head) {
     document.head.appendChild(element);
@@ -19,7 +32,7 @@ export function injectJS(code: string): HTMLScriptElement {
   let el: HTMLScriptElement = document.createElement('script');
   el.setAttribute('type', 'text/javascript');
   el.appendChild(document.createTextNode(code));
-
+  
   injectScriptElement(el);
 
   return el;
@@ -46,9 +59,8 @@ export function injectFunction(fn: Function, ...args: any[]): HTMLScriptElement 
 export function injectJSFile(file: string): HTMLScriptElement {
   let el: HTMLScriptElement = document.createElement('script');
   el.setAttribute('type', 'text/javascript');
-  el.setAttribute('src', file);
-
   injectScriptElement(el);
+  el.setAttribute('src', file);
 
   return el;
 }
