@@ -44,7 +44,7 @@
     "@types/jasmine": "^2.8.6",
     "@types/sprintf-js": "^1.1.0",
     "@types/uuid": "^3.4.1",
-    "archiver": "^2.1.0",
+    "archiver": "^3.0.0",
     "async": "^2.5.0",
     "cross-env": "^5.1.1",
     "css-loader": "^0.28.11",
