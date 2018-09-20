@@ -299,9 +299,9 @@
   version "0.0.28"
   resolved "https://registry.yarnpkg.com/@types/greasemonkey/-/greasemonkey-0.0.28.tgz#bb03070b334964836343e00d264bd0ecff9ec60d"
 
-"@types/i18next@^8.4.1":
-  version "8.4.1"
-  resolved "https://registry.yarnpkg.com/@types/i18next/-/i18next-8.4.1.tgz#8aebc08c757167105d1fefa8fbd1b89942e5f40e"
+"@types/i18next@^11.9.0":
+  version "11.9.0"
+  resolved "https://registry.yarnpkg.com/@types/i18next/-/i18next-11.9.0.tgz#e3781b5b6a923902c63e61d09b98881999a4eb88"
 
 "@types/immutable@^3.8.7":
   version "3.8.7"
