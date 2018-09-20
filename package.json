@@ -39,7 +39,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/greasemonkey": "^0.0.28",
-    "@types/i18next": "^8.4.1",
+    "@types/i18next": "^11.9.0",
     "@types/immutable": "^3.8.7",
     "@types/jasmine": "^2.8.6",
     "@types/sprintf-js": "^1.1.0",
