@@ -41,7 +41,7 @@
     "@types/greasemonkey": "^0.0.28",
     "@types/i18next": "^8.4.1",
     "@types/immutable": "^3.8.7",
-    "@types/jasmine": "^2.8.6",
+    "@types/jasmine": "^3.0.0",
     "@types/sprintf-js": "^1.1.0",
     "@types/uuid": "^3.4.1",
     "archiver": "^2.1.0",
