@@ -68,7 +68,7 @@
     "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
     "webpack": "^4.0.0",
     "webpack-cli": "^2.0.9",
-    "wrapper-webpack-plugin": "^1.0.0"
+    "wrapper-webpack-plugin": "^2.1.0"
   },
   "dependencies": {
     "i18next": "^10.0.0",
