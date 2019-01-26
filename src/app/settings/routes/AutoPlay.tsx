@@ -9,6 +9,8 @@ import { AutoPlayApi, AutoPlayMode } from "../../components/autoplay/api";
 
 import * as style from '../../../style/settings.scss';
 
+type SelectOnChangeEvent = Event & {target: EventTarget & {selectedIndex: number}};
+
 export class AutoPlay extends Component<IContainerProps, {}> {
   private _api?: AutoPlayApi;
 
@@ -47,14 +49,14 @@ export class AutoPlay extends Component<IContainerProps, {}> {
     this.showSnackbar();
   }
 
-  onModeChange(e: { selectedIndex: number; selectedOptions: NodeListOf<Element> }): void {
-    this.getApi().setMode(e.selectedIndex === 0 ? AutoPlayMode.Pause : AutoPlayMode.Stop);
+  onModeChange(e: SelectOnChangeEvent): void {
+    this.getApi().setMode(e.target.selectedIndex === 0 ? AutoPlayMode.Pause : AutoPlayMode.Stop);
 
     this.showSnackbar();
   }
 
-  onChannelModeChange(e: { selectedIndex: number; selectedOptions: NodeListOf<Element> }): void {
-    this.getApi().setChannelMode(e.selectedIndex === 0 ? AutoPlayMode.Pause : AutoPlayMode.Stop);
+  onChannelModeChange(e: SelectOnChangeEvent): void {
+    this.getApi().setChannelMode(e.target.selectedIndex === 0 ? AutoPlayMode.Pause : AutoPlayMode.Stop);
 
     this.showSnackbar();
   }
@@ -63,8 +65,8 @@ export class AutoPlay extends Component<IContainerProps, {}> {
     const onEnableChange = (e: Event) => this.onEnableChange(e);
     const onEnableChannelsChange = (e: Event) => this.onEnableChannelsChange(e);
     
-    const onModeChange = (e: { selectedIndex: number; selectedOptions: NodeListOf<Element> }) => this.onModeChange(e);
-    const onChannelModeChange = (e: { selectedIndex: number; selectedOptions: NodeListOf<Element> }) => this.onChannelModeChange(e);
+    const onModeChange = (e: SelectOnChangeEvent) => this.onModeChange(e);
+    const onChannelModeChange = (e: SelectOnChangeEvent) => this.onChannelModeChange(e);
 
     const api = this.getApi();
 

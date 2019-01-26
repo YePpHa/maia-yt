@@ -1,6 +1,5 @@
-import { onPlayerCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
+import { onPlayerCreated } from "../IComponent";
 import { Player } from "../../player/Player";
-import { ISettingsReact } from "../../settings-storage/ISettings";
 import { Logger } from "../../libs/logging/Logger";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { PlayerElementsFocusApi } from "./api";

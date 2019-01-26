@@ -3,7 +3,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "commonjs",
-    "declaration": true,
+    "declaration": false,
     "noEmitOnError": true,
     "target": "es5",
     "lib": ["es5", "es6", "es2015.collection", "es2015.iterable", "dom"],
