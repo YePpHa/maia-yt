@@ -46,7 +46,7 @@ export class BrowserEvent extends MyEvent {
     let touchEvent = event as TouchEvent;
     let relevantTouch: Touch|undefined = (touchEvent.changedTouches ? touchEvent.changedTouches[0] : undefined);
     
-    this.target = event.target || event.srcElement;
+    this.target = event.target || event.srcElement || undefined;
   
     this.currentTarget = currentTarget;
   

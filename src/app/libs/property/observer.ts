@@ -35,7 +35,7 @@ export function wrapFunction<T>(parent: any, property: string|string[], wrapperF
       let valueWrapper: Function;
       if (isWrappedProperty) {
         valueWrapper = function(this: any, ...args: any[]) {
-          return wrapperFn.call(scope, value, this, args, otherValues);
+          return wrapperFn.call(scope as T, value, this, args, otherValues);
         };
       }
 

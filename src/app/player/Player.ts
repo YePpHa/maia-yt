@@ -38,7 +38,7 @@ export class Player extends EventTarget implements IPlayer {
     return this._port.callSync("player#loaded", this._id, loaded);
   }
 
-  triggerKeyDown(keyCode: number, bubbles: boolean): void {
+  triggerKeyDown(keyCode: number, bubbles: boolean): boolean {
     return this._port.callSync("player#events#keydown", this._id, keyCode, bubbles);
   }
 

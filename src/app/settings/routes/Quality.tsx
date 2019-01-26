@@ -10,6 +10,8 @@ import { PlaybackQuality } from "../../youtube/PlayerApi";
 
 import * as style from '../../../style/settings.scss';
 
+type SelectOnChangeEvent = Event & {target: EventTarget & {selectedIndex: number}};
+
 const qualityOptions: { value: PlaybackQuality, text: string }[] = [
   { value: PlaybackQuality.Auto, text: 'Auto' },
   { value: PlaybackQuality.Highres, text: 'Highres' },
@@ -61,8 +63,8 @@ export class Quality extends Component<IContainerProps, {}> {
     this.showSnackbar();
   }
 
-  onQualityChange(e: { selectedIndex: number; selectedOptions: NodeListOf<Element> }): void {
-    this.getApi().setQuality(qualityOptions[e.selectedIndex].value);
+  onQualityChange(e: SelectOnChangeEvent): void {
+    this.getApi().setQuality(qualityOptions[e.target.selectedIndex].value);
 
     this.showSnackbar();
   }
@@ -71,7 +73,7 @@ export class Quality extends Component<IContainerProps, {}> {
     const onEnableChange = (e: Event) => this.onEnableChange(e);
     const onPreferHigherQuality = (e: Event) => this.onPreferHigherQuality(e);
     
-    const onQualityChange = (e: { selectedIndex: number; selectedOptions: NodeListOf<Element> }) => this.onQualityChange(e);
+    const onQualityChange = (e: SelectOnChangeEvent) => this.onQualityChange(e);
 
     const api = this.getApi();
 

@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const production = process.env.NODE_ENV === 'production';
 
@@ -19,14 +19,34 @@ const config = {
   module: {
     rules: [
       {
+        test: /\.jsx?$/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    forceAllTransforms: true
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: false
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: false
+            }
           }
-        }
+        ]
       },
       { test: /webpack\..+\.config\.js$/, use: 'webpack-loader' },
       {
@@ -60,7 +80,7 @@ const config = {
 };
 
 if (production) {
-  config.plugins.unshift(new UglifyJSPlugin());
+  config.plugins.unshift(new UglifyJsPlugin());
 } else {
   config.devtool = 'inline-source-map';
 }

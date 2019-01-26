@@ -1,6 +1,5 @@
 import { render, h, Component } from "preact";
-import { injectable, multiInject, Container } from "inversify";
-import { ISettingsReact } from "../settings-storage/ISettings";
+import { injectable, Container } from "inversify";
 
 import Router from 'preact-router';
 
@@ -35,7 +34,7 @@ export class Settings {
 
     const element = (
       <div>
-        <TopAppBar>
+        <TopAppBar onNav={() => {}}>
           <TopAppBar.Row>
             <TopAppBar.Section align-start>
               <TopAppBar.Title>
@@ -45,7 +44,7 @@ export class Settings {
           </TopAppBar.Row>
         </TopAppBar>
         <div class={style.locals.content}>
-          <Drawer.PermanentDrawer>
+          <Drawer>
             <Drawer.DrawerContent>
               <List>
                 {routes.map(({text, path}) => (
@@ -53,7 +52,7 @@ export class Settings {
                 ))}
               </List>
             </Drawer.DrawerContent>
-          </Drawer.PermanentDrawer>
+          </Drawer>
           <main class={style.locals.main}>
             <Router>
               {routes.map(({component: Element, path}) => (
