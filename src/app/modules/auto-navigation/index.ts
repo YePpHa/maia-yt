@@ -1,16 +1,12 @@
-import { onPlayerCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../IComponent";
+import { onPlayerCreated, onPlayerApiCall, onPlayerApiCallResponse } from "../IModule";
 import { PlayerData } from "../../youtube/PlayerConfig";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
-import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings-storage/ISettings";
 import { AutoNavigationApi } from "./api";
 import { AutoNavigationState } from "../../youtube/PlayerApi";
-import { injectable } from "inversify";
-const logger = new Logger("AutoNavigationComponent");
+const logger = new Logger("AutoNavigationModule");
 
-@injectable()
-export class AutoNavigationComponent implements onPlayerCreated, onPlayerApiCall {
+export class AutoNavigationModule implements onPlayerCreated, onPlayerApiCall {
   private _autoNavigationCalls: {[key: string]: number} = {};
   private _api: AutoNavigationApi;
 

@@ -1,18 +1,15 @@
-import { onPlayerData, onPlayerCreated, onPlayerReady, onPlayerDispose, onPlayerBeforeCreated } from "../IComponent";
-import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
+import { onPlayerData, onPlayerCreated, onPlayerReady, onPlayerDispose, onPlayerBeforeCreated } from "../IModule";
+import { PlayerData } from "../../youtube/PlayerConfig";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
 import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings-storage/ISettings";
 import { QualityApi } from "./api";
 import { PlaybackQuality } from "../../youtube/PlayerApi";
-import { injectable } from "inversify";
 import { EventHandler } from "../../libs/events/EventHandler";
 import { Disposable } from "../../libs/Disposable";
-const logger = new Logger("QualityComponent");
+const logger = new Logger("QualityModule");
 
-@injectable()
-export class QualityComponent implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose {
+export class QualityModule implements onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData, onPlayerDispose {
   private _api: QualityApi;
   private _players: {[key: string]: PlayerQuality} = {};
 

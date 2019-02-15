@@ -1,13 +1,15 @@
 import { PlayerConfig, PlayerData } from "../youtube/PlayerConfig";
 import { Player } from "../player/Player";
 import { PageNavigationDetail } from "../youtube/PageNavigationDetail";
-import { ISettingsReact } from "../settings-storage/ISettings";
 
 export interface onPlayerConfig {
   onPlayerConfig(player: Player, config: PlayerConfig): PlayerConfig;
 }
 
 export interface onPlayerDispose {
+  /**
+   * Dispose all references to player
+   */
   onPlayerDispose(player: Player): void;
 }
 

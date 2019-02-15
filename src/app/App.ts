@@ -1,26 +1,23 @@
 import { Component } from './libs/Component';
 import { Channel } from './libs/messaging/Channel';
 import { ServicePort } from './libs/messaging/ServicePort';
-import { EventHandler } from './libs/events/EventHandler';
 import { EventType } from './libs/messaging/events/EventType';
 import { PortEvent } from './libs/messaging/events/PortEvent';
 import { PlayerConfig, PlayerData } from './youtube/PlayerConfig';
 import { EventType as YouTubeEventType } from './youtube/EventType';
-import { IPlayer } from './player/IPlayer';
 import { Player } from './player/Player';
 import { QualityChangeEvent, RateChangeEvent, SizeChangeEvent, VolumeChangeEvent, CueRangeEvent, VideoDataChangeEvent } from './youtube/events';
 import { Event } from './libs/events/Event';
 import { Logger } from './libs/logging/Logger';
-import { onPlayerConfig, onPlayerCreated, onPlayerData, onPageNavigationFinish, onPlayerBeforeCreated, onPlayerApiCall, onPlayerApiCallResponse, onPlayerReady, onPlayerDispose } from "./components/IComponent";
-import { Storage } from './libs/storage/Storage';
+import {
+  onPlayerApiCallResponse, onPlayerConfig, onPlayerDispose,
+  onPlayerBeforeCreated, onPlayerCreated, onPlayerReady, onPlayerData,
+  onPlayerApiCall, onPageNavigationFinish
+} from "./modules/IModule";
 import { BrowserEvent } from './libs/events/BrowserEvent';
 import { PageNavigationDetail } from './youtube/PageNavigationDetail';
 import { spf } from './youtube/spf';
-import container from '../config/inversify.config';
-import { ComponentProvider } from '../config/components.provider';
-import { ApiProvider } from '../config/apis.provider';
-import { SettingsStorage } from './settings-storage/SettingsStorage';
-import { Container } from 'inversify';
+import { ISettingsStorage } from './settings-storage/ISettingsStorage';
 
 const logger = new Logger('App');
 
@@ -28,19 +25,43 @@ export class App extends Component {
   private _channel: Channel = new Channel('background');
   private _ports: ServicePort[] = [];
   private _players: {[key: string]: Player} = {};
-  private _components: any[] = [];
+
+  private _playerConfig: onPlayerConfig[];
+  private _playerDispose: onPlayerDispose[];
+  private _playerBeforeCreated: onPlayerBeforeCreated[];
+  private _playerCreated: onPlayerCreated[];
+  private _playerReady: onPlayerReady[];
+  private _playerData: onPlayerData[];
+  private _playerApiCall: onPlayerApiCall[];
+  private _pageNavigationFinish: onPageNavigationFinish[];
 
   private _storageLoaded: boolean = false;
   private _storageLoadedListeners: Function[] = [];
-  private _settingsStorages: SettingsStorage[];
+  private _settingsStorages: ISettingsStorage[];
 
   constructor(
-    container: Container
+    playerConfig: onPlayerConfig[],
+    playerDispose: onPlayerDispose[],
+    playerBeforeCreated: onPlayerBeforeCreated[],
+    playerCreated: onPlayerCreated[],
+    playerReady: onPlayerReady[],
+    playerData: onPlayerData[],
+    playerApiCall: onPlayerApiCall[],
+    pageNavigationFinish: onPageNavigationFinish[],
+    settingsStorages: ISettingsStorage[]
   ) {
     super();
 
-    this._components = container.getAll(ComponentProvider);
-    this._settingsStorages = container.getAll(SettingsStorage);
+    this._playerConfig = playerConfig;
+    this._playerDispose = playerDispose;
+    this._playerBeforeCreated = playerBeforeCreated;
+    this._playerCreated = playerCreated;
+    this._playerReady = playerReady;
+    this._playerData = playerData;
+    this._playerApiCall = playerApiCall;
+    this._pageNavigationFinish = pageNavigationFinish;
+
+    this._settingsStorages = settingsStorages;
   }
 
   isStorageLoaded(): boolean {
@@ -51,7 +72,7 @@ export class App extends Component {
     this._storageLoaded = false;
 
     for (let i = 0; i < this._settingsStorages.length; i++) {
-      logger.debug("Loading storage for " + this._settingsStorages[i].getName() + "...");
+      logger.debug("Loading storage for " + this._settingsStorages[i].constructor.name + "...");
       await this._settingsStorages[i].updateCache();
     }
     
@@ -112,14 +133,11 @@ export class App extends Component {
 
     logger.debug("PageNavigationFinish - " + pageDetail.pageType + " - " + (pageDetail.fromHistory ? "true" : "false"));
 
-    this._components.forEach(m => {
-      const instance = (m as any) as onPageNavigationFinish;
-      if (typeof instance.onPageNavigationFinish === 'function') {
-        try {
-          instance.onPageNavigationFinish(pageDetail);
-        } catch (e) {
-          logger.error(e);
-        }
+    this._pageNavigationFinish.forEach(instance => {
+      try {
+        instance.onPageNavigationFinish(pageDetail);
+      } catch (e) {
+        logger.error(e);
       }
     });
   }
@@ -134,14 +152,11 @@ export class App extends Component {
 
     logger.debug("PageNavigationFinish - " + pageDetail.pageType + " - " + (pageDetail.fromHistory ? "true" : "false"));
 
-    this._components.forEach(m => {
-      const instance = (m as any) as onPageNavigationFinish;
-      if (typeof instance.onPageNavigationFinish === 'function') {
-        try {
-          instance.onPageNavigationFinish(pageDetail);
-        } catch (e) {
-          logger.error(e);
-        }
+    this._pageNavigationFinish.forEach(instance => {
+      try {
+        instance.onPageNavigationFinish(pageDetail);
+      } catch (e) {
+        logger.error(e);
       }
     });
   }
@@ -150,16 +165,13 @@ export class App extends Component {
     if (!this._players.hasOwnProperty(id)) {
       this._players[id] = new Player(id, elementId, port);
 
-      this._components.forEach(m => {
-        const instance = (m as any) as onPlayerBeforeCreated;
-        if (typeof instance.onPlayerBeforeCreated === 'function') {
-          try {
-            instance.onPlayerBeforeCreated(this._players[id]);
-          } catch (e) {
-            logger.error(e);
-          }
+      for (const instance of this._playerBeforeCreated) {
+        try {
+          instance.onPlayerBeforeCreated(this._players[id]);
+        } catch (e) {
+          logger.error(e);
         }
-      });
+      }
     }
 
     return this._players[id];
@@ -169,86 +181,73 @@ export class App extends Component {
     if (!this._players.hasOwnProperty(id))
       throw new Error("Player with " + id + " has not been created.");
 
-    this._components.forEach(m => {
-      const instance = (m as any) as onPlayerCreated;
-      if (typeof instance.onPlayerCreated === 'function') {
-        try {
-          instance.onPlayerCreated(this._players[id]);
-        } catch (e) {
-          logger.error(e);
-        }
+    for (const instance of this._playerCreated) {
+      try {
+        instance.onPlayerCreated(this._players[id]);
+      } catch (e) {
+        logger.error(e);
       }
-    });
+    }
 
     return this._players[id];
   }
 
   private _handleOnPlayerReady(player: Player): void {
-    this._components.forEach(m => {
-      const instance = (m as any) as onPlayerReady;
-      if (typeof instance.onPlayerReady === 'function') {
-        try {
-          instance.onPlayerReady(player);
-        } catch (e) {
-          logger.error(e);
-        }
+    for (const instance of this._playerReady) {
+      try {
+        instance.onPlayerReady(player);
+      } catch (e) {
+        logger.error(e);
       }
-    });
+    }
   }
   
   private _handleUpdatePlayerConfig(player: Player, config: PlayerConfig): PlayerConfig {
     player.setData(config.args);
-    this._components.forEach(m => {
-      const instanceConfig = (m as any) as onPlayerConfig;
-      const instanceData = (m as any) as onPlayerData;
 
-      if (typeof instanceConfig.onPlayerConfig === 'function') {
-        try {
-          config = instanceConfig.onPlayerConfig(player, config);
-        } catch (e) {
-          logger.error(e);
-        }
+    for (const instance of this._playerConfig) {
+      try {
+        config = instance.onPlayerConfig(player, config);
+        player.setData(config.args);
+      } catch (e) {
+        logger.error(e);
       }
-      if (typeof instanceData.onPlayerData === 'function') {
-        try {
-          config.args = instanceData.onPlayerData(player, config.args);
-        } catch (e) {
-          logger.error(e);
-        }
+    }
+
+    for (const instance of this._playerData) {
+      try {
+        config.args = instance.onPlayerData(player, config.args);
+        player.setData(config.args);
+      } catch (e) {
+        logger.error(e);
       }
-      player.setData(config.args);
-    });
+    }
 
     return config;
   }
   
   private _handleUpdatePlayerData(player: Player, data: PlayerData): PlayerData {
     player.setData(data);
-    this._components.forEach(m => {
-      const instance = (m as any) as onPlayerData;
-      if (typeof instance.onPlayerData === 'function') {
-        try {
-          data = instance.onPlayerData(player, data);
-          player.setData(data);
-        } catch (e) {
-          logger.error(e);
-        }
+
+    for (const instance of this._playerData) {
+      try {
+        data = instance.onPlayerData(player, data);
+        player.setData(data);
+      } catch (e) {
+        logger.error(e);
       }
-    });
+    }
 
     return data;
   }
 
   private _handlePlayerApiCall(player: Player, name: string, ...args: any[]): onPlayerApiCallResponse|undefined {
-    for (let i = 0; i < this._components.length; i++) {
-      const instance = (this._components[i] as any) as onPlayerApiCall;
-      if (typeof instance.onPlayerApiCall === 'function') {
-        try {
-          let response = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
-          if (response) return response;
-        } catch (e) {
-          logger.error(e);
-        }
+    for (const instance of this._playerApiCall) {
+      try {
+        let response = instance.onPlayerApiCall(player, name, ...args) as onPlayerApiCallResponse|undefined;
+        if (response) return response;
+      } catch (e) {
+        logger.error(e);
       }
     }
 
@@ -256,14 +255,11 @@ export class App extends Component {
   }
 
   private _handlePlayerDispose(player: Player): void {
-    for (let i = 0; i < this._components.length; i++) {
-      const instance = (this._components[i] as any) as onPlayerDispose;
-      if (typeof instance.onPlayerDispose === 'function') {
-        try {
-          instance.onPlayerDispose(player);
-        } catch (e) {
-          logger.error(e);
-        }
+    for (const instance of this._playerDispose) {
+      try {
+        instance.onPlayerDispose(player);
+      } catch (e) {
+        logger.error(e);
       }
     }
   }
@@ -378,10 +374,18 @@ export class App extends Component {
     super.disposeInternal();
 
     this._channel.dispose();
-    this._ports.forEach(port => port.dispose());
-    this._components.forEach(m => m.dispose());
 
+    for (const port of this._ports) {
+      port.dispose();
+    }
     this._ports = [];
-    this._components = [];
+
+    for (const impl of this._playerDispose) {
+      const playerIds = Object.keys(this._players);
+      for (const id of playerIds) {
+        impl.onPlayerDispose(this._players[id]);
+      }
+    }
+    this._players = {};
   }
 }

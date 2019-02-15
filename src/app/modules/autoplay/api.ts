@@ -1,16 +1,13 @@
-import { AutoNavigationState } from "../../youtube/PlayerApi";
 import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
-import { SettingsStorage } from "../../settings-storage/SettingsStorage";
-import { injectable } from "inversify";
+import { ISettingsStorage } from "../../settings-storage/ISettingsStorage";
 
 export enum AutoPlayMode {
   Pause = "pause",
   Stop = "stop"
 }
 
-@injectable()
 export class AutoPlayApi {
-  private _storage: SettingsStorage;
+  private _storage: ISettingsStorage;
 
   constructor(storageFactory: SettingsStorageFactory) {
     this._storage = storageFactory.createStorage("AutoPlay");

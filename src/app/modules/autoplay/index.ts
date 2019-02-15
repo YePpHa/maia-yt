@@ -1,16 +1,11 @@
-import { onPlayerCreated, onPlayerData, onPlayerApiCall, onPlayerApiCallResponse, onPlayerDispose } from "../IComponent";
-import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
+import { onPlayerCreated, onPlayerData, onPlayerApiCall, onPlayerApiCallResponse, onPlayerDispose } from "../IModule";
+import { PlayerData } from "../../youtube/PlayerConfig";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
-import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings-storage/ISettings";
 import { AutoPlayApi, AutoPlayMode } from "./api";
-import { FlagsParser } from "../../youtube/FlagsParser";
-import { injectable } from "inversify";
-const logger = new Logger("AutoPlayComponent");
+const logger = new Logger("AutoPlayModule");
 
-@injectable()
-export class AutoPlayComponent implements onPlayerCreated, onPlayerData, onPlayerApiCall, onPlayerDispose {
+export class AutoPlayModule implements onPlayerCreated, onPlayerData, onPlayerApiCall, onPlayerDispose {
   private _api: AutoPlayApi;
 
   // Ready variable to prevent loadVideoByPlayerVars from being called due to
@@ -25,8 +20,6 @@ export class AutoPlayComponent implements onPlayerCreated, onPlayerData, onPlaye
     const api = this._api;
     const enabled: boolean = api.isEnabled();
     const detailPage: boolean = player.isDetailPage();
-
-    const id: string = player.getId();
 
     if (detailPage) {
       if (enabled) {

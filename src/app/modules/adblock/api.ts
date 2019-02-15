@@ -1,10 +1,8 @@
-import { injectable } from "inversify";
 import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
-import { SettingsStorage } from "../../settings-storage/SettingsStorage";
+import { ISettingsStorage } from "../../settings-storage/ISettingsStorage";
 
-@injectable()
 export class AdblockApi {
-  private _storage: SettingsStorage;
+  private _storage: ISettingsStorage;
 
   constructor(storageFactory: SettingsStorageFactory) {
     this._storage = storageFactory.createStorage("Adblock");

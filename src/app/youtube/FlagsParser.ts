@@ -20,11 +20,11 @@ export class FlagsParser {
     return FlagsParser.flagsToString(this._flags);
   }
 
-  private static _encodeComponent(value: string): string {
+  private static _encodeModule(value: string): string {
     return encodeURIComponent(value.replace(/\+/g, " "));
   }
 
-  private static _decodeComponent(value: string): string {
+  private static _decodeModule(value: string): string {
     return decodeURIComponent(value).replace(/\+/g, " ");
   }
 
@@ -32,7 +32,7 @@ export class FlagsParser {
     const tokens: string[] = [];
     for (let key in flags) {
       if (flags.hasOwnProperty(key)) {
-        tokens.push(FlagsParser._encodeComponent(key) + "=" + FlagsParser._encodeComponent(flags[key]));
+        tokens.push(FlagsParser._encodeModule(key) + "=" + FlagsParser._encodeModule(flags[key]));
       }
     }
 
@@ -48,7 +48,7 @@ export class FlagsParser {
     for (let i = 0; i < tokens.length; i++) {
       const [key, value] = tokens[i].split("=");
 
-      flags[this._decodeComponent(key || "")] = this._decodeComponent(value || "");
+      flags[this._decodeModule(key || "")] = this._decodeModule(value || "");
     }
 
     return flags;
