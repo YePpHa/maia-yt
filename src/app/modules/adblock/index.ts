@@ -1,15 +1,11 @@
-import { onPlayerData } from "../IComponent";
-import { PlayerConfig, PlayerData } from "../../youtube/PlayerConfig";
+import { onPlayerData } from "../IModule";
+import { PlayerData } from "../../youtube/PlayerConfig";
 import { Player } from "../../player/Player";
 import { Logger } from '../../libs/logging/Logger';
-import { EventType } from '../../youtube/EventType';
-import { ISettingsReact } from "../../settings-storage/ISettings";
 import { AdblockApi } from "./api";
-import { injectable } from "inversify";
-const logger = new Logger("AdblockComponent");
+const logger = new Logger("AdblockModule");
 
-@injectable()
-export class AdblockComponent implements onPlayerData {
+export class AdblockModule implements onPlayerData {
   private _api: AdblockApi;
 
   constructor(api: AdblockApi) {

@@ -1,11 +1,9 @@
 import { Component, h } from "preact";
-import { IContainerProps } from "../IContainerProps";
 
 import Formfield from 'preact-material-components/FormField';
 import Checkbox from 'preact-material-components/Checkbox';
-import Snackbar from 'preact-material-components/Snackbar';
 import Select from 'preact-material-components/Select';
-import { QualityApi } from "../../components/quality/api";
+import { QualityApi } from "../../modules/quality/api";
 import { PlaybackQuality } from "../../youtube/PlayerApi";
 
 import * as style from '../../../style/settings.scss';
@@ -25,59 +23,40 @@ const qualityOptions: { value: PlaybackQuality, text: string }[] = [
   { value: PlaybackQuality.Tiny, text: '144p' }
 ];
 
-export class Quality extends Component<IContainerProps, {}> {
-  private _api?: QualityApi;
+export class QualityRoute extends Component<{}, {}> {
+  private _api: QualityApi;
+  
+  public constructor(api: QualityApi) {
+    super();
 
-  private _snackbar?: Snackbar;
-
-  getApi(): QualityApi {
-    if (!this._api) {
-      this._api = this.props.container.get<QualityApi>(QualityApi);
-    }
-    return this._api;
+    this._api = api;
   }
 
-  showSnackbar(): void {
-    if (this._snackbar) {
-      this._snackbar.MDComponent.show({
-        message: "Settings saved!"
-      });
-    }
-  }
-
-  onEnableChange(e: Event): void {
+  public onEnableChange(e: Event): void {
     const target = e.target as HTMLInputElement;
     const checked = target.checked;
 
-    this.getApi().setEnabled(checked);
-
-    this.showSnackbar();
+    this._api.setEnabled(checked);
   }
 
-  onPreferHigherQuality(e: Event): void {
+  public onPreferHigherQuality(e: Event): void {
     const target = e.target as HTMLInputElement;
     const checked = target.checked;
 
-    this.getApi().setBetterQualityPreferred(checked);
-
-    this.showSnackbar();
+    this._api.setBetterQualityPreferred(checked);
   }
 
-  onQualityChange(e: SelectOnChangeEvent): void {
-    this.getApi().setQuality(qualityOptions[e.target.selectedIndex].value);
-
-    this.showSnackbar();
+  public onQualityChange(e: SelectOnChangeEvent): void {
+    this._api.setQuality(qualityOptions[e.target.selectedIndex].value);
   }
 
-  render(props: IContainerProps) {
+  public render() {
     const onEnableChange = (e: Event) => this.onEnableChange(e);
     const onPreferHigherQuality = (e: Event) => this.onPreferHigherQuality(e);
     
     const onQualityChange = (e: SelectOnChangeEvent) => this.onQualityChange(e);
 
-    const api = this.getApi();
-
-    const currentQuality = api.getQuality();
+    const currentQuality = this._api.getQuality();
     let qualityIndex = 0;
     for (let i = 0; i < qualityOptions.length; i++) {
       if (qualityOptions[i].value === currentQuality) {
@@ -91,13 +70,13 @@ export class Quality extends Component<IContainerProps, {}> {
         <h2>Quality</h2>
         <div>
           <Formfield>
-            <Checkbox id="enable" onChange={onEnableChange} checked={api.isEnabled()}></Checkbox>
+            <Checkbox id="enable" onChange={onEnableChange} checked={this._api.isEnabled()}></Checkbox>
             <label for="enable">Enable quality</label>
           </Formfield>
         </div>
         <div>
           <Formfield>
-            <Checkbox id="prefer_higher_quality" onChange={onPreferHigherQuality} checked={api.isBetterQualityPreferred()}></Checkbox>
+            <Checkbox id="prefer_higher_quality" onChange={onPreferHigherQuality} checked={this._api.isBetterQualityPreferred()}></Checkbox>
             <label for="prefer_higher_quality">Prefer higher quality</label>
           </Formfield>
         </div>
@@ -109,8 +88,6 @@ export class Quality extends Component<IContainerProps, {}> {
             ))}
           </Select>
         </div>
-
-        <Snackbar ref={(el: any) => { this._snackbar = el as Snackbar; }} />
       </div>
     );
   }

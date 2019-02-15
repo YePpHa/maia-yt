@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const interfaceTransformer = require('ts-di-transformer/transformer').default;
 
 const production = process.env.NODE_ENV === 'production';
 
@@ -41,9 +42,14 @@ const config = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader',
+            loader: 'awesome-typescript-loader',
             options: {
-              transpileOnly: false
+              transpileOnly: false,
+              getCustomTransformers: program => ({
+                before: [
+                  interfaceTransformer(program)
+                ]
+              })
             }
           }
         ]

@@ -1,16 +1,17 @@
-import "reflect-metadata";
 import { injectJSFile } from './libs/script';
 import { App } from './App';
 //import * as i18n from 'i18next';
-import { Storage } from './libs/storage/Storage';
+import { Storage } from './libs/storage/MechanismStorage';
 import { LocalStorageMechanism } from './libs/storage/mechanism/LocalStorageMechanism';
 import { EventHandler } from './libs/events/EventHandler';
 import { Mechanism } from './libs/storage/mechanism/Mechanism';
 import { Logger } from './libs/logging/Logger';
 import { WebExtensionMechanism } from './libs/storage/mechanism/WebExtensionMechanism';
 import * as browser from 'webextension-polyfill';
-import container from "../config/inversify.config";
 import { Settings } from "./settings";
+import { container } from "../config/config";
+import { InterfaceSymbol } from "ts-di-transformer/api";
+import { IStorage } from "./libs/storage/models/IStorage";
 const logger = new Logger("Bootstrap");
 
 /*i18n.init({
@@ -31,9 +32,9 @@ const run = async () => {
   }
   
   if (mechanism) {
-    container.bind<Storage>(Storage).toConstantValue(new Storage(mechanism));
+    container.bindToConstant(InterfaceSymbol<IStorage>(), new Storage(mechanism));
 
-    const app = new App(container);
+    const app = container.resolve(App);
     app.loadStorage();
     app.enterDocument();
   
@@ -50,7 +51,7 @@ const run = async () => {
             handler.dispose();
             document.body.innerHTML = "";
             document.head.innerHTML = "";
-            const settings = container.get<Settings>(Settings);
+            const settings = container.resolve(Settings);
             settings.render(settingsBasePath);
             break;
         }

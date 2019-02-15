@@ -34,119 +34,119 @@ export class Player extends EventTarget implements IPlayer {
     return this._port.callSync("player#api", this._id, name, ...args);
   }
 
-  setLoaded(loaded: boolean) {
+  public setLoaded(loaded: boolean) {
     return this._port.callSync("player#loaded", this._id, loaded);
   }
 
-  triggerKeyDown(keyCode: number, bubbles: boolean): boolean {
+  public triggerKeyDown(keyCode: number, bubbles: boolean): boolean {
     return this._port.callSync("player#events#keydown", this._id, keyCode, bubbles);
   }
 
-  setData(data: PlayerData): void {
+  public setData(data: PlayerData): void {
     this._data = Object.assign(this._data, data);
   }
 
-  getData(): PlayerData {
+  public getData(): PlayerData {
     return this._data;
   }
 
-  isDetailPage(): boolean {
+  public isDetailPage(): boolean {
     return this._data.el === PlayerType.DetailPage || !this._data.el;
   }
 
-  isProfilePage(): boolean {
+  public isProfilePage(): boolean {
     return this._data.el === PlayerType.ProfilePage;
   }
 
-  isEmbedded(): boolean {
+  public isEmbedded(): boolean {
     return this._data.el === PlayerType.Embedded;
   }
 
-  setAutoNavigationState(state: AutoNavigationState): void {
+  public setAutoNavigationState(state: AutoNavigationState): void {
     this._callApi('setAutonavState', state);
   }
 
-  getId(): string {
+  public getId(): string {
     return this._id;
   }
 
-  getElementId(): string {
+  public getElementId(): string {
     return this._elementId;
   }
 
-  getElement(): Element|null {
+  public getElement(): Element|null {
     return document.getElementById(this.getElementId());
   }
 
-  ready(): void {
+  public ready(): void {
     this._ready = true;
   }
 
-  isReady(): boolean {
+  public isReady(): boolean {
     return this._ready;
   }
 
-  play(): void {
+  public play(): void {
     this._callApi("playVideo");
   }
 
-  pause(): void {
+  public pause(): void {
     this._callApi("pauseVideo");
   }
 
-  stop(): void {
+  public stop(): void {
     this._callApi("stopVideo");
   }
   
-  cancelPlayback(): void {
+  public cancelPlayback(): void {
     this._callApi("cancelPlayback");
   }
   
-  clearVideo(): void {
+  public clearVideo(): void {
     this._callApi("clearVideo");
   }
 
-  seekBy(time: number): void {
+  public seekBy(time: number): void {
     this._callApi("seekBy", time);
   }
 
-  seekTo(time: number): void {
+  public seekTo(time: number): void {
     this._callApi("seekTo", time);
   }
 
-  loadVideoByPlayerVars(data: PlayerData): void {
+  public loadVideoByPlayerVars(data: PlayerData): void {
     this._callApi("loadVideoByPlayerVars", data);
   }
 
-  cueVideoByPlayerVars(data: PlayerData): void {
+  public cueVideoByPlayerVars(data: PlayerData): void {
     this._callApi("cueVideoByPlayerVars", data);
   }
   
-  getPlaybackQuality(): PlaybackQuality {
+  public getPlaybackQuality(): PlaybackQuality {
     return this._callApi("getPlaybackQuality");
   }
   
-  setPlaybackQuality(quality: PlaybackQuality): void {
+  public setPlaybackQuality(quality: PlaybackQuality): void {
     return this._callApi("setPlaybackQuality", quality);
   }
   
-  setPlaybackQualityRange(start: PlaybackQuality, end: PlaybackQuality): void {
+  public setPlaybackQualityRange(start: PlaybackQuality, end: PlaybackQuality): void {
     return this._callApi("setPlaybackQualityRange", start, end);
   }
 
-  getAvailableQualityLevels(): PlaybackQuality[] {
+  public getAvailableQualityLevels(): PlaybackQuality[] {
     return this._callApi("getAvailableQualityLevels");
   }
 
-  getMaxPlaybackQuality(): PlaybackQuality {
+  public getMaxPlaybackQuality(): PlaybackQuality {
     return this._callApi("getMaxPlaybackQuality");
   }
 
-  handleGlobalKeyDown(keyCode: number, bubbling: boolean): void {
+  public handleGlobalKeyDown(keyCode: number, bubbling: boolean): void {
     return this._callApi("handleGlobalKeyDown", keyCode, bubbling);
   }
 
-  getVideoData(): PlayerData {
+  public getVideoData(): PlayerData {
     return this._callApi("getVideoData");
   }
 }

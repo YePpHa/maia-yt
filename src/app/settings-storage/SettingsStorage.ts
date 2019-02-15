@@ -1,17 +1,17 @@
 import { ISettingsStorage } from "./ISettingsStorage";
-import { Storage } from '../libs/storage/Storage';
+import { IStorage } from "../libs/storage/models/IStorage";
 
 export class SettingsStorage implements ISettingsStorage {
   private _name: string;
   private _cache: any;
-  private _storage: Storage;
+  private _storage: IStorage;
 
-  constructor(name: string, storage: Storage) {
+  constructor(name: string, storage: IStorage) {
     this._name = name;
     this._storage = storage;
   }
 
-  getName(): string {
+  public getName(): string {
     return this._name;
   }
 
@@ -27,14 +27,14 @@ export class SettingsStorage implements ISettingsStorage {
     await this._storage.set("ComponentSettings_" + this._name, this._cache);
   }
 
-  set(key: string, value: any): void {
+  public set(key: string, value: any): void {
     if (!this._cache) throw new Error("Cache hasn't been created yet.");
     this._cache[key] = value;
 
     this._updateSettings();
   }
 
-  get(key: string, defaultValue?: any): any {
+  public get(key: string, defaultValue?: any): any {
     if (!this._cache) throw new Error("Cache hasn't been created yet.");
     if (this._cache.hasOwnProperty(key)) {
       return this._cache[key];
@@ -42,7 +42,7 @@ export class SettingsStorage implements ISettingsStorage {
     return defaultValue;
   }
 
-  remove(key: string): void {
+  public remove(key: string): void {
     if (!this._cache) throw new Error("Cache hasn't been created yet.");
     if (this._cache.hasOwnProperty(key)) {
       delete this._cache[key];

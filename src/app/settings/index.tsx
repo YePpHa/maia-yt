@@ -1,5 +1,4 @@
-import { render, h, Component } from "preact";
-import { injectable, Container } from "inversify";
+import { render, h } from "preact";
 
 import Router from 'preact-router';
 
@@ -9,29 +8,16 @@ import List from 'preact-material-components/List';
 
 import * as style from '../../style/settings.scss';
 import * as mdc from 'preact-material-components/style.css';
-import { Adblock } from "./routes/Adblock";
-import { AutoNavigation } from "./routes/AutoNavigation";
-import { AutoPlay } from "./routes/AutoPlay";
-import { PlayerElementsFocus } from "./routes/PlayerElementsFocus";
-import { Quality } from "./routes/Quality";
+import { IRoute } from "./IRoute";
 
-@injectable()
 export class Settings {
-  private _container: Container;
+  private _routes: IRoute[];
 
-  constructor(container: Container) {
-    this._container = container;
+  constructor(routes: IRoute[]) {
+    this._routes = routes;
   }
 
   render(baseUrl = "") {
-    const routes: { text: string, path: string, component: (new(...args: any[]) => Component<any, any>) }[] = [
-      { text: 'Adblock', path: '/adblock', component: Adblock },
-      { text: 'Auto navigation', path: '/auto-navigation', component: AutoNavigation },
-      { text: 'Auto play', path: '/auto-play', component: AutoPlay },
-      { text: 'Player elements focus', path: '/player-elements-focus', component: PlayerElementsFocus },
-      { text: 'Quality', path: '/quality', component: Quality }
-    ];
-
     const element = (
       <div>
         <TopAppBar onNav={() => {}}>
@@ -47,7 +33,7 @@ export class Settings {
           <Drawer>
             <Drawer.DrawerContent>
               <List>
-                {routes.map(({text, path}) => (
+                {this._routes.map(({text, path}) => (
                   <List.LinkItem href={baseUrl + path}>{text}</List.LinkItem>
                 ))}
               </List>
@@ -55,8 +41,8 @@ export class Settings {
           </Drawer>
           <main class={style.locals.main}>
             <Router>
-              {routes.map(({component: Element, path}) => (
-                <Element path={baseUrl + path} container={this._container} />
+              {this._routes.map(({element: Element, path}) => (
+                <Element path={baseUrl + path} />
               ))}
             </Router>
           </main>

@@ -1,7 +1,8 @@
 import { Mechanism } from './mechanism/Mechanism';
 import { ErrorCode } from './ErrorCode';
+import { IStorage } from './models/IStorage';
 
-export class Storage {
+export class Storage implements IStorage {
   constructor(
     protected mechanism: Mechanism
   ) {}

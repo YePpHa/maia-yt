@@ -1,11 +1,9 @@
 import { PlaybackQuality } from "../../youtube/PlayerApi";
-import { SettingsStorage } from "../../settings-storage/SettingsStorage";
+import { ISettingsStorage } from "../../settings-storage/ISettingsStorage";
 import { SettingsStorageFactory } from "../../settings-storage/SettingsStorageFactory";
-import { injectable } from "inversify";
 
-@injectable()
 export class QualityApi {
-  private _storage: SettingsStorage;
+  private _storage: ISettingsStorage;
 
   constructor(storageFactory: SettingsStorageFactory) {
     this._storage = storageFactory.createStorage("Quality");
