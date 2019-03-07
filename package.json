@@ -84,7 +84,7 @@
     "inversify": "^5.0.1",
     "preact": "^8.4.2",
     "preact-material-components": "^1.5.5",
-    "preact-router": "^2.6.1",
+    "preact-router": "^3.0.0",
     "reflect-metadata": "^0.1.13",
     "sprintf-js": "^1.1.2",
     "uuid": "^3.3.2",
