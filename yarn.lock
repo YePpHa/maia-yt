@@ -1043,10 +1043,10 @@
   resolved "https://registry.yarnpkg.com/@material/typography/-/typography-0.39.0.tgz#7d7468673e104609d926528ffe5571cfd44d8c3c"
   integrity sha512-S7YTR2mXuAaPvsgX6jyT1YvWQhH2xHWi+SKJvlunoF/Dw6vq6Ud+APmqigHVRPNCcFt4zkbM7C64IxYjjkIApQ==
 
-"@types/greasemonkey@^0.0.28":
-  version "0.0.28"
-  resolved "https://registry.yarnpkg.com/@types/greasemonkey/-/greasemonkey-0.0.28.tgz#bb03070b334964836343e00d264bd0ecff9ec60d"
-  integrity sha1-uwMHCzNJZINjQ+ANJkvQ7P+exg0=
+"@types/greasemonkey@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/greasemonkey/-/greasemonkey-4.0.0.tgz#c09c79bb6b5a45e0ab1bd65d7eb37323b04813af"
+  integrity sha512-l9Gvm6Bx40J3gtHZ8DfmyKkfTZ80IMEgGv3qjIZE5kmj+cVmY1Zji9oYXLG93qARv+aTvAjZ3+lXoARAfb6MnA==
 
 "@types/i18next@^12.1.0":
   version "12.1.0"
