@@ -73,7 +73,7 @@
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
     "uglifyjs-webpack-plugin": "^2.1.1",
-    "webpack": "^4.29.0",
+    "webpack": "^4.40.2",
     "webpack-cli": "^3.2.1",
     "wrapper-webpack-plugin": "^2.1.0"
   },
