@@ -78,7 +78,7 @@
     "wrapper-webpack-plugin": "^2.1.0"
   },
   "dependencies": {
-    "i18next": "^13.1.5",
+    "i18next": "^17.0.15",
     "i18next-resource-store-loader": "^0.1.2",
     "immutable": "^4.0.0-rc.12",
     "inversify": "^5.0.1",
