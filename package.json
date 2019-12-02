@@ -54,7 +54,7 @@
     "babel-loader": "^8.0.5",
     "babel-preset-es2015": "^6.24.1",
     "cross-env": "^5.2.0",
-    "css-loader": "^2.1.0",
+    "css-loader": "^3.2.1",
     "istanbul-instrumenter-loader": "^3.0.1",
     "jasmine-core": "^3.3.0",
     "karma": "^4.0.0",
