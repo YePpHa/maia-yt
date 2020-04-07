@@ -42,7 +42,7 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
     "@babel/plugin-transform-classes": "^7.9.5",
-    "@babel/plugin-transform-object-assign": "^7.2.0",
+    "@babel/plugin-transform-object-assign": "^7.8.3",
     "@babel/preset-env": "^7.3.1",
     "@types/greasemonkey": "^0.0.28",
     "@types/i18next": "^12.1.0",
