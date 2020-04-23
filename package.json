@@ -48,7 +48,7 @@
     "@types/i18next": "^12.1.0",
     "@types/jasmine": "^3.3.7",
     "@types/sprintf-js": "^1.1.1",
-    "@types/uuid": "^3.4.4",
+    "@types/uuid": "^7.0.3",
     "archiver": "^3.0.0",
     "async": "^2.6.1",
     "babel-loader": "^8.0.5",
