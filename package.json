@@ -82,7 +82,7 @@
     "i18next-resource-store-loader": "^0.1.2",
     "immutable": "^4.0.0-rc.12",
     "inversify": "^5.0.1",
-    "preact": "^8.4.2",
+    "preact": "^10.4.3",
     "preact-material-components": "^1.5.5",
     "preact-router": "^2.6.1",
     "reflect-metadata": "^0.1.13",
