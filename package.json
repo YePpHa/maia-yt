@@ -43,7 +43,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.10.1",
     "@babel/plugin-transform-classes": "^7.10.1",
     "@babel/plugin-transform-object-assign": "^7.10.1",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-env": "^7.10.2",
     "@types/greasemonkey": "^0.0.28",
     "@types/i18next": "^12.1.0",
     "@types/jasmine": "^3.3.7",
