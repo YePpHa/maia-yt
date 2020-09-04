@@ -67,7 +67,7 @@
     "karma-webpack": "^3.0.5",
     "memory-fs": "^0.4.1",
     "mkdirp": "^0.5.1",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.13.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
