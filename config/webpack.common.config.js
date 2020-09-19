@@ -52,7 +52,7 @@ const config = {
       {
         test: /\.scss$/,
         use: [
-          'style-loader',
+          { loader: 'style-loader', options: { injectType: 'lazyStyleTag' } },
           {
             loader: 'css-loader',
             options: {
@@ -65,7 +65,7 @@ const config = {
       {
         test: /\.css$/,
         use: [
-          'style-loader',
+          { loader: 'style-loader', options: { injectType: 'lazyStyleTag' } },
           {
             loader: 'css-loader',
             options: {
