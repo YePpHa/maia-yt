@@ -39,7 +39,7 @@ const run = async () => {
   
     injectJSFile(browser.runtime.getURL('inject.js'));
 
-    const settingsBasePath = "/settings/maia";
+    const settingsBasePath = "/account/settings-maia";
   
     if (location.hostname === "www.youtube.com" && location.pathname.substring(0, settingsBasePath.length) === settingsBasePath) {
       let handler = new EventHandler();
