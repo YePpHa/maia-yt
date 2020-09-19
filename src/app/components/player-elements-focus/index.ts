@@ -28,7 +28,7 @@ export class PlayerElementsFocusComponent implements onPlayerCreated {
     if (playerElement && (playerElement === e.target || playerElement.contains(e.target as Node)))
       return;
     const path = getPath(e.target as Node)
-      .map(node => (node as Element).tagName);
+      .map(node => (node as HTMLElement).tagName);
     if (path.findIndex(tagName => BLACKLISTED_TAGNAMES.indexOf(tagName) !== -1) !== -1) return;
 
     const api = this._api;

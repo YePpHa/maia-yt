@@ -6,7 +6,7 @@ import { EventType } from './EventType';
 import { Event } from '../libs/events/Event';
 import { PlayerData, PlayerConfig } from "./PlayerConfig";
 
-declare interface PlayerApiElement extends Element {
+declare interface PlayerApiElement extends HTMLElement {
   getApiInterface: () => string[];
 }
 
@@ -35,9 +35,9 @@ declare interface PlayVideoDetail {
 
 export class Player extends Component {
   private _id: string;
-  private _element: Element;
+  private _element?: HTMLElement;
   private _config: PlayerConfig;
-  private _port: ServicePort;
+  private _port?: ServicePort;
 
   private _api?: PlayerApi;
 
@@ -46,7 +46,7 @@ export class Player extends Component {
 
   private _playerListenable?: PlayerListenable;
 
-  constructor(id: string, element: Element, playerConfig: PlayerConfig, port: ServicePort) {
+  constructor(id: string, element: HTMLElement, playerConfig: PlayerConfig, port: ServicePort) {
     super();
     this._id = id;
     this._element = element;
@@ -82,11 +82,17 @@ export class Player extends Component {
     delete this._port;
   }
 
-  getElement(): Element {
+  getElement(): HTMLElement {
+    if (!this._element) {
+      throw new Error("Object has been disposed");
+    }
     return this._element;
   }
   
   callApi(name: string, ...args: any[]): any {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     let returnValue: { value: any }|undefined = undefined;
     switch (name) {
       case "addEventListener":
@@ -242,6 +248,9 @@ export class Player extends Component {
   }
 
   private _fireEvent(e: Event, type: EventType, ...args: any[]) {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     const preventDefault = this._port.callSync("player#event", this.getId(), type, ...args) as boolean;
 
     if (preventDefault) {

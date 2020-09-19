@@ -1,5 +1,4 @@
 import { ListenableKey } from './ListenableKey';
-import { Listenable } from './Listenable';
 import { Event, EventLike } from './Event';
 
 export interface Listenable {

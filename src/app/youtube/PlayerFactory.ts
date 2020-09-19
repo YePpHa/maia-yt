@@ -2,12 +2,11 @@ import { Component } from '../libs/Component';
 import { ServicePort } from '../libs/messaging/ServicePort';
 import { Player } from './Player';
 import { v4 as uuidv4 } from 'uuid';
-import { EventType } from './EventType';
 import { PlayerConfig } from './PlayerConfig';
 
 export class PlayerFactory extends Component {
-  private _port: ServicePort;
-  private _players: {[key: string]: Player} = {};
+  private _port?: ServicePort;
+  private _players?: {[key: string]: Player} = {};
 
   constructor(port: ServicePort) {
     super();
@@ -21,7 +20,11 @@ export class PlayerFactory extends Component {
    * @param id the id.
    * @return the player instance.
    */
-  createPlayer(element: Element, playerConfig: PlayerConfig, id?: string): Player {
+  createPlayer(element: HTMLElement, playerConfig: PlayerConfig, id?: string): Player {
+    if (!this._port || !this._players) {
+      throw new Error("Object has been disposed");
+    }
+
     if (!id) {
       id = uuidv4();
     }
@@ -46,6 +49,9 @@ export class PlayerFactory extends Component {
 
   /** @override */
   enterDocument() {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     super.enterDocument();
 
     this._port.registerService("player#api", this._handleApiCall, this);
@@ -55,6 +61,9 @@ export class PlayerFactory extends Component {
 
   /** @override */
   exitDocument() {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     this._port.deregisterService("player#api");
     this._port.deregisterService("player#loaded");
     this._port.deregisterService("player#events#keydown");
@@ -63,24 +72,33 @@ export class PlayerFactory extends Component {
   }
 
   private _handleApiCall(id: string, name: string, ...args: any[]): any {
-    let player = this._players[id];
+    if (!this._players) {
+      throw new Error("Object has been disposed");
+    }
+    const player = this._players[id];
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
     return (player.getApi() as any)[name].apply(null, args);
   }
 
   private _handlePlayerLoaded(id: string, loaded: boolean): void {
-    let player = this._players[id];
+    if (!this._players) {
+      throw new Error("Object has been disposed");
+    }
+    const player = this._players[id];
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
 
     player.setLoaded(loaded);
   }
 
   private _handleKeyboardEvent(id: string, keyCode: number, bubbles: boolean): boolean {
-    let player = this._players[id];
+    if (!this._players) {
+      throw new Error("Object has been disposed");
+    }
+    const player = this._players[id];
     if (!player) throw new Error("Player with " + id + " couldn't be found.");
 
     const target = player.getElement();
-    let evt = document.createEvent('event') as any;
+    const evt = document.createEvent('event') as any;
     evt.initEvent('keydown', bubbles, true);
 
     evt['keyCode'] = evt['charCode'] = evt['which'] = keyCode;
@@ -94,7 +112,7 @@ export class PlayerFactory extends Component {
    * Returns an array with all the player instances.
    */
   getPlayers(): Player[] {
-    let players: Player[] = [];
+    const players: Player[] = [];
     for (let key in this._players) {
       if (this._players.hasOwnProperty(key)) {
         players.push(this._players[key]);

@@ -1,7 +1,5 @@
 const path = require('path');
-const WrapperPlugin = require('wrapper-webpack-plugin');
-const merge = require('webpack-merge');
-const package = require('../package.json');
+const { merge } = require('webpack-merge');
 const common = require('./webpack.common.config.js');
 
 const config = merge(common, {

@@ -39,7 +39,7 @@ export class ServicePort extends Component {
   /**
    * The channel port.
    */
-  private _port: ChannelPort;
+  private _port?: ChannelPort;
 
   private _services: {[key: string]: {fn: Function, scope: Object|null|undefined}} = {};
   private _serviceInstances: {[key: string]: ServiceInstance} = {};
@@ -83,6 +83,9 @@ export class ServicePort extends Component {
    * Returns the port.
    */
   getPort(): ChannelPort {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     return this._port;
   }
 
@@ -120,6 +123,9 @@ export class ServicePort extends Component {
    * @param args the arguments that the service will be called with.
    */
   call(name: string, ...args: any[]): Promise<any>|any {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     let id = ++this._servicesResponseId + '';
     let request = {} as ServicePayloadCall;
     request.type = ServiceType.Call;
@@ -159,6 +165,9 @@ export class ServicePort extends Component {
    * @throws if service is async.
    */
   callSync(name: string, ...args: any[]): any {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     let id = ++this._servicesResponseId + '';
     let request = {} as ServicePayloadCall;
     request.type = ServiceType.Call;
@@ -198,6 +207,9 @@ export class ServicePort extends Component {
    * @throws if service is sync.
    */
   callAsync(name: string, ...args: any[]): Promise<any> {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     let id = ++this._servicesResponseId + '';
     let request = {} as ServicePayloadCall;
     request.type = ServiceType.Call;
@@ -259,57 +271,62 @@ export class ServicePort extends Component {
    * @param detail the detail.
    */
   private _handleCallMessage(detail: ServicePayloadCall) {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
+    const port = this._port
+
     // The ID is used for when sending a response.
-    let id = detail.id;
+    const id = detail.id;
 
     // The service name.
-    let name = detail.name;
+    const name = detail.name;
 
     if (this._services.hasOwnProperty(name)) {
       try {
-        let service = this._services[name];
-        let returnValue = service.fn.apply(service.scope, detail['arguments']);
+        const service = this._services[name];
+        const returnValue = service.fn.apply(service.scope, detail['arguments']);
         if (returnValue instanceof Promise) {
           returnValue
           .then((returnValue) => {
-            let response = {} as ServicePayloadResponse;
+            const response = {} as ServicePayloadResponse;
             response.id = id;
             response.type = ServiceType.CallResponse;
             response.returnValue = returnValue;
-            this._port.send(response);
+            port.send(response);
           }, (err: Error) => {
             console.error(err);
-            let response = {} as ServicePayloadError;
+            const response = {} as ServicePayloadError;
             response.id = id;
             response.type = ServiceType.CallResponseError;
             response.name = err.name;
             response.message = err.message;
             response.stack = err.stack;
-            this._port.send(response);
+            port.send(response);
           })
         } else {
-          let response = {} as ServicePayloadResponse;
+          const response = {} as ServicePayloadResponse;
           response.id = id;
           response.type = ServiceType.CallResponse;
           response.returnValue = returnValue;
-          this._port.send(response);
+          port.send(response);
         }
       } catch (err) {
-        let response = {} as ServicePayloadError;
+        const response = {} as ServicePayloadError;
         response.id = id;
         response.type = ServiceType.CallResponseError;
         response.name = err.name;
         response.message = err.message;
         response.stack = err.stack;
-        this._port.send(response);
+        port.send(response);
       }
     } else {
-      let response = {} as ServicePayloadError;
+      const response = {} as ServicePayloadError;
       response.id = id;
       response.type = ServiceType.CallResponseError;
       response.name = "Error";
       response.message = "Service with name (" + name + ") not found.";
-      this._port.send(response);
+      port.send(response);
     }
   }
 

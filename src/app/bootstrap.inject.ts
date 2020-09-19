@@ -6,7 +6,7 @@ import { Player } from './youtube/Player';
 import { PlayerConfig, PlayerData, PlayerType } from './youtube/PlayerConfig';
 import { v4 as uuidv4 } from 'uuid';
 
-declare interface YTWindow extends Window {
+declare interface YTWindow {
   yt: {
     player?: {
       Application?: {
@@ -64,11 +64,11 @@ const containsPlayerListeners = (obj: Object): boolean => {
 };
 
 const getPlayerApi = (player: any): {
-  element: Element|undefined,
+  element: HTMLElement|undefined,
   api: {[key: string]: Function}|undefined,
   internalApi: {[key: string]: Function}|undefined
 } => {
-  let element: Element|undefined = undefined;
+  let element: HTMLElement|undefined = undefined;
   let api: {[key: string]: Function}|undefined = undefined;
   let internalApi: {[key: string]: Function}|undefined = undefined;
 
@@ -84,7 +84,7 @@ const getPlayerApi = (player: any): {
     for (let key in app) {
       if (typeof app[key] !== 'object' || !app[key] || key === "app") continue;
 
-      if (app[key] instanceof Element) {
+      if (app[key] instanceof HTMLElement) {
         element = app[key];
       } else if (app[key].hasOwnProperty("getApiInterface")) {
         api = app[key];
@@ -133,7 +133,7 @@ let appliedAutoPlayPatch = false;
 const applyAutoPlayPatch = () => {
   if (appliedAutoPlayPatch) return;
   appliedAutoPlayPatch = true;
-  let win = window as YTWindow;
+  let win = window as any as YTWindow;
   for (let key in win._yt_player) {
     if (win._yt_player.hasOwnProperty(key) && typeof win._yt_player[key] === "function") {
       const fn = win._yt_player[key];
@@ -257,7 +257,7 @@ playerFactory.enterDocument();
 
 port.connect("background");
 
-let win = window as YTWindow;
+let win = window as any as YTWindow;
 
 // If the player has already been created add it.
 if (win.ytplayer && win.ytplayer.config

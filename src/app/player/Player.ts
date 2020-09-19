@@ -7,7 +7,7 @@ import { PlaybackQuality, AutoNavigationState } from '../youtube/PlayerApi';
 export class Player extends EventTarget implements IPlayer {
   private _id: string;
   private _elementId: string;
-  private _port: ServicePort;
+  private _port?: ServicePort;
   private _data: PlayerData = {};
 
   /**
@@ -26,19 +26,27 @@ export class Player extends EventTarget implements IPlayer {
   protected disposeInternal() {
     super.disposeInternal();
 
-    delete this._id;
     delete this._port;
   }
 
   private _callApi(name: string, ...args: any[]): any {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     return this._port.callSync("player#api", this._id, name, ...args);
   }
 
   setLoaded(loaded: boolean) {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     return this._port.callSync("player#loaded", this._id, loaded);
   }
 
   triggerKeyDown(keyCode: number, bubbles: boolean): boolean {
+    if (!this._port) {
+      throw new Error("Object has been disposed");
+    }
     return this._port.callSync("player#events#keydown", this._id, keyCode, bubbles);
   }
 
@@ -74,7 +82,7 @@ export class Player extends EventTarget implements IPlayer {
     return this._elementId;
   }
 
-  getElement(): Element|null {
+  getElement(): HTMLElement|null {
     return document.getElementById(this.getElementId());
   }
 

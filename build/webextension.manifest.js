@@ -26,15 +26,13 @@ const generateManifestContent = () => {
 
 const dist = path.join(__dirname, '../dist/webextension');
 
-mkdirp(dist, (err) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-
+mkdirp(dist)
+.then(() => {
   const data = generateManifestContent();
 
   fs.writeFile(path.join(dist, 'manifest.json'), data, (err) => {
     if (err) console.error(err);
-  })
+  });
+}, (err) => {
+  console.error(err);
 });
